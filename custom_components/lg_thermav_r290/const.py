@@ -12,6 +12,7 @@ CONF_SCAN_INTERVAL = "scan_interval"
 CONF_EXPERIMENTAL = "experimental_registers"
 CONF_ENERGY_REGISTERS = "energy_registers"
 CONF_MODULATION_LIMIT = "compressor_modulation_limit"
+CONF_POWER_LIMIT = "power_limit"
 
 CONNECTION_TCP = "tcp"
 CONNECTION_TCP_RTU = "tcp_rtu"
@@ -72,3 +73,7 @@ WRITABLE_HOLDING_REGISTERS = frozenset({0, 1, 2, 4, 5, 7, 8})
 # the compressor modulation limit (see limits.py), which not every unit serves.
 OPTIONAL_WRITABLE_HOLDING_REGISTERS = frozenset({23})
 WRITABLE_COILS = frozenset({0, 1, 2, 3, 4})
+# Writable only while the (unverified) power limit option is on: holding 24 is
+# the power limit in tenths of a kW, coil 6 switches it (see power_limit.py).
+POWER_LIMIT_WRITABLE_HOLDING_REGISTERS = frozenset({24})
+POWER_LIMIT_WRITABLE_COILS = frozenset({6})

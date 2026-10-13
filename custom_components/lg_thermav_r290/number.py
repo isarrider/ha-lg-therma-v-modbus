@@ -11,14 +11,15 @@ from homeassistant.components.number import (
     NumberMode,
 )
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.const import PERCENTAGE, UnitOfTemperature
+from homeassistant.const import PERCENTAGE, UnitOfPower, UnitOfTemperature
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers import entity_registry as er
 from homeassistant.helpers.device_registry import DeviceInfo
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
-from .const import CONF_MODULATION_LIMIT, DOMAIN
+from . import power_limit
+from .const import CONF_MODULATION_LIMIT, CONF_POWER_LIMIT, DOMAIN
 from .coordinator import LGThermaVCoordinator
 from .limits import (
     DATA_KEY_LIMIT,
@@ -151,7 +152,21 @@ async def async_setup_entry(
         entities.append(LGModulationLimitNumber(coordinator, entry))
     else:
         _remove_modulation_limit_entity(hass, entry)
+    if entry.options.get(CONF_POWER_LIMIT, False):
+        entities.append(LGPowerLimitNumber(coordinator, entry))
+    else:
+        _remove_number(hass, entry, power_limit.NUMBER_UNIQUE_ID_SUFFIX)
     async_add_entities(entities)
+
+
+def _remove_number(hass: HomeAssistant, entry: ConfigEntry, suffix: str) -> None:
+    """Drop an optional number entity when its option is switched off."""
+    registry = er.async_get(hass)
+    entity_id = registry.async_get_entity_id(
+        "number", DOMAIN, f"{entry.entry_id}_{suffix}"
+    )
+    if entity_id is not None:
+        registry.async_remove(entity_id)
 
 
 def _remove_modulation_limit_entity(hass: HomeAssistant, entry: ConfigEntry) -> None:
@@ -267,5 +282,61 @@ class LGModulationLimitNumber(CoordinatorEntity[LGThermaVCoordinator], NumberEnt
     async def async_set_native_value(self, value: float) -> None:
         await self.coordinator.async_write_register(
             MODULATION_LIMIT_REGISTER, encode_modulation_limit(value)
+        )
+        await self.coordinator.async_request_refresh()
+
+
+class LGPowerLimitNumber(CoordinatorEntity[LGThermaVCoordinator], NumberEntity):
+    """Max electrical power, holding register 24. UNVERIFIED (power_limit.py).
+
+    Only created when the power limit option is on. Raw 0 has no place on a
+    0.1-25.0 kW slider and is shown as unknown, with the raw value as an
+    attribute. Writes are clamped to 0.1-25.0 kW and go through the
+    coordinator, which accepts register 24 only while the option is on; the
+    coordinator is refreshed after every write, so the slider shows what the
+    unit actually stored. Whether the limit is applied is coil 6's switch.
+    """
+
+    _attr_has_entity_name = True
+    _attr_name = "Max Electrical Power"
+    _attr_icon = "mdi:flash"
+    _attr_native_min_value = power_limit.POWER_LIMIT_MIN_KW
+    _attr_native_max_value = power_limit.POWER_LIMIT_MAX_KW
+    _attr_native_step = 0.1
+    _attr_native_unit_of_measurement = UnitOfPower.KILO_WATT
+    _attr_mode = NumberMode.SLIDER
+
+    def __init__(self, coordinator: LGThermaVCoordinator, entry: ConfigEntry) -> None:
+        super().__init__(coordinator)
+        self._attr_unique_id = f"{entry.entry_id}_{power_limit.NUMBER_UNIQUE_ID_SUFFIX}"
+        self._attr_device_info = _device_info(entry)
+
+    @property
+    def available(self) -> bool:
+        return (
+            super().available
+            and self.coordinator.data is not None
+            and power_limit.DATA_KEY_RAW in self.coordinator.data
+        )
+
+    @property
+    def native_value(self) -> float | None:
+        if self.coordinator.data is None:
+            return None
+        return self.coordinator.data.get(power_limit.DATA_KEY_KW)
+
+    @property
+    def extra_state_attributes(self) -> dict[str, int | None]:
+        data = self.coordinator.data
+        return {
+            "modbus_register": 40001 + power_limit.POWER_LIMIT_REGISTER,
+            "register_value": None
+            if data is None
+            else data.get(power_limit.DATA_KEY_RAW),
+        }
+
+    async def async_set_native_value(self, value: float) -> None:
+        await self.coordinator.async_write_register(
+            power_limit.POWER_LIMIT_REGISTER, power_limit.encode(value)
         )
         await self.coordinator.async_request_refresh()

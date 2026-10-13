@@ -43,7 +43,7 @@ Nothing in the manual or in the community projects I could find explains them. T
 
 Switch it on under *Settings → Devices & Services → LG ThermaV R290 → Configure → Experimental registers*. This adds 18 diagnostic sensors named `Experimental Input 30015`, `Experimental Holding 40011`, … They carry the raw, unscaled 16-bit value and have long-term statistics, so they can be compared with compressor speed, temperatures and defrost cycles. Switching the option off removes them again.
 
-**They are read-only.** The integration only ever writes a fixed list of known addresses (holding 0, 1, 2, 4, 5, 7, 8 and coils 0–4, plus holding 23 while the compressor modulation limit option is on); every other write is refused before it reaches the bus, so none of these registers can be written by the integration, whichever entity or service asks. A register that stops answering leaves its sensor empty and does not affect the other values.
+**They are read-only.** The integration only ever writes a fixed list of known addresses (holding 0, 1, 2, 4, 5, 7, 8 and coils 0–4, plus holding 23 while the compressor modulation limit option is on, and holding 24 and coil 6 while the power limit option is on); every other write is refused before it reaches the bus, so none of these registers can be written by the integration, whichever entity or service asks. A register that stops answering leaves its sensor empty and does not affect the other values.
 
 The full result of the scan, what the manual lists and what it does not, is in [docs/register-scan.md](docs/register-scan.md).
 
@@ -102,6 +102,7 @@ The config flow asks for connection type first, then connection-specific paramet
 | Poll interval | 30 s | Adjustable in Options |
 | Energy registers | off | Options; input 34–51, not served by every unit |
 | Compressor modulation limit | off | Options; holding 23, not served by every unit |
+| Power limit (unverified) | off | Options; holding 24 + coil 6, unverified, see below |
 
 ---
 
@@ -220,6 +221,7 @@ The option also adds `sensor.lg_thermav_r290_cop_current`: the unit's thermal po
 | `switch.lg_thermav_r290_dhw` | Coil 1 |
 | `switch.lg_thermav_r290_silent_mode` | Coil 2 |
 | `switch.lg_thermav_r290_emergency_stop` | Coil 4 |
+| `switch.lg_thermav_r290_power_limitation` | Coil 6 (optional, unverified, see [Power limit](#power-limit-optional-unverified)) |
 
 ### Buttons
 
@@ -257,6 +259,22 @@ Switch on **Compressor modulation limit** in the integration's options. Holding 
 - While the unit reports 0 (no limit), the slider shows *unknown*; the attributes `register_value` and `limit_active` show the raw state.
 - A unit that does not answer leaves the slider unavailable, with the same back-off as the energy registers. Switching the option off removes the entity.
 
+#### Power limit (optional, unverified)
+
+> **Unverified.** These two addresses come from a community forum. Nobody has confirmed on an R290 that writing them has any effect. Enable only to test.
+
+Switch on **Power limit (unverified)** in the integration's options. This adds:
+
+| Entity | Range | Register |
+|---|---|---|
+| `number.lg_thermav_r290_max_electrical_power` | 0.1–25.0 kW | Holding 24 (40025), tenths of a kW |
+| `switch.lg_thermav_r290_power_limitation` | on / off | Coil 6 (00007) |
+
+- The 9 kW unit in [docs/register-scan.md](docs/register-scan.md) does not answer on either address; on other units it is untested.
+- Both are writable **only while the option is on**; with it off the integration refuses every write to them. Every power value is clamped to 0.1–25.0 kW, and both are read back after a write, so the entities show what the unit stored.
+- A raw 0 in holding 24 shows as *unknown*; the raw value is in the `register_value` attribute.
+- If the unit does not answer, both entities stay unavailable, with the same back-off as the other optional registers. Switching the option off removes them.
+
 ### Select inputs
 
 | Entity | Options | Holding register |
@@ -275,6 +293,8 @@ Switch on **Compressor modulation limit** in the integration's options. Holding 
 | FC04 (input) | 9997–9998 | Product info, device group |
 | FC03 (holding) | 0–9 | Operation mode, control method, setpoints, shift values, energy state |
 | FC03 (holding) | 23 | Optional: max compressor modulation (writable while the option is on) |
+| FC03 (holding) | 24 | Optional, unverified: power limit in 0.1 kW (writable while the option is on) |
+| FC01 (coils) | 6 | Optional, unverified: power limitation on/off (writable while the option is on) |
 | FC01 (coils) | 0–4 | Main switch, DHW, silent mode, disinfection trigger, emergency stop |
 | FC02 (discrete) | 0–16 | Status bits (compressor, pumps, defrost, faults, …) |
 

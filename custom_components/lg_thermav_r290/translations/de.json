@@ -53,11 +53,13 @@
           "scan_interval": "Abfrageintervall (Sekunden)",
           "energy_registers": "Energieregister",
           "compressor_modulation_limit": "Begrenzung der Verdichtermodulation",
+          "power_limit": "Leistungsbegrenzung (ungeprüft)",
           "experimental_registers": "Experimentelle Register"
         },
         "data_description": {
           "energy_registers": "Legt schreibgeschützte Sensoren für elektrische Leistung, kumulierte Energie, Bedarf vs. Versorgung und thermische Leistung aus den Input-Registern 34-51 an (32-Bit-Werte). Nicht jedes Gerät liefert sie: Antwortet das Gerät nicht, bleiben die Sensoren ohne Wert und es wird nur alle paar Abfragen erneut versucht.",
           "compressor_modulation_limit": "Legt einen Schieberegler (40-100 %) für die maximale Verdichtermodulation an, Holding-Register 23. Nicht jedes Gerät liefert es; solange es nicht antwortet, bleibt der Regler nicht verfügbar. Geschrieben werden kann das Register nur, solange diese Option aktiv ist.",
+          "power_limit": "Legt einen Schieberegler (0,1-25,0 kW) für Holding-Register 24 und einen Schalter für Coil 6 an, die aktive Leistungsbegrenzung laut einem Community-Forum. Auf keiner R290 geprüft: Ob Schreiben darauf eine Wirkung hat, ist unbekannt. Nicht jedes Gerät liefert sie; solange sie nicht antworten, bleiben die Entitäten nicht verfügbar. Geschrieben werden können sie nur, solange diese Option aktiv ist.",
           "experimental_registers": "Legt schreibgeschützte Sensoren für 18 Register an, die das Gerät beantwortet, die aber nicht im Handbuch stehen. Es wird nie darauf geschrieben. Gedacht zum Sammeln von Daten über längere Zeit."
         }
       }

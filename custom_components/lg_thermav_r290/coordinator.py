@@ -18,11 +18,14 @@ from .const import (
     CONF_ENERGY_REGISTERS,
     CONF_EXPERIMENTAL,
     CONF_MODULATION_LIMIT,
+    CONF_POWER_LIMIT,
     CONF_SCAN_INTERVAL,
     CONF_SLAVE_ID,
     DEFAULT_SCAN_INTERVAL,
     DOMAIN,
     OPTIONAL_WRITABLE_HOLDING_REGISTERS,
+    POWER_LIMIT_WRITABLE_COILS,
+    POWER_LIMIT_WRITABLE_HOLDING_REGISTERS,
     WRITABLE_COILS,
     WRITABLE_HOLDING_REGISTERS,
 )
@@ -35,6 +38,8 @@ from .energy import (
 from .experimental import EXPERIMENTAL_BLOCKS, INPUT_FROM_MAIN_READ, register_key
 from .limits import MODULATION_LIMIT_REGISTER
 from .limits import decode as decode_modulation_limit
+from .power_limit import POWER_LIMIT_COIL, POWER_LIMIT_REGISTER
+from .power_limit import decode as decode_power_limit
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -77,6 +82,16 @@ class LGThermaVCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             if self._modulation_limit
             else WRITABLE_HOLDING_REGISTERS
         )
+        # Same for the unverified power limit: holding 24 and coil 6 join the
+        # whitelists only while its option is on.
+        self._power_limit = bool(entry.options.get(CONF_POWER_LIMIT, False))
+        self._power_limit_backoff = RetryBackoff()
+        self._writable_coils = WRITABLE_COILS
+        if self._power_limit:
+            self._writable_holding = (
+                self._writable_holding | POWER_LIMIT_WRITABLE_HOLDING_REGISTERS
+            )
+            self._writable_coils = WRITABLE_COILS | POWER_LIMIT_WRITABLE_COILS
 
         scan_interval = entry.options.get(
             CONF_SCAN_INTERVAL,
@@ -125,11 +140,13 @@ class LGThermaVCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         experimental = await self._async_read_experimental(inp_hi)
         energy = await self._async_read_energy()
         modulation_limit = await self._async_read_modulation_limit()
+        power_limit = await self._async_read_power_limit()
 
         return {
             **experimental,
             **energy,
             **modulation_limit,
+            **power_limit,
             # Input registers (raw × scale)
             # inp_lo[n] = register n  (0-13)
             # inp_hi[n] = register 16+n (16-24)
@@ -310,6 +327,35 @@ class LGThermaVCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         self._modulation_backoff.record(True)
         return decode_modulation_limit(registers[0])
 
+    async def _async_read_power_limit(self) -> dict[str, float | int | bool | None]:
+        """Read holding 24 and coil 6, when the unverified option asks for it.
+
+        Each is a request of its own: neither is part of the documented
+        blocks, and one unanswered address would drop a whole block. The pair
+        is treated as one feature, so the entities are only populated when
+        both answer. Same back-off as the other optional reads.
+        """
+        if not self._power_limit or not self._power_limit_backoff.should_try():
+            return {}
+        try:
+            registers = await self.unit.read_holding_registers(POWER_LIMIT_REGISTER, 1)
+            coils = await self.unit.read_coils(POWER_LIMIT_COIL, 1)
+        except ModbusError as exc:
+            if self._power_limit_backoff.record(False):
+                _LOGGER.warning(
+                    "Power limit (holding %d, coil %d) did not answer; pausing "
+                    "the read for a while. This unit may not serve it - switch "
+                    "the option off in the integration's options if so (%s)",
+                    POWER_LIMIT_REGISTER,
+                    POWER_LIMIT_COIL,
+                    exc,
+                )
+            else:
+                _LOGGER.debug("Power limit not read: %s", exc)
+            return {}
+        self._power_limit_backoff.record(True)
+        return decode_power_limit(registers[0], coils[0])
+
     async def async_write_coil(self, address: int, value: bool) -> None:
         """Write a single coil register (FC05).
 
@@ -317,7 +363,7 @@ class LGThermaVCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         press or a switch being thrown, and a control that reports success
         while the machine did not move is worse than one that reports an error.
         """
-        if address not in WRITABLE_COILS:
+        if address not in self._writable_coils:
             raise HomeAssistantError(f"Coil {address} is not writable")
         try:
             await self.unit.write_coil(address, value)
