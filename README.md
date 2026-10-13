@@ -123,6 +123,7 @@ The config flow asks for connection type first, then connection-specific paramet
 | `sensor.lg_thermav_r290_low_pressure_evaporator` | Low pressure (evaporator) | bar |
 | `sensor.lg_thermav_r290_compressor_speed` | Compressor speed | rpm |
 | `sensor.lg_thermav_r290_error_code` | Error code | — |
+| `sensor.lg_thermav_r290_odu_operation_state` | Outdoor unit operation cycle, input 1 (label; *not yet verified*, see Notes) | — |
 | `sensor.lg_thermav_r290_thermal_power_total` | Total thermal power output | W |
 | `sensor.lg_thermav_r290_thermal_power_heating_circuit` | Heating circuit thermal power | W |
 | `sensor.lg_thermav_r290_thermal_power_dhw` | DHW thermal power | W |
@@ -279,6 +280,7 @@ Switch on **Compressor modulation limit** in the integration's options. Holding 
 ## Notes
 
 - Flow rate uses Home Assistant's unit `L/min` and device class `volume_flow_rate` (before: plain `l/min`, no device class). The values are the same, but after updating, *Developer tools → Statistics* may report that the unit of `sensor.lg_thermav_r290_flow_rate` changed; choose *Update the unit* there, nothing needs converting.
+- **ODU operation state (input 1) is not yet verified.** The labels follow LG's table for register 30002: 0 Standby/Off, 1 Cooling, 2 Heating. A community YAML setup comments the same register as 0 Off, 1 Standby, 2 Running, 3 Defrost. Any value outside LG's table is shown as the number itself. The raw sensor `sensor.lg_thermav_r290_operation_cycle_odu` is unchanged. Comparing its history with the compressor and defrost sensors will show which reading is right.
 - Thermal power formula: `Q [W] = (flow_rate [l/min] / 60) × (outlet_temp − inlet_temp) [K] × 4186 [J/(l·K)]`
 - Heating circuit / DHW split is based on the `di_dhw_heating` discrete input; when DHW is active the full flow is attributed to DHW and the heating circuit sensor reports 0, and vice versa.
 - Shift values (holding regs 4, 7) are stored as two's-complement uint16; values ≥ 32768 are interpreted as negative.

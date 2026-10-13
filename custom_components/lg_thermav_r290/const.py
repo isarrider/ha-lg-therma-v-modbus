@@ -50,6 +50,18 @@ CONTROL_METHOD_FROM_VALUE = {
     2: "Room Air Control",
 }
 
+# ODU operation cycle (input reg 1, 30002) read-only label map.
+# NOT YET VERIFIED on an R290. This follows LG's table for 30002 (standby/off,
+# cooling, heating). A community YAML setup comments the register differently
+# (0 off, 1 standby, 2 running, 3 defrost). Until a unit's history shows which
+# is right, any value not listed here is shown as the number itself, so a 3
+# during defrost would stay visible rather than be mislabelled.
+ODU_OPERATION_CYCLE_LABELS = {
+    0: "Standby/Off",
+    1: "Cooling",
+    2: "Heating",
+}
+
 # Energy state (holding reg 9) read-only label map
 ENERGY_STATE_LABELS = {
     0: "Not Used",

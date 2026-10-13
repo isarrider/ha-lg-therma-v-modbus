@@ -31,6 +31,7 @@ from .const import (
     CONTROL_METHOD_FROM_VALUE,
     DOMAIN,
     ENERGY_STATE_LABELS,
+    ODU_OPERATION_CYCLE_LABELS,
     OPERATION_MODE_FROM_VALUE,
 )
 from .coordinator import LGThermaVCoordinator
@@ -301,6 +302,19 @@ async def async_setup_entry(
             ENERGY_STATE_LABELS,
             "energy_state_raw",
             "mdi:lightning-bolt",
+        )
+    )
+    # Label for input 1; the raw "Operation Cycle (ODU)" sensor stays as it
+    # is, so its history and automations built on the number are untouched.
+    entities.append(
+        LGMappedSensor(
+            coordinator,
+            entry,
+            "odu_operation_cycle_label",
+            "ODU Operation State",
+            ODU_OPERATION_CYCLE_LABELS,
+            "odu_operation_cycle",
+            "mdi:hvac",
         )
     )
     # Computed thermal power sensors (Q = flow/60 * ΔT * cp_water)
