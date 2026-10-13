@@ -201,5 +201,298 @@
     "progress": {
       "detect": "Prüfe, auf welche optionalen Register dieses Gerät antwortet. Ein Gerät, das eine Gruppe nicht liefert, antwortet gar nicht; das kann bis zu etwa 30 Sekunden dauern."
     }
+  },
+  "entity": {
+    "binary_sensor": {
+      "water_flow": {
+        "name": "Wasserdurchfluss"
+      },
+      "water_pump": {
+        "name": "Wasserpumpe"
+      },
+      "external_water_pump": {
+        "name": "Externe Wasserpumpe"
+      },
+      "compressor": {
+        "name": "Verdichter"
+      },
+      "defrost": {
+        "name": "Abtauen"
+      },
+      "dhw_heating": {
+        "name": "Warmwasserbereitung"
+      },
+      "dhw_disinfection": {
+        "name": "Warmwasser-Desinfektion"
+      },
+      "silent_mode": {
+        "name": "Ruhemodus"
+      },
+      "cooling_active": {
+        "name": "Kühlen aktiv"
+      },
+      "solar_pump": {
+        "name": "Solarpumpe"
+      },
+      "backup_heater_step_1": {
+        "name": "Heizstab Stufe 1"
+      },
+      "backup_heater_step_2": {
+        "name": "Heizstab Stufe 2"
+      },
+      "dhw_boost_heater": {
+        "name": "Warmwasser-Zusatzheizung"
+      },
+      "fault": {
+        "name": "Störung"
+      },
+      "emergency_heating_cooling_available": {
+        "name": "Notbetrieb Heizen/Kühlen verfügbar"
+      },
+      "emergency_dhw_available": {
+        "name": "Notbetrieb Warmwasser verfügbar"
+      },
+      "mixing_pump": {
+        "name": "Mischerpumpe"
+      },
+      "energy_state_not_used": {
+        "name": "Energiezustand: Nicht verwendet"
+      },
+      "energy_state_forced_off": {
+        "name": "Energiezustand: Zwangsabschaltung"
+      },
+      "energy_state_normal_operation": {
+        "name": "Energiezustand: Normalbetrieb"
+      },
+      "energy_state_on_recommendation": {
+        "name": "Energiezustand: Einschaltempfehlung"
+      },
+      "energy_state_on_command": {
+        "name": "Energiezustand: Einschaltbefehl"
+      },
+      "energy_state_on_command_step_2": {
+        "name": "Energiezustand: Einschaltbefehl Stufe 2"
+      },
+      "energy_state_on_recommendation_step_1": {
+        "name": "Energiezustand: Einschaltempfehlung Stufe 1"
+      },
+      "energy_state_energy_saving_mode": {
+        "name": "Energiezustand: Energiesparmodus"
+      },
+      "energy_state_super_energy_saving_mode": {
+        "name": "Energiezustand: Super-Energiesparmodus"
+      }
+    },
+    "button": {
+      "start_disinfection": {
+        "name": "Desinfektion starten"
+      },
+      "start_emergency_operation": {
+        "name": "Notbetrieb starten"
+      }
+    },
+    "number": {
+      "target_temperature_circuit_1_radiators": {
+        "name": "Solltemperatur Kreis 1 (Heizkörper)"
+      },
+      "target_temperature_circuit_2_underfloor": {
+        "name": "Solltemperatur Kreis 2 (Fußbodenheizung)"
+      },
+      "dhw_target_temperature": {
+        "name": "Warmwasser-Solltemperatur"
+      },
+      "setpoint_shift_circuit_1": {
+        "name": "Sollwertverschiebung Kreis 1"
+      },
+      "setpoint_shift_circuit_2": {
+        "name": "Sollwertverschiebung Kreis 2"
+      },
+      "max_compressor_modulation": {
+        "name": "Max. Verdichtermodulation"
+      },
+      "max_electrical_power": {
+        "name": "Max. elektrische Leistung"
+      }
+    },
+    "select": {
+      "operation_mode": {
+        "name": "Betriebsart"
+      },
+      "control_method": {
+        "name": "Regelungsart"
+      }
+    },
+    "sensor": {
+      "inlet_temperature": {
+        "name": "Rücklauftemperatur"
+      },
+      "outlet_temperature": {
+        "name": "Vorlauftemperatur"
+      },
+      "backup_heater_outlet_temperature": {
+        "name": "Vorlauftemperatur nach Heizstab"
+      },
+      "dhw_temperature": {
+        "name": "Warmwassertemperatur"
+      },
+      "solar_collector_temperature": {
+        "name": "Solarkollektortemperatur"
+      },
+      "room_air_temperature_circuit_1": {
+        "name": "Raumlufttemperatur Kreis 1"
+      },
+      "room_air_temperature_circuit_2": {
+        "name": "Raumlufttemperatur Kreis 2"
+      },
+      "flow_temperature_circuit_2": {
+        "name": "Vorlauftemperatur Kreis 2"
+      },
+      "outdoor_temperature": {
+        "name": "Außentemperatur"
+      },
+      "flow_rate": {
+        "name": "Durchfluss"
+      },
+      "water_pressure": {
+        "name": "Wasserdruck"
+      },
+      "liquid_gas_temperature": {
+        "name": "Flüssiggastemperatur"
+      },
+      "suction_temperature": {
+        "name": "Sauggastemperatur"
+      },
+      "hot_gas_temperature": {
+        "name": "Heißgastemperatur"
+      },
+      "temperature_before_evaporator": {
+        "name": "Temperatur vor Verdampfer"
+      },
+      "temperature_after_evaporator": {
+        "name": "Temperatur nach Verdampfer"
+      },
+      "high_pressure_condenser": {
+        "name": "Hochdruck (Verflüssiger)"
+      },
+      "low_pressure_evaporator": {
+        "name": "Niederdruck (Verdampfer)"
+      },
+      "compressor_speed": {
+        "name": "Verdichterdrehzahl"
+      },
+      "error_code": {
+        "name": "Fehlercode"
+      },
+      "operation_cycle_odu": {
+        "name": "Betriebszyklus (Außeneinheit)"
+      },
+      "energy_control_signal": {
+        "name": "Energiesteuersignal"
+      },
+      "device_group": {
+        "name": "Gerätegruppe"
+      },
+      "product_information": {
+        "name": "Produktinformation"
+      },
+      "target_room_air_temperature_circuit_1": {
+        "name": "Soll-Raumlufttemperatur Kreis 1"
+      },
+      "target_room_air_temperature_circuit_2": {
+        "name": "Soll-Raumlufttemperatur Kreis 2"
+      },
+      "operation_mode": {
+        "name": "Betriebsart"
+      },
+      "control_method": {
+        "name": "Regelungsart"
+      },
+      "operation_state_odu": {
+        "name": "Betriebszustand (Außeneinheit)"
+      },
+      "energy_state": {
+        "name": "Energiezustand"
+      },
+      "energy_state_reported": {
+        "name": "Energiezustand (gemeldet)"
+      },
+      "thermal_power_calculated": {
+        "name": "Thermische Leistung (berechnet)"
+      },
+      "thermal_power_heating_circuit_calculated": {
+        "name": "Thermische Leistung Heizkreis (berechnet)"
+      },
+      "thermal_power_dhw_calculated": {
+        "name": "Thermische Leistung Warmwasser (berechnet)"
+      },
+      "electrical_power_total_system": {
+        "name": "Elektrische Leistung Gesamtsystem"
+      },
+      "electrical_power_heat_pump": {
+        "name": "Elektrische Leistung Wärmepumpe"
+      },
+      "electrical_energy_total": {
+        "name": "Elektrische Energie gesamt"
+      },
+      "electrical_energy_space_heating": {
+        "name": "Elektrische Energie Raumheizung"
+      },
+      "electrical_energy_space_cooling": {
+        "name": "Elektrische Energie Raumkühlung"
+      },
+      "electrical_energy_dhw": {
+        "name": "Elektrische Energie Warmwasser"
+      },
+      "demand_vs_supply": {
+        "name": "Bedarf vs. Versorgung"
+      },
+      "thermal_power_reported": {
+        "name": "Thermische Leistung (gemeldet)"
+      },
+      "thermal_energy_space_heating": {
+        "name": "Thermische Energie Raumheizung"
+      },
+      "cop_reported": {
+        "name": "COP (gemeldet)"
+      },
+      "cop_system_reported": {
+        "name": "COP System (gemeldet)"
+      },
+      "cop_calculated": {
+        "name": "COP (berechnet)"
+      },
+      "cop_heating_cumulative": {
+        "name": "COP Heizen (kumuliert)"
+      },
+      "poll_duration": {
+        "name": "Abfragedauer"
+      },
+      "bus_load": {
+        "name": "Buslast"
+      },
+      "experimental_input": {
+        "name": "Experimentelles Input-Register {register}"
+      },
+      "experimental_holding": {
+        "name": "Experimentelles Holding-Register {register}"
+      }
+    },
+    "switch": {
+      "heating_cooling": {
+        "name": "Heizen/Kühlen"
+      },
+      "dhw": {
+        "name": "Warmwasser"
+      },
+      "silent_mode": {
+        "name": "Ruhemodus"
+      },
+      "emergency_stop": {
+        "name": "Notaus"
+      },
+      "power_limit": {
+        "name": "Leistungsbegrenzung"
+      }
+    }
   }
 }

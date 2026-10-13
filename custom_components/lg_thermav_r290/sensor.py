@@ -61,7 +61,7 @@ from .energy import (
     KIND_POWER,
     EnergyRegister,
 )
-from .entity import LGEntity, remove_entities
+from .entity import LGEntity, english_entity_ids, remove_entities
 from .experimental import EXPERIMENTAL_REGISTERS, ExperimentalRegister
 
 # Data keys the calculated sensors read.
@@ -474,7 +474,7 @@ async def async_setup_entry(
         entities.extend(LGPollSensor(coordinator, entry, d) for d in _POLL_SENSORS)
     else:
         remove_entities(hass, entry, "sensor", tuple(d.key for d in _POLL_SENSORS))
-    async_add_entities(entities)
+    async_add_entities(english_entity_ids("sensor", entities))
 
 
 # --- Entities ---------------------------------------------------------------
@@ -561,7 +561,6 @@ class LGEnergySensor(LGEntity, SensorEntity):
     ) -> None:
         super().__init__(coordinator, entry, register.key)
         self._data_key = register.data_key
-        self._attr_name = register.name
         self._attr_extra_state_attributes = {"modbus_register": register.modbus_number}
         if register.kind == KIND_POWER:
             self._attr_device_class = SensorDeviceClass.POWER
@@ -600,9 +599,13 @@ class LGExperimentalSensor(LGEntity, SensorEntity):
         entry: ConfigEntry,
         register: ExperimentalRegister,
     ) -> None:
-        super().__init__(coordinator, entry, register.key)
+        # One translation per register type, with the number as placeholder:
+        # "Experimental Input 30015" / "Experimentelles Input-Register 30015".
+        super().__init__(
+            coordinator, entry, register.key, f"experimental_{register.kind}"
+        )
+        self._attr_translation_placeholders = {"register": str(register.modbus_number)}
         self._data_key = register.data_key
-        self._attr_name = register.name
         self._attr_extra_state_attributes = {
             "modbus_register": register.modbus_number,
             "register_type": register.kind,
