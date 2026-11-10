@@ -313,7 +313,7 @@ max_exceeded: silent
 variables:
   step: 1                # °C per step
   ceiling: 40            # highest setpoint, except during the oil boost
-  inlet_switch: 22       # cold start on outlet control until the inlet reaches this
+  inlet_switch: 21       # cold start on outlet control until the inlet reaches this
   frost_max_gap: 2.5     # frost lowering only while the inlet stays <= new setpoint + this
   # Oil boost
   boost_step: 3          # the boost sets the setpoint to inlet + boost_step

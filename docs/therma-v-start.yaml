@@ -8,7 +8,7 @@ description: >-
   method to Outlet Water Temp Control and the circuit 1 setpoint to 60 °C, so
   the compressor starts reliably. After 1 minute AutoTemp_Heat_Circuit_1 takes
   over: cold start on outlet control (setpoint just below the outlet) while the
-  inlet is below 22 °C, then Inlet Water Temp Control for the rest of the day
+  inlet is below 21 °C, then Inlet Water Temp Control for the rest of the day
   (until 17:00). The max compressor modulation is not changed here; it stays at
   the 40 % set by the stop automation unless raised by hand.
 triggers:
