@@ -244,6 +244,37 @@ views:
             forecast_type: daily
             round_temperature: false
             forecast_slots: 5
+          - type: markdown
+            text_only: true
+            grid_options:
+              rows: auto
+            content: >-
+              {% macro t(e) -%}
+              {%- set d = states(e) | as_datetime(None) -%}
+              {{ (d | as_local).strftime('%H:%M') if d else '–' }}
+              {%- endmacro %}
+              {% set rise = states('sensor.sun_next_rising') | as_datetime(None) %}
+              {% set sset = states('sensor.sun_next_setting') | as_datetime(None) %}
+              <ha-icon icon="mdi:weather-sunset-up"></ha-icon>
+              {{ t('sensor.sun_next_dawn') }}
+              &nbsp;&nbsp;
+              <ha-icon icon="mdi:weather-sunny"></ha-icon>
+              {{ t('sensor.sun_next_rising') }}
+              &nbsp;&nbsp;
+              <ha-icon icon="mdi:sun-clock"></ha-icon>
+              {{ t('sensor.sun_next_noon') }}
+              &nbsp;&nbsp;
+              <ha-icon icon="mdi:timer-sand"></ha-icon>
+              {% if rise and sset %}
+              {% set m = ((sset - rise).total_seconds() // 60) % 1440 %}
+              {{ '%d:%02d h' | format(m // 60, m % 60) }}
+              {% else %}–{% endif %}
+              &nbsp;&nbsp;
+              <ha-icon icon="mdi:weather-sunset-down"></ha-icon>
+              {{ t('sensor.sun_next_setting') }}
+              &nbsp;&nbsp;
+              <ha-icon icon="mdi:weather-night"></ha-icon>
+              {{ t('sensor.sun_next_dusk') }}
           - type: entities
             show_header_toggle: false
             entities:
