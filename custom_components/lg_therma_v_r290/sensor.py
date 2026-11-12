@@ -794,7 +794,10 @@ class LGLastModbusErrorSensor(_LGModbusErrorEntity):
         log = self.coordinator.modbus_errors
         since = dt_util.utc_from_timestamp(log.since).isoformat()
         if log.last is None:
-            return {"time": None, "request": None, "since": since}
+            # No time rather than an empty one: a dashboard's relative time
+            # row reads None as 0, "56 years ago"; without the attribute it
+            # shows a dash.
+            return {"since": since}
         return {
             "time": dt_util.utc_from_timestamp(log.last["time"]).isoformat(),
             "request": log.last["request"],

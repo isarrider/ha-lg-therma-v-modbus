@@ -82,7 +82,8 @@ async def test_error_sensors_count_failed_requests(hass, unit) -> None:
     # No error yet: "none" (shown as None), not unknown, and since when.
     last = hass.states.get(LAST_ERROR)
     assert last.state == "none"
-    assert last.attributes["time"] is None
+    assert "time" not in last.attributes
+    assert "request" not in last.attributes
     assert last.attributes["since"] == errors.attributes["since"]
 
     # The coil block stops answering: the poll fails, the heat pump's
