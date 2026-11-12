@@ -278,8 +278,10 @@ Two ready-to-paste dashboards built from Home Assistant's own cards: a compact o
 | `sensor.lg_therma_v_r290_room_air_temperature_circuit_2` | Room air temperature circuit 2 | °C |
 | `sensor.lg_therma_v_r290_flow_rate` | Water flow rate (device class `volume_flow_rate`). **0 while nothing flows:** the unit's flow sensor (SIKA VVX20, 5–80 L/min) reads exactly 5.0 with the pump stopped, so with *Water Flow* and *Water Pump* both off and the register at 5.0 the integration reports 0; otherwise the calculated thermal power, COP and thermal energy would count heat that is not there. The register value is in the attribute `register_value` | L/min |
 | `sensor.lg_therma_v_r290_water_pressure` | Water pressure | bar |
-| `sensor.lg_therma_v_r290_high_pressure_condenser` | High pressure (condenser) | bar |
-| `sensor.lg_therma_v_r290_low_pressure_evaporator` | Low pressure (evaporator) | bar |
+| `sensor.lg_therma_v_r290_temperature_before_evaporator` | Evaporator coil temperature (refrigerant) | °C |
+| `sensor.lg_therma_v_r290_temperature_after_evaporator` | The same coil sensor as *before evaporator* on the R290; **disabled by default** for new installations, see [`docs/register-scan.md`](docs/register-scan.md#evaporator-and-suction-sensors) | °C |
+| `sensor.lg_therma_v_r290_high_pressure_condenser` | High pressure (condenser), **gauge** (above atmospheric) | bar |
+| `sensor.lg_therma_v_r290_low_pressure_evaporator` | Low pressure (evaporator), **gauge** (above atmospheric) | bar |
 | `sensor.lg_therma_v_r290_compressor_speed` | Compressor speed | rpm |
 | `sensor.lg_therma_v_r290_error_code` | Error code | — |
 | `sensor.lg_therma_v_r290_operation_state_odu` | Outdoor unit cycle as text: Standby/Off, Cooling, Heating (input 30002; raw value in *Operation Cycle (ODU)*) | — |

@@ -68,8 +68,8 @@ Marks: ⚠ the unit behaves differently from the manual (measured) · ⚙ only w
 | 30017 | `liquid_gas_temperature` | 0.1 °C |
 | 30018 | ⚙ `experimental_input_30018` — constant 12000, not a temperature | raw |
 | 30019 / 30020 | `suction_temperature` / `hot_gas_temperature` | 0.1 °C |
-| 30021 / 30022 | `temperature_before_evaporator` / `temperature_after_evaporator` | 0.1 °C |
-| 30023 / 30024 | `high_pressure_condenser` / `low_pressure_evaporator` | 0.01 bar |
+| 30021 / 30022 | `temperature_before_evaporator` / `temperature_after_evaporator` — on the R290 the same coil sensor in both; the second is disabled by default ([why](register-scan.md#evaporator-and-suction-sensors)) | 0.1 °C |
+| 30023 / 30024 | `high_pressure_condenser` / `low_pressure_evaporator` — gauge pressure | 0.01 bar |
 | 30025 | `compressor_speed` | Hz × 60 = rpm |
 | 30035–30052 | ⚙ *Energy registers*: `electrical_power_total_system`, `electrical_power_heat_pump`, `electrical_energy_total`, `electrical_energy_space_heating`, `electrical_energy_space_cooling`, `electrical_energy_dhw`, `demand_vs_supply`, `thermal_power_reported`, `thermal_energy_space_heating` — no answer on the scanned 9 kW | 32-bit, W / Wh |
 | 30053–30056 | ✗ — no answer on a 12 kW | — |

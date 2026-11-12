@@ -194,10 +194,14 @@ _SENSORS: tuple[LGSensorDescription, ...] = (
         "input_temperature_before_evaporator",
         "Temperature Before Evaporator",
     ),
+    # On the R290, 30021 and 30022 carry the same coil sensor: 10 days of
+    # history never showed them apart, not even by 0.1 K (docs/register-scan.md).
+    # So the second one starts disabled; existing installs keep theirs.
     _temperature(
         "temperature_after_evaporator",
         "input_temperature_after_evaporator",
         "Temperature After Evaporator",
+        enabled=False,
     ),
     _pressure(
         "high_pressure_condenser",
