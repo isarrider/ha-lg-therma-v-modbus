@@ -276,12 +276,18 @@ views:
               - entity: sensor.lg_therma_v_r290_bus_load
               - entity: sensor.lg_therma_v_r290_modbus_errors
               - entity: sensor.lg_therma_v_r290_last_modbus_error
-              - time_format: relative
-                type: attribute
-                entity: sensor.lg_therma_v_r290_last_modbus_error
-                attribute: time
-                name: Last error at
-                icon: mdi:history
+              - type: conditional
+                conditions:
+                  - condition: state
+                    entity: sensor.lg_therma_v_r290_last_modbus_error
+                    state_not: none
+                row:
+                  time_format: relative
+                  type: attribute
+                  entity: sensor.lg_therma_v_r290_last_modbus_error
+                  attribute: time
+                  name: Last error at
+                  icon: mdi:history
               - time_format: relative
                 type: attribute
                 entity: sensor.lg_therma_v_r290_last_modbus_error
