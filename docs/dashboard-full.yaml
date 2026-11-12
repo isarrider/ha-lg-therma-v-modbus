@@ -25,6 +25,16 @@ views:
               - entity: switch.lg_therma_v_r290_heating_cooling
                 name: Heating/Cooling
               - entity: sensor.lg_therma_v_r290_operation_mode
+          - type: markdown
+            text_only: true
+            grid_options:
+              rows: auto
+            content: >-
+              <ha-icon icon="mdi:alert-circle-outline"></ha-icon> Error Code {{
+              states('sensor.lg_therma_v_r290_error_code') }} &nbsp;&nbsp; {% if
+              is_state('binary_sensor.lg_therma_v_r290_fault', 'on') %}<ha-icon
+              icon="mdi:alert"></ha-icon> Fault{% else %}<ha-icon
+              icon="mdi:check-circle-outline"></ha-icon> No fault{% endif %}
           - type: history-graph
             entities:
               - entity: sensor.lg_therma_v_r290_inlet_temperature
@@ -140,16 +150,14 @@ views:
           - type: heading
             heading: Status & Diagnostics
             heading_style: title
-          - type: markdown
-            text_only: true
-            grid_options:
-              rows: auto
-            content: >-
-              <ha-icon icon="mdi:alert-circle-outline"></ha-icon> Error Code {{
-              states('sensor.lg_therma_v_r290_error_code') }} &nbsp;&nbsp; {% if
-              is_state('binary_sensor.lg_therma_v_r290_fault', 'on') %}<ha-icon
-              icon="mdi:alert"></ha-icon> Fault{% else %}<ha-icon
-              icon="mdi:check-circle-outline"></ha-icon> No fault{% endif %}
+          - type: history-graph
+            entities:
+              - entity: sensor.lg_therma_v_r290_electrical_power_heat_pump
+                name: Electrical (reads high)
+              - entity: sensor.lg_therma_v_r290_thermal_power_reported
+                name: Thermal (reported)
+            hours_to_show: 24
+            logarithmic_scale: false
           - type: history-graph
             entities:
               - entity: sensor.lg_therma_v_r290_hot_gas_temperature
@@ -173,14 +181,6 @@ views:
           - type: heading
             heading: Power & Energy & Efficiency & Misc
             heading_style: title
-          - type: history-graph
-            entities:
-              - entity: sensor.lg_therma_v_r290_electrical_power_heat_pump
-                name: Electrical (reads high)
-              - entity: sensor.lg_therma_v_r290_thermal_power_reported
-                name: Thermal (reported)
-            hours_to_show: 24
-            logarithmic_scale: false
           - type: statistic
             entity: sensor.lg_therma_v_r290_electrical_energy_total
             name: Electrical today
