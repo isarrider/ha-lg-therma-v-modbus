@@ -182,7 +182,7 @@ views:
 
 A sections view (Home Assistant 2024.3+) with every entity the integration creates: overview with a 24 h history, controls with starts and run time today, status and diagnostics with error code and fault in one line, refrigerant temperatures and pressures, electrical and thermal power as a 24 h graph, energy and COP as big-number cards, the rarely used inputs, the energy states of holding 9, DHW and the experimental registers. It is a separate dashboard; do not paste it into the compact one.
 
-<img src="images/dashboard-readme.png" alt="Full view on a 12 kW unit while heating: 24 h history of temperatures, compressor speed and flow rate; compressor controls with starts and run time today; refrigerant temperatures and pressures; power, COP and today's energy as big-number cards, counters, weather and poll statistics">
+<img src="images/dashboard-readme.webp" alt="Full view on a 12 kW unit while heating: error code and fault in one line, 24 h history of temperatures, compressor speed and flow rate; compressor controls with starts and run time today; 24 h graphs of electrical and thermal power, refrigerant temperatures and pressures, a week of water pressure; today's energy and COP as big-number cards, counters, weather with the sun line and poll statistics">
 
 Most of it needs options switched on in *Configure → Options*; without them those rows show *Entity not found*. Remove them, or switch the option on:
 
