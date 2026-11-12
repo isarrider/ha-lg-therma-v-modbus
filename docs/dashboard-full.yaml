@@ -42,9 +42,7 @@ views:
               - entity: sensor.lg_therma_v_r290_outlet_temperature
                 name: Outlet
               - entity: sensor.lg_therma_v_r290_temperature_before_evaporator
-                name: Evaporator - before
-              - entity: sensor.lg_therma_v_r290_temperature_after_evaporator
-                name: Evaporator - after
+                name: Evaporator coil
               - entity: sensor.lg_therma_v_r290_room_air_temperature_circuit_1
                 name: Technikraum
               - entity: sensor.lg_therma_v_r290_outdoor_temperature
@@ -125,8 +123,8 @@ views:
             entities:
               - entity: sensor.lg_therma_v_r290_outdoor_temperature
                 name: Outdoor Temperature
-              - entity: sensor.lg_therma_v_r290_temperature_after_evaporator
-                name: Temperature after Evaporator
+              - entity: sensor.lg_therma_v_r290_temperature_before_evaporator
+                name: Evaporator Coil
               - entity: sensor.lg_therma_v_r290_suction_temperature
                 name: Suction Temperature
               - entity: sensor.lg_therma_v_r290_outlet_temperature

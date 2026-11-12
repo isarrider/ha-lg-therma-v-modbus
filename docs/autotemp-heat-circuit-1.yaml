@@ -37,7 +37,7 @@ trigger_variables:
   inlet_entity: sensor.lg_therma_v_r290_inlet_temperature
   outlet_entity: sensor.lg_therma_v_r290_outlet_temperature
   setpoint_entity: number.lg_therma_v_r290_target_temperature_circuit_1_radiators
-  evap_entity: sensor.lg_therma_v_r290_temperature_after_evaporator
+  evap_entity: sensor.lg_therma_v_r290_temperature_before_evaporator
   speed_entity: sensor.lg_therma_v_r290_compressor_speed
   # Thresholds (used by the triggers and the conditions)
   up_gap: 2.8        # raise by step when inlet >= setpoint + up_gap

@@ -46,6 +46,15 @@ Read on 2026-10-03 with the compressor stopped (outdoor 29 °C):
 
 The optional *Experimental registers* setting of the integration records these over time so they can be compared with the compressor, temperatures and defrost cycles.
 
+## Evaporator and suction sensors
+
+Ten days of history of a 12 kW unit (November 2026, compressor speed, suction, both evaporator temperatures and the low pressure, every value Home Assistant recorded):
+
+* **30021 and 30022 are the same sensor.** At all 3965 points where either changed, both had the same value a few seconds later -- not 0.1 K apart, not at start-up, standstill or defrost. (Raw exports show them a few milliseconds apart only because each entity is written on its own.) The integration keeps both, but *Temperature after Evaporator* starts disabled on new installations.
+* **It is the evaporator coil.** With the compressor running it reads a median 1.1 K (10th-90th percentile 0.5-3.8 K) above the boiling temperature of propane at the low pressure -- what a sensor on the coil, where the refrigerant boils, should read.
+* **The pressures are gauge pressures.** That match only holds with the low pressure read as bar above atmospheric (+1 bar for absolute). Read as absolute, the coil would be about 8 K warmer than boiling propane, which is not possible while it evaporates.
+* **Suction (30019) is a separate sensor.** With the compressor running for more than 15 minutes it reads a median 0.3 K (90th percentile 3.4 K) above the coil: the superheat the expansion valve keeps small. At standstill it is about 8 K warmer than the coil, as the suction line warms inside the unit while the coil follows the outdoor air.
+
 ## Does not answer
 
 Holding 24 (40025, "power limit" in basti242's YAML) and coil 6 (00007, "active power limitation") get no answer on this unit.

@@ -248,3 +248,40 @@ async def test_a_defrost_shows_on_the_calculated_side(hass, unit) -> None:
     assert float(power.state) == -2791  # 20/60 × -2 × 4186
     cop = hass.states.get("sensor.lg_therma_v_r290_cop_calculated")
     assert float(cop.state) == -1.86
+
+
+async def test_the_duplicate_evaporator_sensor_starts_disabled(hass, unit) -> None:
+    """30022 repeats 30021 on the R290; new installs get it disabled."""
+    entry = await _set_up(hass)
+    registry = er.async_get(hass)
+    after = registry.async_get("sensor.lg_therma_v_r290_temperature_after_evaporator")
+    assert after is not None
+    assert after.disabled_by is er.RegistryEntryDisabler.INTEGRATION
+    assert (
+        hass.states.get("sensor.lg_therma_v_r290_temperature_after_evaporator") is None
+    )
+    before = registry.async_get("sensor.lg_therma_v_r290_temperature_before_evaporator")
+    assert before.disabled_by is None
+    assert after.config_entry_id == entry.entry_id
+
+
+async def test_an_existing_after_evaporator_entity_stays_enabled(hass, unit) -> None:
+    """The default only applies when the entity is first created."""
+    entry = MockConfigEntry(
+        domain=DOMAIN,
+        data={"connection_type": "rtu", **RTU},
+        version=1,
+        minor_version=4,
+    )
+    entry.add_to_hass(hass)
+    er.async_get(hass).async_get_or_create(
+        "sensor",
+        DOMAIN,
+        f"{entry.entry_id}_temperature_after_evaporator",
+        config_entry=entry,
+        suggested_object_id="lg_therma_v_r290_temperature_after_evaporator",
+    )
+    assert await hass.config_entries.async_setup(entry.entry_id)
+    await hass.async_block_till_done()
+    state = hass.states.get("sensor.lg_therma_v_r290_temperature_after_evaporator")
+    assert state is not None
