@@ -180,7 +180,7 @@ views:
 
 ## Full view
 
-A sections view (Home Assistant 2024.3+) with every entity the integration creates: overview with a 24 h history, controls with starts and run time today, status and diagnostics with refrigerant temperatures and pressures, power, energy and COP as big-number cards, the rarely used inputs, the energy states of holding 9, DHW and the experimental registers. It is a separate dashboard; do not paste it into the compact one.
+A sections view (Home Assistant 2024.3+) with every entity the integration creates: overview with a 24 h history, controls with starts and run time today, status and diagnostics with error code and fault in one line, refrigerant temperatures and pressures, electrical and thermal power as a 24 h graph, energy and COP as big-number cards, the rarely used inputs, the energy states of holding 9, DHW and the experimental registers. It is a separate dashboard; do not paste it into the compact one.
 
 <img src="images/dashboard-readme.png" alt="Full view on a 12 kW unit while heating: 24 h history of temperatures, compressor speed and flow rate; compressor controls with starts and run time today; refrigerant temperatures and pressures; power, COP and today's energy as big-number cards, counters, weather and poll statistics">
 
@@ -188,11 +188,11 @@ Most of it needs options switched on in *Configure → Options*; without them th
 
 | Option | Cards |
 |---|---|
-| Energy registers | *Electrical (reads high)*, *Thermal (reported)*, the COP cards, *Electrical today*, *Space heating today*, *Counters*, *Demand vs supply* |
+| Energy registers | the power graph (*Electrical (reads high)*, *Thermal (reported)*), the COP cards, *Electrical today*, *Space heating today*, the energy counters below them, the daily *Electrical Energy Total* graph, *Demand vs supply* |
 | Compressor statistics | *Compressor Average Speed*, *Compressor Starts*, *Compressor Run Time*, *Starts today*, *Run time today* |
 | Compressor modulation limit | *Max Compressor Modulation* |
 | Power limit | *Power Limit*, *Max Electrical Power* |
-| Poll statistics | *Poll Duration*, *Bus Load*, *Modbus Errors*, *Last Modbus Error*, *Last error at* |
+| Poll statistics | *Poll Duration*, *Bus Load*, *Modbus Errors*, *Last Modbus Error*, *Last error at*, *Counting since* |
 | Experimental registers | the *Experimental registers* section |
 
 The *Target Room Air Temperature Circuit 1/2* sensors are disabled by default; enable them in the entity settings or remove the tiles. The weather card uses `weather.forecast_home`, the default of the Met.no integration; replace it with your own weather entity. The line under it shows dawn, sunrise, solar noon, day length (sunrise to sunset), sunset and dusk from the Sun integration; *Next dawn*, *Next dusk* and *Next noon* may be disabled by default: enable them in the entity settings if they show –. Between sunrise and sunset the day length pairs tomorrow's sunrise with today's sunset, so it can be a minute or two off.
