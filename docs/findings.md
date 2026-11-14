@@ -159,11 +159,9 @@ with the compressor standing still. On this installation that is wanted, and
 the switch stays on overnight (the stop automation only lowers the setpoint),
 so the pump runs around the clock.
 
-
 From 1 to 14 November 2026 *Flow Rate* never read 0, which it does as soon as
 the pump stops (since 2.2.1). Every night from 00:00 to 05:00 the flow averaged
 11.4–11.9 L/min, at 13 °C outside as at 0.7 °C, and about the same as by day:
 no separate frost mode with more flow shows in the data; the pump runs at one
-speed. During the fan runs
-of 13/14 November it did not change either (11.68 and 11.73 L/min against
-11.68 L/min the hour before).
+speed. During the fan runs of 13/14 November it did not change either (11.68
+and 11.73 L/min against 11.68 L/min the hour before).
