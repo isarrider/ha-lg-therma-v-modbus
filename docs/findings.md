@@ -168,5 +168,8 @@ and 11.73 L/min against 11.68 L/min the hour before).
 
 **Wish:** while the compressor is off, the pump could run slower than about
 10 L/min: at thermo off it only has to keep the water moving, not carry heat,
-and a slower pump would use less electricity. No Modbus register for the pump
-speed is known; the manual's register map has none.
+and a slower pump would use less electricity. The pump speed can be set lower
+on the unit itself, but then it reports **error 14**, presumably its low-flow
+protection, which does not distinguish a running compressor from thermo off.
+No Modbus register for the pump speed is known; the manual's register map has
+none.
