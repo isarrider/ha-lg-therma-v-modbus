@@ -165,3 +165,8 @@ the pump stops (since 2.2.1). Every night from 00:00 to 05:00 the flow averaged
 no separate frost mode with more flow shows in the data; the pump runs at one
 speed. During the fan runs of 13/14 November it did not change either (11.68
 and 11.73 L/min against 11.68 L/min the hour before).
+
+**Wish:** while the compressor is off, the pump could run slower than about
+10 L/min: at thermo off it only has to keep the water moving, not carry heat,
+and a slower pump would use less electricity. No Modbus register for the pump
+speed is known; the manual's register map has none.
