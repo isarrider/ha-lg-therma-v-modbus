@@ -548,6 +548,7 @@ Every register of the manual's four tables (*Modbus-Speicherzuordnung*), with th
 - Heating circuit / DHW split is based on the *DHW Heating* discrete input (10006); when DHW is active the full flow is attributed to DHW and the heating circuit sensor reports 0, and vice versa.
 - Shift values (holding regs 4, 7) are stored as two's-complement uint16; values ≥ 32768 are interpreted as negative.
 - Temperatures are signed as well (−0.2 °C arrives as 65534). A temperature input without a sensor sends 64887 (−64.9 °C); its sensor shows *unknown* instead, e.g. *Flow Temperature Circuit 2* on a unit without a second circuit.
+- **Findings on a 12 kW unit** — night-time fan runs and compressor preheating, the outdoor temperature reading high at standstill, one evaporator sensor reported twice, gauge pressures and more: [docs/findings.md](docs/findings.md).
 - Tested on LG Therma V R290 9 kW via Modbus TCP, slave ID 33, and on a 12 kW unit via Modbus RTU (USB serial adapter), slave ID 1, firmware kernel 3.0.9 / ramdisk 3.07.6a (2025-01-21). The energy registers (input 34–51) and the compressor modulation limit (holding 23) answer on the 12 kW only.
 - `tools/make_shadow.py` builds a read-only copy of the integration under a
   second domain so a change to the Modbus layer can be measured against the
