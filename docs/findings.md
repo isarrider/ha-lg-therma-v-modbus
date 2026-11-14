@@ -25,7 +25,7 @@ can be compared with a calibrated reading.
 - [Inputs without a sensor send 64887](#inputs-without-a-sensor-send-64887)
 - [Room Air Temperature Circuit 1 is the plant room](#room-air-temperature-circuit-1-is-the-plant-room)
 - [Cooling active is on while heating](#cooling-active-is-on-while-heating)
-- [The water pump runs all the time, at one speed](#the-water-pump-runs-all-the-time-at-one-speed)
+- [The water pump runs while Heating/Cooling is on](#the-water-pump-runs-while-heatingcooling-is-on)
 
 ## At night: fan runs and compressor preheating
 
@@ -41,7 +41,7 @@ Temperature* fell from 4.6 to 1.4 °C within 90 s and the evaporator coil from
 does that; afterwards both crept back up. The unit runs its fan briefly to
 measure the real air temperature (see the next finding). The water pump is
 not part of it: it runs all the time, and its flow did not change during the
-blocks ([below](#the-water-pump-runs-all-the-time-at-one-speed)).
+blocks ([below](#the-water-pump-runs-while-heatingcooling-is-on)).
 
 **The pulses heat the compressor.** The unit's own *Electrical Power* read
 about 300 W on the polls that hit an "on" minute (00:12, 00:27, 00:40, 00:45)
@@ -152,11 +152,18 @@ Discrete input 10009 read `on` during heating for days. Do not build
 automations on *Cooling active*. See the
 [README](../README.md#binary-sensors).
 
-## The water pump runs all the time, at one speed
+## The water pump runs while Heating/Cooling is on
+
+With *Heating/Cooling* switched on, the water pump runs, also at thermo off
+with the compressor standing still. On this installation that is wanted, and
+the switch stays on overnight (the stop automation only lowers the setpoint),
+so the pump runs around the clock.
+
 
 From 1 to 14 November 2026 *Flow Rate* never read 0, which it does as soon as
 the pump stops (since 2.2.1). Every night from 00:00 to 05:00 the flow averaged
 11.4–11.9 L/min, at 13 °C outside as at 0.7 °C, and about the same as by day:
-no separate frost mode with more flow shows in the data. During the fan runs
+no separate frost mode with more flow shows in the data; the pump runs at one
+speed. During the fan runs
 of 13/14 November it did not change either (11.68 and 11.73 L/min against
 11.68 L/min the hour before).
