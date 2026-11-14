@@ -25,7 +25,7 @@ can be compared with a calibrated reading.
 - [Inputs without a sensor send 64887](#inputs-without-a-sensor-send-64887)
 - [Room Air Temperature Circuit 1 is the plant room](#room-air-temperature-circuit-1-is-the-plant-room)
 - [Cooling active is on while heating](#cooling-active-is-on-while-heating)
-- [The water pump runs in frost from time to time, at full power](#the-water-pump-runs-in-frost-from-time-to-time-at-full-power)
+- [The water pump runs all the time, at one speed](#the-water-pump-runs-all-the-time-at-one-speed)
 
 ## At night: fan runs and compressor preheating
 
@@ -39,10 +39,9 @@ the unit's own figure) and the fridge.
 Temperature* fell from 4.6 to 1.4 °C within 90 s and the evaporator coil from
 7.3 to 3.1 °C; at 00:58 the same, 3.6 → 1.4 °C and 6.2 → 2.7 °C. Only moving air
 does that; afterwards both crept back up. The unit runs its fan briefly to
-measure the real air temperature (see the next finding). The water pump's
-frost runs at full power may be part of these blocks as well
-([below](#the-water-pump-runs-in-frost-from-time-to-time-at-full-power)); the
-temperature drops only prove the fan.
+measure the real air temperature (see the next finding). The water pump is
+not part of it: it runs all the time, and its flow did not change during the
+blocks ([below](#the-water-pump-runs-all-the-time-at-one-speed)).
 
 **The pulses heat the compressor.** The unit's own *Electrical Power* read
 about 300 W on the polls that hit an "on" minute (00:12, 00:27, 00:40, 00:45)
@@ -153,9 +152,11 @@ Discrete input 10009 read `on` during heating for days. Do not build
 automations on *Cooling active*. See the
 [README](../README.md#binary-sensors).
 
-## The water pump runs in frost from time to time, at full power
+## The water pump runs all the time, at one speed
 
-In frost the water pump does not run all the time: it starts from time to
-time and then runs at full power, to keep the water in the pipes moving and
-from freezing. Whether these runs coincide with the fan runs above has not
-been checked yet; *Flow Rate* and *Water Pump* show it.
+From 1 to 14 November 2026 *Flow Rate* never read 0, which it does as soon as
+the pump stops (since 2.2.1). Every night from 00:00 to 05:00 the flow averaged
+11.4–11.9 L/min, at 13 °C outside as at 0.7 °C, and about the same as by day:
+no separate frost mode with more flow shows in the data. During the fan runs
+of 13/14 November it did not change either (11.68 and 11.73 L/min against
+11.68 L/min the hour before).
