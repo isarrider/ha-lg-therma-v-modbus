@@ -25,21 +25,24 @@ can be compared with a calibrated reading.
 - [Inputs without a sensor send 64887](#inputs-without-a-sensor-send-64887)
 - [Room Air Temperature Circuit 1 is the plant room](#room-air-temperature-circuit-1-is-the-plant-room)
 - [Cooling active is on while heating](#cooling-active-is-on-while-heating)
-- [The water pump runs constantly in frost](#the-water-pump-runs-constantly-in-frost)
+- [The water pump runs in frost from time to time, at full power](#the-water-pump-runs-in-frost-from-time-to-time-at-full-power)
 
 ## At night: fan runs and compressor preheating
 
 **Seen** on 13/14 November 2026, outdoor about 1.5–4.5 °C, compressor off all
 night. The house meter showed an hour of square pulses, about 200 W on one
 phase, one minute on, one minute off, from 23:56 to 01:00; at each end a block
-of about 250 W for two minutes. Before and after: only the standby (about
-50 W by the unit's own figure) and the fridge.
+of about 250 W for two minutes. Before and after: the standby (about 50 W by
+the unit's own figure) and the fridge.
 
 **The 250 W blocks are the outdoor unit's fan.** At 23:55:30 *Outdoor
 Temperature* fell from 4.6 to 1.4 °C within 90 s and the evaporator coil from
 7.3 to 3.1 °C; at 00:58 the same, 3.6 → 1.4 °C and 6.2 → 2.7 °C. Only moving air
 does that; afterwards both crept back up. The unit runs its fan briefly to
-measure the real air temperature (see the next finding).
+measure the real air temperature (see the next finding). The water pump's
+frost runs at full power may be part of these blocks as well
+([below](#the-water-pump-runs-in-frost-from-time-to-time-at-full-power)); the
+temperature drops only prove the fan.
 
 **The pulses heat the compressor.** The unit's own *Electrical Power* read
 about 300 W on the polls that hit an "on" minute (00:12, 00:27, 00:40, 00:45)
@@ -150,7 +153,9 @@ Discrete input 10009 read `on` during heating for days. Do not build
 automations on *Cooling active*. See the
 [README](../README.md#binary-sensors).
 
-## The water pump runs constantly in frost
+## The water pump runs in frost from time to time, at full power
 
-In frost the water pump runs all the time to keep the water from freezing, so
-it is part of the constant standby, not something that comes and goes.
+In frost the water pump does not run all the time: it starts from time to
+time and then runs at full power, to keep the water in the pipes moving and
+from freezing. Whether these runs coincide with the fan runs above has not
+been checked yet; *Flow Rate* and *Water Pump* show it.
