@@ -29,4 +29,11 @@ actions:
       entity_id: number.lg_therma_v_r290_target_temperature_circuit_1_radiators
     data:
       value: 60
+  - if: "{{ expand('input_text.autotemp_status') | count > 0 }}"
+    then:
+      - action: input_text.set_value
+        target:
+          entity_id: input_text.autotemp_status
+        data:
+          value: "Start: heating on, outlet control, 60 °C"
 mode: single

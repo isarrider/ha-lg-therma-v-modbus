@@ -15,6 +15,8 @@ They were written for a 12 kW unit. Entity ids are the defaults (`…lg_therma_v
 
 **To use them:** open the file, copy its content, then *Settings → Automations & scenes → Create automation → Create new automation → ⋮ → Edit in YAML*, paste, *Save*.
 
+To see on a dashboard what they are doing, add the text helper and the cards from [On the dashboard](#on-the-dashboard).
+
 ## Before you start: the thermo on/off hysteresis and the lowest setpoint
 
 The unit switches the compressor off when the water it regulates on (the inlet or the outlet, depending on the control method) is the hysteresis above the setpoint, and on again when it is the hysteresis below it. The hysteresis is set in the installer menu of the wired remote, *Th On/Off Variable, Heating Water*, in steps of 1–4 °C; it is not available over Modbus.
@@ -55,6 +57,37 @@ It re-checks every 5 minutes, so it catches up after a restart of Home Assistant
 - **Switching to outlet control by hand during the day** is undone within a minute once the inlet is at 22 °C or above (kick-in); below that, AutoTemp follows the outlet. Set the slider to 20 °C or switch the automation off first.
 - **After 17:00 it does nothing.** Between 17:00 and the stop nothing adjusts the setpoint, and the unit may reach thermo off or do an oil-return run on its own. A start after 17:00 stays on outlet control at 60 °C until the stop.
 - **Error log entries while the editor is open.** With the automation open in the editor, Home Assistant may log `'speed_entity' is undefined` for the two templates of the oil boost's `wait_for_trigger`: the editor subscribes to them without the automation's variables. When the automation runs, they have them.
+
+## On the dashboard
+
+All three automations describe every change in one line, in a text helper:
+
+| Automation | Example line |
+|---|---|
+| Start | `Start: heating on, outlet control, 60 °C` |
+| AutoTemp, cold start | `Cold start: 33 °C, just below the outlet (34.6 °C); inlet 19.8 °C` |
+| AutoTemp, kick-in | `Kick-in: inlet control, 21 °C (inlet 22.3 °C)` |
+| AutoTemp, follow the inlet | `Raised to 35 °C: inlet 37.9 °C, 2.9 K above` · `Raised to 30 °C: morning ramp (30 °C)` · `Lowered to 34 °C: inlet 33.8 °C, 1.2 K below for 5 min` |
+| AutoTemp, frost protection | `Frost protection: lowered to 33 °C (coil 0.6 °C)` |
+| AutoTemp, oil boost | `Oil boost: 38 °C after 55 min below 1500 rpm`, then `Oil boost over (speed held): 33 °C` |
+| Stop | `Stop: 20 °C (thermo off, AutoTemp off), max modulation 40 %` |
+
+**1. Create the helper.** *Settings → Devices & services → Helpers → Create helper → Text*, name it **AutoTemp status** (entity id `input_text.autotemp_status`), *Create*. The default maximum of 100 characters is enough. Without the helper the automations work the same and write nothing.
+
+**2. Add the cards.** *Edit dashboard → Add card → Manual*:
+
+- [autotemp-status-card.yaml](autotemp-status-card.yaml): one line with what AutoTemp is doing now (*active*, *waiting for the compressor*, *paused (defrost)*, *done for today (after 17:00)*, *off (setpoint 20 °C)* or *disabled*) and, below it, its last change with how long ago. The first line is worked out on the dashboard, because while AutoTemp waits it does not run and cannot write anything.
+- The history of the day, from the logbook, which records every change of the helper:
+
+  ```yaml
+  type: logbook
+  title: AutoTemp
+  target:
+    entity_id: input_text.autotemp_status
+  hours_to_show: 24
+  ```
+
+The automation's own entity id is `automation.autotemp_heat_circuit_1` when it was saved with the alias from the file; if yours differs (*Settings → Automations → AutoTemp → ⋮ → Information → Settings*), adjust it in the card.
 
 ## Stop (18:00)
 
