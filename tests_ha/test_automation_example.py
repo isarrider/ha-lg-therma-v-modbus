@@ -136,7 +136,7 @@ async def test_the_automations_explain_each_change_in_the_logbook(hass, unit) ->
         {
             "name": "AutoTemp",
             "entity_id": SETPOINT,
-            "message": "raised to 31 °C: inlet 34.0 °C, 4.0 K above (emergency)",
+            "message": "raised to 31 °C: inlet 34.0 °C, 4.0 K above, close to thermo off",
         }
     ]
 
