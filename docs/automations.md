@@ -72,6 +72,10 @@ All three automations explain every change of the setpoint in one line in Home A
 | AutoTemp, oil boost | *AutoTemp* oil boost: 38 °C after 55 min below 1500 rpm, then oil boost over (speed held): 33 °C |
 | Stop | *Therma V stop* setpoint 20 °C (thermo off, AutoTemp off), max modulation 40 % |
 
+<img src="images/autotemp-cards.webp" alt="Mockup of the two cards: the status card (AutoTemp: active, setpoint 35 °C, inlet 34.1 °C, raises from 37.8 °C, lowers from 34 °C) and the logbook card with setpoint changes and their reasons; on the right the status card through the day: waiting for the compressor, cold start, active, frost protection, paused (defrost), done for today, off, disabled" width="100%">
+
+*Mockup with example values.*
+
 Two cards (*Edit dashboard → Add card → Manual*):
 
 - **What it did and why**, the logbook of the setpoint: its changes (*changed to 35*) with the line explaining each, newest first.
