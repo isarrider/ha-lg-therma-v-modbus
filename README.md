@@ -513,7 +513,7 @@ Ready-to-paste automations for a heating day on circuit 1, so the compressor sta
 
 They are tuned for a thermo on/off hysteresis of ±4 °C (installer menu of the remote); see the document for what to change otherwise.
 
-Each of them describes every change in one line in an optional text helper, which a dashboard card shows together with what AutoTemp is doing right now ([On the dashboard](docs/automations.md#on-the-dashboard)).
+Each of them explains every setpoint change in one logbook line, and a dashboard card shows what AutoTemp is doing now and next ([On the dashboard](docs/automations.md#on-the-dashboard)).
 
 ---
 

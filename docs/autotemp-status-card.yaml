@@ -1,14 +1,18 @@
-# AutoTemp status on a dashboard: what AutoTemp is doing now, and its last
-# change. Needs the text helper input_text.autotemp_status (see
-# docs/automations.md, "On the dashboard"). Paste it as a card: Edit
-# dashboard → Add card → Manual. The logbook card in automations.md adds the
-# history of the day.
+# AutoTemp status on a dashboard: what AutoTemp is doing now and what it does
+# next. Paste it as a card: Edit dashboard → Add card → Manual. The thresholds
+# in the second line are AutoTemp's (up_gap, down_gap, frost_limit,
+# inlet_switch); change them here too if you change them there. The logbook
+# card in docs/automations.md shows what it did and why.
 type: markdown
 text_only: true
 grid_options:
   rows: auto
 content: >-
+  {% set up_gap, down_gap, frost_limit, inlet_switch = 2.8, 1, 1, 22 %}
   {% set sp = states('number.lg_therma_v_r290_target_temperature_circuit_1_radiators') | float(0) %}
+  {% set inlet = states('sensor.lg_therma_v_r290_inlet_temperature') | float(none) %}
+  {% set outlet = states('sensor.lg_therma_v_r290_outlet_temperature') | float(none) %}
+  {% set coil = states('sensor.lg_therma_v_r290_temperature_before_evaporator') | float(none) %}
   {% set defrost = states.binary_sensor.lg_therma_v_r290_defrost %}
   <ha-icon icon="mdi:robot-outline"></ha-icon> AutoTemp:
   {% if is_state('automation.autotemp_heat_circuit_1', 'off') -%}
@@ -22,10 +26,16 @@ content: >-
   paused (defrost)
   {%- elif is_state('binary_sensor.lg_therma_v_r290_compressor', 'off') -%}
   waiting for the compressor
+  {%- elif is_state('select.lg_therma_v_r290_control_method', 'Outlet Water Temp Control') -%}
+  cold start<br>
+  setpoint {{ '%g' | format(sp) }} °C, outlet {{ outlet }} °C, inlet {{ inlet }} °C ·
+  inlet control from {{ inlet_switch }} °C
   {%- else -%}
-  active
+  active<br>
+  setpoint {{ '%g' | format(sp) }} °C, inlet {{ inlet }} °C ·
+  {% if coil is number and coil < frost_limit -%}
+  frost protection (coil {{ coil }} °C): lowering
+  {%- else -%}
+  raises from {{ '%g' | format(sp + up_gap) }} °C, lowers from {{ '%g' | format(sp - down_gap) }} °C
   {%- endif %}
-  {% set last = states.input_text.autotemp_status %}
-  {%- if last and last.state not in ['unknown', 'unavailable', ''] %}<br>
-  {{ last.state }} · {{ relative_time(last.last_changed) }} ago
   {%- endif %}

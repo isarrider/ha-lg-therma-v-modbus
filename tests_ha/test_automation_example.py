@@ -13,7 +13,10 @@ from homeassistant.helpers import entity_registry as er
 from homeassistant.helpers.template import Template
 from homeassistant.setup import async_setup_component
 import pytest
-from pytest_homeassistant_custom_component.common import MockConfigEntry
+from pytest_homeassistant_custom_component.common import (
+    MockConfigEntry,
+    async_mock_service,
+)
 import yaml
 
 from custom_components.lg_therma_v_r290.const import CONTROL_METHOD_OPTIONS
@@ -86,10 +89,10 @@ async def test_automations_load(hass) -> None:
 
 
 AUTOTEMP = "automation.autotemp_heat_circuit_1"
-STATUS = "input_text.autotemp_status"
+SETPOINT = "number.lg_therma_v_r290_target_temperature_circuit_1_radiators"
 
 
-async def _set_up_with_automations(hass, *, helper: bool) -> None:
+async def _set_up_with_automations(hass) -> None:
     entry = MockConfigEntry(
         domain=DOMAIN,
         data={"connection_type": "rtu", **RTU},
@@ -100,16 +103,6 @@ async def _set_up_with_automations(hass, *, helper: bool) -> None:
     entry.add_to_hass(hass)
     assert await hass.config_entries.async_setup(entry.entry_id)
     await hass.async_block_till_done()
-    if helper:
-        assert await async_setup_component(
-            hass,
-            "input_text",
-            {
-                "input_text": {
-                    "autotemp_status": {"name": "AutoTemp status", "max": 255}
-                }
-            },
-        )
     configs = _configs()
     for i, config in enumerate(configs):
         config["id"] = f"example_{i}"
@@ -129,19 +122,23 @@ def _raise_situation(unit) -> None:
 
 
 @pytest.mark.parametrize("expected_lingering_timers", [True])
-async def test_autotemp_describes_what_it_does(hass, unit) -> None:
+async def test_the_automations_explain_each_change_in_the_logbook(hass, unit) -> None:
+    logbook = async_mock_service(hass, "logbook", "log")
     _raise_situation(unit)
-    await _set_up_with_automations(hass, helper=True)
+    await _set_up_with_automations(hass)
 
     await hass.services.async_call(
         "automation", "trigger", {"entity_id": AUTOTEMP}, blocking=True
     )
     await hass.async_block_till_done()
     assert ("holding", 2, 310) in unit.writes
-    assert (
-        hass.states.get(STATUS).state
-        == "Raised to 31 °C: inlet 34.0 °C, 4.0 K above (emergency)"
-    )
+    assert [call.data for call in logbook] == [
+        {
+            "name": "AutoTemp",
+            "entity_id": SETPOINT,
+            "message": "raised to 31 °C: inlet 34.0 °C, 4.0 K above (emergency)",
+        }
+    ]
 
     await hass.services.async_call(
         "automation",
@@ -150,20 +147,9 @@ async def test_autotemp_describes_what_it_does(hass, unit) -> None:
         blocking=True,
     )
     await hass.async_block_till_done()
-    assert hass.states.get(STATUS).state.startswith("Stop: 20 °C")
-
-
-@pytest.mark.parametrize("expected_lingering_timers", [True])
-async def test_autotemp_works_without_the_helper(hass, unit) -> None:
-    _raise_situation(unit)
-    await _set_up_with_automations(hass, helper=False)
-
-    await hass.services.async_call(
-        "automation", "trigger", {"entity_id": AUTOTEMP}, blocking=True
-    )
-    await hass.async_block_till_done()
-    assert ("holding", 2, 310) in unit.writes
-    assert hass.states.get(AUTOTEMP).state == "on"
+    assert logbook[-1].data["name"] == "Therma V stop"
+    assert logbook[-1].data["message"].startswith("setpoint 20 °C")
+    assert logbook[-1].data["entity_id"] == SETPOINT
 
 
 def _card(hass) -> str:
@@ -171,36 +157,53 @@ def _card(hass) -> str:
     return " ".join(Template(content, hass).async_render().split())
 
 
-@pytest.mark.parametrize("expected_lingering_timers", [True])
-async def test_the_status_card(hass, unit, freezer) -> None:
+async def test_the_status_card(hass, freezer) -> None:
     await hass.config.async_set_time_zone("Europe/Berlin")
     freezer.move_to("2026-11-16 09:00:00+00:00")  # 10:00 in Berlin
-    _raise_situation(unit)
-    await _set_up_with_automations(hass, helper=True)
+    for entity_id, state in {
+        AUTOTEMP: "on",
+        SETPOINT: "35",
+        "sensor.lg_therma_v_r290_inlet_temperature": "34.1",
+        "sensor.lg_therma_v_r290_outlet_temperature": "36.0",
+        "sensor.lg_therma_v_r290_temperature_before_evaporator": "4.2",
+        "binary_sensor.lg_therma_v_r290_defrost": "off",
+        "binary_sensor.lg_therma_v_r290_compressor": "on",
+        "select.lg_therma_v_r290_control_method": "Inlet Water Temp Control",
+    }.items():
+        hass.states.async_set(entity_id, state)
 
-    # The defrost sensor changed state just now (setup): 5 minutes of pause.
-    assert "AutoTemp: paused (defrost)" in _card(hass)
+    # The defrost ended just now: AutoTemp waits 5 minutes.
+    assert _card(hass).endswith("AutoTemp: paused (defrost)")
 
     freezer.tick(timedelta(minutes=6))
-    await hass.services.async_call(
-        "automation", "trigger", {"entity_id": AUTOTEMP}, blocking=True
+    assert _card(hass).endswith(
+        "AutoTemp: active<br> setpoint 35 °C, inlet 34.1 °C · "
+        "raises from 37.8 °C, lowers from 34 °C"
     )
-    await hass.async_block_till_done()
-    card = _card(hass)
-    assert "AutoTemp: active" in card
-    assert "Raised to 31 °C: inlet 34.0 °C, 4.0 K above (emergency) ·" in card
 
-    entity = "number.lg_therma_v_r290_target_temperature_circuit_1_radiators"
-    hass.states.async_set(entity, "20")
-    assert "AutoTemp: off (setpoint 20 °C)" in _card(hass)
+    hass.states.async_set(
+        "sensor.lg_therma_v_r290_temperature_before_evaporator", "0.6"
+    )
+    assert _card(hass).endswith("frost protection (coil 0.6 °C): lowering")
 
-    hass.states.async_set(entity, "31")
+    hass.states.async_set(
+        "select.lg_therma_v_r290_control_method", "Outlet Water Temp Control"
+    )
+    assert _card(hass).endswith(
+        "AutoTemp: cold start<br> setpoint 35 °C, outlet 36.0 °C, inlet 34.1 °C · "
+        "inlet control from 22 °C"
+    )
+
     hass.states.async_set("binary_sensor.lg_therma_v_r290_compressor", "off")
-    assert "AutoTemp: waiting for the compressor" in _card(hass)
+    assert _card(hass).endswith("AutoTemp: waiting for the compressor")
+
+    hass.states.async_set(SETPOINT, "20")
+    assert _card(hass).endswith("AutoTemp: off (setpoint 20 °C)")
 
     hass.states.async_set(AUTOTEMP, "off")
-    assert "AutoTemp: disabled" in _card(hass)
+    assert _card(hass).endswith("AutoTemp: disabled")
 
-    freezer.move_to("2026-11-16 16:30:00+00:00")  # 17:30 in Berlin
     hass.states.async_set(AUTOTEMP, "on")
-    assert "AutoTemp: done for today" in _card(hass)
+    hass.states.async_set(SETPOINT, "35")
+    freezer.move_to("2026-11-16 16:30:00+00:00")  # 17:30 in Berlin
+    assert _card(hass).endswith("AutoTemp: done for today (after 17:00)")

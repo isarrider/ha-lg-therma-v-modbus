@@ -15,7 +15,7 @@ They were written for a 12 kW unit. Entity ids are the defaults (`…lg_therma_v
 
 **To use them:** open the file, copy its content, then *Settings → Automations & scenes → Create automation → Create new automation → ⋮ → Edit in YAML*, paste, *Save*.
 
-To see on a dashboard what they are doing, add the text helper and the cards from [On the dashboard](#on-the-dashboard).
+To see on a dashboard what they are doing and why, add the two cards from [On the dashboard](#on-the-dashboard).
 
 ## Before you start: the thermo on/off hysteresis and the lowest setpoint
 
@@ -60,34 +60,33 @@ It re-checks every 5 minutes, so it catches up after a restart of Home Assistant
 
 ## On the dashboard
 
-All three automations describe every change in one line, in a text helper:
+All three automations explain every change of the setpoint in one line in Home Assistant's logbook, attached to the circuit 1 setpoint, so the change and its reason stand next to each other. Nothing to set up; the logbook is part of Home Assistant's default configuration.
 
-| Automation | Example line |
+| Automation | Example line in the logbook |
 |---|---|
-| Start | `Start: heating on, outlet control, 60 °C` |
-| AutoTemp, cold start | `Cold start: 33 °C, just below the outlet (34.6 °C); inlet 19.8 °C` |
-| AutoTemp, kick-in | `Kick-in: inlet control, 21 °C (inlet 22.3 °C)` |
-| AutoTemp, follow the inlet | `Raised to 35 °C: inlet 37.9 °C, 2.9 K above` · `Raised to 30 °C: morning ramp (30 °C)` · `Lowered to 34 °C: inlet 33.8 °C, 1.2 K below for 5 min` |
-| AutoTemp, frost protection | `Frost protection: lowered to 33 °C (coil 0.6 °C)` |
-| AutoTemp, oil boost | `Oil boost: 38 °C after 55 min below 1500 rpm`, then `Oil boost over (speed held): 33 °C` |
-| Stop | `Stop: 20 °C (thermo off, AutoTemp off), max modulation 40 %` |
+| Start | *Therma V start* heating on, outlet control, 60 °C |
+| AutoTemp, cold start | *AutoTemp* cold start: 33 °C, just below the outlet (34.6 °C); inlet 19.8 °C |
+| AutoTemp, kick-in | *AutoTemp* kick-in: inlet control, 21 °C (inlet 22.3 °C) |
+| AutoTemp, follow the inlet | *AutoTemp* raised to 35 °C: inlet 37.9 °C, 2.9 K above · raised to 30 °C: morning ramp (30 °C) · lowered to 34 °C: inlet 33.8 °C, 1.2 K below for 5 min |
+| AutoTemp, frost protection | *AutoTemp* frost protection: lowered to 33 °C (coil 0.6 °C) |
+| AutoTemp, oil boost | *AutoTemp* oil boost: 38 °C after 55 min below 1500 rpm, then oil boost over (speed held): 33 °C |
+| Stop | *Therma V stop* setpoint 20 °C (thermo off, AutoTemp off), max modulation 40 % |
 
-**1. Create the helper.** *Settings → Devices & services → Helpers → Create helper → Text*, name it **AutoTemp status** (entity id `input_text.autotemp_status`), *Create*. The default maximum of 100 characters is enough. Without the helper the automations work the same and write nothing.
+Two cards (*Edit dashboard → Add card → Manual*):
 
-**2. Add the cards.** *Edit dashboard → Add card → Manual*:
-
-- [autotemp-status-card.yaml](autotemp-status-card.yaml): one line with what AutoTemp is doing now (*active*, *waiting for the compressor*, *paused (defrost)*, *done for today (after 17:00)*, *off (setpoint 20 °C)* or *disabled*) and, below it, its last change with how long ago. The first line is worked out on the dashboard, because while AutoTemp waits it does not run and cannot write anything.
-- The history of the day, from the logbook, which records every change of the helper:
+- **What it did and why**, the logbook of the setpoint: its changes (*changed to 35*) with the line explaining each, newest first.
 
   ```yaml
   type: logbook
   title: AutoTemp
   target:
-    entity_id: input_text.autotemp_status
+    entity_id: number.lg_therma_v_r290_target_temperature_circuit_1_radiators
   hours_to_show: 24
   ```
 
-The automation's own entity id is `automation.autotemp_heat_circuit_1` when it was saved with the alias from the file; if yours differs (*Settings → Automations → AutoTemp → ⋮ → Information → Settings*), adjust it in the card.
+- **What it is doing now and next**, [autotemp-status-card.yaml](autotemp-status-card.yaml): *AutoTemp: active* with the setpoint, the inlet and where it raises and lowers next (*raises from 37.8 °C, lowers from 34 °C*), *frost protection*, *cold start* with the outlet and the switch to inlet control, *paused (defrost)*, *waiting for the compressor*, *done for today (after 17:00)*, *off (setpoint 20 °C)* or *disabled*. It is worked out on the dashboard from the same states AutoTemp uses, so it also says why AutoTemp is idle. The thresholds are written into the card; change them there too if you change them in AutoTemp.
+
+The card uses the automation's entity id `automation.autotemp_heat_circuit_1`, which it gets when saved with the alias from the file; if yours differs (*Settings → Automations → AutoTemp → ⋮ → Information → Settings*), adjust it in the card.
 
 ## Stop (18:00)
 
