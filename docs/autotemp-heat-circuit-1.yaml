@@ -45,7 +45,8 @@ trigger_variables:
   speed_entity: sensor.lg_therma_v_r290_compressor_speed
   # Thresholds (used by the triggers and the conditions)
   up_gap: 2.8        # raise by step when inlet >= setpoint + up_gap
-  emergency_gap: 3   # raise always (even while frosting) when inlet >= setpoint + emergency_gap
+  emergency_gap: 3   # raise always (even while frosting) when inlet >= setpoint + emergency_gap:
+                     # close to thermo off (setpoint + 4 with a ±4 °C hysteresis)
   down_gap: 1        # lower when inlet <= setpoint - down_gap for 5 minutes
   frost_limit: 1     # frosting while the evaporator coil is below this (°C)
   low_rpm: 1500      # oil boost after 55 minutes below this compressor speed
@@ -309,7 +310,7 @@ actions:
               name: AutoTemp
               entity_id: '{{ setpoint_entity }}'
               message: >-
-                raised to {{ '%g' | format(raised) }} °C: {% if inlet >= setpoint + emergency_gap %}inlet {{ inlet }} °C, {{ (inlet - setpoint) | round(1) }} K above (emergency){% elif inlet >= setpoint + up_gap %}inlet {{ inlet }} °C, {{ (inlet - setpoint) | round(1) }} K above{% else %}morning ramp ({{ '%g' | format(ramp) }} °C){% endif %}
+                raised to {{ '%g' | format(raised) }} °C: {% if inlet >= setpoint + emergency_gap %}inlet {{ inlet }} °C, {{ (inlet - setpoint) | round(1) }} K above, close to thermo off{% elif inlet >= setpoint + up_gap %}inlet {{ inlet }} °C, {{ (inlet - setpoint) | round(1) }} K above{% else %}morning ramp ({{ '%g' | format(ramp) }} °C){% endif %}
       # 4. Frost protection: lower every 2 minutes so the unit throttles (may go
       #    below the ramp)
       - conditions:
