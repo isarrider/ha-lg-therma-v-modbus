@@ -29,4 +29,9 @@ actions:
       entity_id: number.lg_therma_v_r290_target_temperature_circuit_1_radiators
     data:
       value: 60
+  - action: logbook.log
+    data:
+      name: Therma V start
+      entity_id: number.lg_therma_v_r290_target_temperature_circuit_1_radiators
+      message: heating on, outlet control, 60 °C
 mode: single

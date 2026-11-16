@@ -7,6 +7,10 @@
 # ("Th On/Off Variable, Heating Water" in the installer menu of the remote) at
 # ±4 °C. The gaps below keep a margin to that; with a smaller hysteresis,
 # lower up_gap, emergency_gap and frost_max_gap.
+#
+# Every change of the setpoint is explained in one logbook line next to it
+# ("AutoTemp raised to 35 °C: inlet 37.9 °C, 2.9 K above"); a logbook card for
+# the setpoint shows them (docs/automations.md, "On the dashboard").
 alias: AutoTemp_Heat_Circuit_1
 description: >
   Until 17:00, while the compressor runs, not within 5 minutes after a defrost,
@@ -43,7 +47,7 @@ trigger_variables:
   up_gap: 2.8        # raise by step when inlet >= setpoint + up_gap
   emergency_gap: 3   # raise always (even while frosting) when inlet >= setpoint + emergency_gap
   down_gap: 1        # lower when inlet <= setpoint - down_gap for 5 minutes
-  frost_limit: 1     # frosting while the air after the evaporator is below this (°C)
+  frost_limit: 1     # frosting while the evaporator coil is below this (°C)
   low_rpm: 1500      # oil boost after 55 minutes below this compressor speed
   off_setpoint: 20   # setpoint at or below this = off, AutoTemp does nothing
   floor: 21          # lowest setpoint AutoTemp sets (also used by the cold-start trigger)
@@ -182,6 +186,12 @@ actions:
               entity_id: '{{ setpoint_entity }}'
             data:
               value: '{{ cold_sp }}'
+          - action: logbook.log
+            data:
+              name: AutoTemp
+              entity_id: '{{ setpoint_entity }}'
+              message: >-
+                cold start: {{ '%g' | format(cold_sp) }} °C, just below the outlet ({{ outlet }} °C); inlet {{ inlet }} °C
       # 1. Kick-in: outlet control, compressor on 1 minute, inlet at or above
       #    inlet_switch -> inlet control first, then a setpoint just below the
       #    inlet (at least the ramp)
@@ -197,6 +207,10 @@ actions:
           - condition: template
             value_template: '{{ inlet >= inlet_switch }}'
         sequence:
+          - variables:
+              kick_sp: >
+                {{ [ [ (inlet | round(0, 'floor')) - 1, floor, ramp ] | max,
+                     ceiling ] | min }}
           - action: select.select_option
             target:
               entity_id: select.lg_therma_v_r290_control_method
@@ -206,9 +220,13 @@ actions:
             target:
               entity_id: '{{ setpoint_entity }}'
             data:
-              value: >
-                {{ [ [ (inlet | round(0, 'floor')) - 1, floor, ramp ] | max,
-                     ceiling ] | min }}
+              value: '{{ kick_sp }}'
+          - action: logbook.log
+            data:
+              name: AutoTemp
+              entity_id: '{{ setpoint_entity }}'
+              message: >-
+                kick-in: inlet control, {{ '%g' | format(kick_sp) }} °C (inlet {{ inlet }} °C)
       # 2. Oil boost: 55 minutes below low_rpm -> inlet + boost_step, wait until
       #    the speed has been at or above low_rpm for boost_hold_sec, then drop
       - conditions:
@@ -229,6 +247,12 @@ actions:
               entity_id: '{{ setpoint_entity }}'
             data:
               value: '{{ boosted }}'
+          - action: logbook.log
+            data:
+              name: AutoTemp
+              entity_id: '{{ setpoint_entity }}'
+              message: >-
+                oil boost: {{ '%g' | format(boosted) }} °C after 55 min below {{ low_rpm }} rpm
           # Until the speed has been at or above low_rpm for boost_hold_sec
           # without a break, or the setpoint is set to off by hand
           - wait_for_trigger:
@@ -245,14 +269,22 @@ actions:
           - condition: template
             value_template: '{{ states(setpoint_entity) | float(999) > off_setpoint }}'
           # boost_after_drop below the inlet (rounded up), so the compressor slows down
+          - variables:
+              dropped: >
+                {% set i = states(inlet_entity) | float(0) %}
+                {{ [ [ (i | round(0, 'ceil')) - boost_after_drop, floor, ramp ] | max,
+                     boosted ] | min }}
           - action: number.set_value
             target:
               entity_id: '{{ setpoint_entity }}'
             data:
-              value: >
-                {% set i = states(inlet_entity) | float(0) %}
-                {{ [ [ (i | round(0, 'ceil')) - boost_after_drop, floor, ramp ] | max,
-                     boosted ] | min }}
+              value: '{{ dropped }}'
+          - action: logbook.log
+            data:
+              name: AutoTemp
+              entity_id: '{{ setpoint_entity }}'
+              message: >-
+                oil boost over ({{ 'speed held' if wait.trigger else 'timed out' }}): {{ '%g' | format(dropped) }} °C
       # 3. Raise: inlet up_gap above, or the setpoint below the ramp (both not
       #    while frosting), or emergency_gap above (always)
       - conditions:
@@ -265,11 +297,19 @@ actions:
                  (inlet >= setpoint + emergency_gap or
                   (not frosting and (inlet >= setpoint + up_gap or setpoint < ramp))) }}
         sequence:
+          - variables:
+              raised: '{{ [ setpoint + step, ceiling ] | min }}'
           - action: number.set_value
             target:
               entity_id: '{{ setpoint_entity }}'
             data:
-              value: '{{ [ setpoint + step, ceiling ] | min }}'
+              value: '{{ raised }}'
+          - action: logbook.log
+            data:
+              name: AutoTemp
+              entity_id: '{{ setpoint_entity }}'
+              message: >-
+                raised to {{ '%g' | format(raised) }} °C: {% if inlet >= setpoint + emergency_gap %}inlet {{ inlet }} °C, {{ (inlet - setpoint) | round(1) }} K above (emergency){% elif inlet >= setpoint + up_gap %}inlet {{ inlet }} °C, {{ (inlet - setpoint) | round(1) }} K above{% else %}morning ramp ({{ '%g' | format(ramp) }} °C){% endif %}
       # 4. Frost protection: lower every 2 minutes so the unit throttles (may go
       #    below the ramp)
       - conditions:
@@ -285,11 +325,19 @@ actions:
               {{ frosting and setpoint > floor and
                  inlet <= setpoint - step + frost_max_gap }}
         sequence:
+          - variables:
+              frost_sp: '{{ [ setpoint - step, floor ] | max }}'
           - action: number.set_value
             target:
               entity_id: '{{ setpoint_entity }}'
             data:
-              value: '{{ [ setpoint - step, floor ] | max }}'
+              value: '{{ frost_sp }}'
+          - action: logbook.log
+            data:
+              name: AutoTemp
+              entity_id: '{{ setpoint_entity }}'
+              message: >-
+                frost protection: lowered to {{ '%g' | format(frost_sp) }} °C (coil {{ evap }} °C)
       # 5. Lower: inlet at least down_gap below for 5 minutes, never below the ramp
       - conditions:
           - condition: state
@@ -303,11 +351,19 @@ actions:
             value_template: >-
               {{ inlet <= setpoint - down_gap and setpoint > [floor, ramp] | max }}
         sequence:
+          - variables:
+              lowered: '{{ [ setpoint - step, floor, ramp ] | max }}'
           - action: number.set_value
             target:
               entity_id: '{{ setpoint_entity }}'
             data:
-              value: '{{ [ setpoint - step, floor, ramp ] | max }}'
+              value: '{{ lowered }}'
+          - action: logbook.log
+            data:
+              name: AutoTemp
+              entity_id: '{{ setpoint_entity }}'
+              message: >-
+                lowered to {{ '%g' | format(lowered) }} °C: inlet {{ inlet }} °C, {{ (setpoint - inlet) | round(1) }} K below for 5 min
 mode: single
 max_exceeded: silent
 variables:

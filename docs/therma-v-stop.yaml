@@ -30,4 +30,9 @@ actions:
       entity_id: number.lg_therma_v_r290_max_compressor_modulation
     data:
       value: 40
+  - action: logbook.log
+    data:
+      name: Therma V stop
+      entity_id: number.lg_therma_v_r290_target_temperature_circuit_1_radiators
+      message: setpoint 20 °C (thermo off, AutoTemp off), max modulation 40 %
 mode: single
