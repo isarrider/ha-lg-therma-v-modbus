@@ -183,15 +183,17 @@ views:
 
 ## Full view
 
-A sections view (Home Assistant 2024.3+) with every entity the integration creates (except *Temperature after Evaporator*, a duplicate of *before*, disabled by default): overview with error code and fault in one line and a 24 h history, controls with starts and run time today, status and diagnostics with 24 h graphs of electrical and thermal power, refrigerant temperatures and pressures, energy and COP as big-number cards, the rarely used inputs, the energy states of holding 9, DHW and the experimental registers. It is a separate dashboard; do not paste it into the compact one.
+A sections view (Home Assistant 2024.3+) with every entity the integration creates (except *Temperature after Evaporator*, a duplicate of *before*, disabled by default): overview with a two-line quick view and a 24 h history, controls with a table of starts and defrosts (today and total), status and diagnostics with 24 h graphs of electrical and thermal power, refrigerant temperatures and pressures, today's energy, a table of power, energy and COP, energy per day, the rarely used inputs, the energy states of holding 9, DHW and the experimental registers. It is a separate dashboard; do not paste it into the compact one.
 
-<img src="images/dashboard-readme.webp" alt="Full view on a 12 kW unit while heating: error code and fault in one line, 24 h history of temperatures, compressor speed and flow rate; compressor controls with starts and run time today; 24 h graphs of electrical and thermal power, refrigerant temperatures and pressures, a week of water pressure; today's energy and COP as big-number cards, counters, weather with the sun line and poll statistics">
+<img src="images/dashboard-readme.webp" alt="Full view on a 12 kW unit while heating: a two-line quick view (error code, fault, water pressure, flow, Modbus errors; compressor speed, outlet → inlet, outdoor → coil), 24 h history of temperatures, compressor speed and flow rate; compressor controls with a table of starts and defrosts, today and total; 24 h graphs of electrical and thermal power (reported and calculated), refrigerant temperatures and pressures, a week of water pressure; today's energy, a table of power, energy and COP, weather with the sun line, poll statistics and energy per day">
+
+The screenshot also shows the AutoTemp status card, the logbook of setpoint changes and the AutoTemp row in the timeline; they belong to the example automations and are not in the file: see [On the dashboard](automations.md#on-the-dashboard).
 
 Most of it needs options switched on in *Configure → Options*; without them those rows show *Entity not found*. Remove them, or switch the option on:
 
 | Option | Cards |
 |---|---|
-| Energy registers | the power graph (*Electrical (reads high)*, *Thermal (reported)*), the COP cards, *Electrical today*, *Space heating today*, the energy counters below them, the daily *Electrical Energy Total* graph, *Demand vs supply* |
+| Energy registers | the power graph (*Electrical (reads high)*, *Thermal (reported)*), *Electrical today*, *Space heating today*, the table of power, energy and COP below them, *Energy per day*, *Demand vs supply* |
 | Compressor statistics | *Compressor Average Speed*, the table of starts, run time, defrosts, defrost time and defrost energy (today and total), *Starts and defrosts per day* |
 | Compressor modulation limit | *Max Compressor Modulation* |
 | Power limit | *Power Limit*, *Max Electrical Power* |
@@ -200,6 +202,10 @@ Most of it needs options switched on in *Configure → Options*; without them th
 
 The *Target Room Air Temperature Circuit 1/2* sensors are disabled by default; enable them in the entity settings or remove the tiles. The weather card uses `weather.forecast_home`, the default of the Met.no integration; replace it with your own weather entity. The line under it shows dawn, sunrise, solar noon, day length (sunrise to sunset), sunset and dusk from the Sun integration; *Next dawn*, *Next dusk* and *Next noon* may be disabled by default: enable them in the entity settings if they show –. Between sunrise and sunset the day length pairs tomorrow's sunrise with today's sunset, so it can be a minute or two off.
 
-*Electrical today* and *Space heating today* read the long-term statistics, so they count from the time the integration was set up: the first day is incomplete. The table of starts and defrosts takes *today* from the sensors' `today` attribute (2.2.9+), which counts from midnight and survives restarts.
+The quick view at the top shows on its first line the error code, fault, water pressure, flow and the number of Modbus errors since the start (option *Poll statistics*; without it the number stays 0). A ⚠ marks a pressure below 1.0 bar, a flow below 10 L/min and a Modbus error less than an hour ago (then with how long ago); during a defrost the line ends with *defrosting*. The second line shows compressor speed, outlet → inlet and outdoor → evaporator coil. The coil is the coldest point the air passes, so the air leaving the outdoor unit is a little warmer than the second value.
+
+The power graph shows the thermal power twice: *Thermal (reported)* from the unit and *Thermal (calculated)* from flow × (outlet − inlet), which goes below 0 during a defrost.
+
+*Electrical today*, *Space heating today* and *Energy per day* read the long-term statistics, so they count from the time the integration was set up: the first day is incomplete. The table of starts and defrosts takes *today* from the sensors' `today` attribute (2.2.9+), which counts from midnight and survives restarts.
 
 The YAML is in its own file: **[dashboard-full.yaml](dashboard-full.yaml)**. Open it, use *Raw* (or the copy button) on GitHub, and paste all of it into the raw configuration editor of a new, empty dashboard.

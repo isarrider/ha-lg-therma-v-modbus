@@ -80,7 +80,11 @@ def _counts_table() -> str:
     view = yaml.safe_load(FULL_VIEW.read_text())["views"][0]
     for section in view["sections"]:
         for card in section["cards"]:
-            if card["type"] == "markdown" and "Compressor starts" in card["content"]:
+            if (
+                card["type"] == "markdown"
+                and "compressor_starts" in card["content"]
+                and "<table" in card["content"]
+            ):
                 return card["content"]
     raise AssertionError("the starts and defrosts table is gone")
 
@@ -109,10 +113,19 @@ async def test_the_starts_and_defrosts_table(hass, unit) -> None:
     await hass.async_block_till_done()
 
     text = Template(_counts_table(), hass).async_render()
-    lines = [" ".join(line.split()) for line in text.splitlines() if line.strip()]
-    assert "Compressor starts | **3** | 31 |" in lines[2]
-    assert "Run time | **3.2 h** | 240 h |" in lines[3]
-    assert "Defrosts | **2** | 7 |" in lines[4]
-    assert "Defrost time | **14 min** | 42 min |" in lines[5]
-    assert "Defrost energy | **0.42 kWh** | 1.8 kWh |" in lines[6]
-    assert lines[7] == "Last run 23 min · last defrost 6 min"
+    rows = [
+        [
+            re.sub(r"<[^>]+>", "", cell).strip()
+            for cell in re.findall(r"<td[^>]*>(.*?)</td>", row)
+        ]
+        for row in re.findall(r"<tr>(.*?)</tr>", text)
+    ]
+    assert rows == [
+        ["", "Today", "Total"],
+        ["Starts", "3", "31"],
+        ["Run time", "3.2 h", "240 h"],
+        ["Defrosts", "2", "7"],
+        ["Defrost time", "14 min", "42 min"],
+        ["Defrost energy", "0.42 kWh", "1.8 kWh"],
+    ]
+    assert text.splitlines()[-1].strip() == "Last run 23 min · last defrost 6 min"
