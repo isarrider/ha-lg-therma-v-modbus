@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 422" width="720" height="422" role="img" aria-label="Faster: the compressor gains more than the warmer water costs">
+<style>
+.bg{fill:#fcfcfb}.t{fill:#0b0b0b;font:600 15px system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
+.s{fill:#52514e;font:12px system-ui,-apple-system,Segoe UI,Roboto,sans-serif}.lab{fill:#0b0b0b;font:12px system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
+.grid{stroke:#e4e3df;stroke-width:1}.axis{stroke:#9d9c96;stroke-width:1}
+.c1{stroke:#2a78d6;fill:#2a78d6}.c2{stroke:#eb6834;fill:#eb6834}.c3{stroke:#1baf7a;fill:#1baf7a}.c4{stroke:#6250d6;fill:#6250d6}.c0{stroke:#9d9c96;fill:#9d9c96}
+.band{fill:#2a78d6;fill-opacity:.15;stroke:none}.ln{fill:none!important;stroke-width:2}.dash{stroke-dasharray:5 4}.ring{stroke:#fcfcfb;stroke-width:2}
+@media (prefers-color-scheme: dark){.bg{fill:#1a1a19}.t,.lab{fill:#f0efec}.s{fill:#c3c2b7}.grid{stroke:#33332f}.axis{stroke:#6d6c66}
+.c1{stroke:#3987e5;fill:#3987e5}.c2{stroke:#d95926;fill:#d95926}.c3{stroke:#199e70;fill:#199e70}.c4{stroke:#9085e9;fill:#9085e9}.band{fill:#3987e5;fill-opacity:.22}.ring{stroke:#1a1a19}}
+</style>
+<rect class="bg" width="720" height="422" rx="8"/>
+<text class="t" x="64" y="26">Faster: the compressor gains more than the warmer water costs</text>
+<text class="s" x="64" y="44">Change in real COP against 1,400 rpm; the radiator part assumes standard radiators, 19 K above the room</text>
+<line class="grid" x1="64" x2="696" y1="330.0" y2="330.0"/><text class="s" x="56" y="334.0" text-anchor="end">-0.5</text>
+<line class="grid" x1="64" x2="696" y1="240.7" y2="240.7"/><text class="s" x="56" y="244.7" text-anchor="end">0</text>
+<line class="grid" x1="64" x2="696" y1="151.3" y2="151.3"/><text class="s" x="56" y="155.3" text-anchor="end">0.5</text>
+<line class="grid" x1="64" x2="696" y1="62.0" y2="62.0"/><text class="s" x="56" y="66.0" text-anchor="end">1</text>
+<text class="s" x="64.0" y="348" text-anchor="middle">1400</text>
+<text class="s" x="169.3" y="348" text-anchor="middle">1450</text>
+<text class="s" x="274.7" y="348" text-anchor="middle">1500</text>
+<text class="s" x="380.0" y="348" text-anchor="middle">1550</text>
+<text class="s" x="485.3" y="348" text-anchor="middle">1600</text>
+<text class="s" x="590.7" y="348" text-anchor="middle">1650</text>
+<text class="s" x="696.0" y="348" text-anchor="middle">1700</text>
+<line class="axis" x1="64" x2="696" y1="330" y2="330"/>
+<text class="s" x="380.0" y="368" text-anchor="middle">compressor speed (rpm)</text>
+<text class="s" x="14" y="196.0" transform="rotate(-90 14 196.0)" text-anchor="middle">change in real COP</text>
+<clipPath id="plot"><rect x="64" y="56" width="632" height="274"/></clipPath><g clip-path="url(#plot)">
+<line class="axis" x1="64.0" x2="696.0" y1="240.7" y2="240.7"/>
+<polyline class="c1 ln " points="64.0,240.7 169.3,219.2 274.7,197.8 380.0,167.4 485.3,153.1 590.7,124.5 696.0,85.2"/>
+<polyline class="c3 ln " points="64.0,240.7 169.3,244.2 274.7,247.8 380.0,251.4 485.3,255.0 590.7,258.5 696.0,262.1"/>
+<polyline class="c2 ln dash" points="64.0,240.7 169.3,251.4 274.7,260.3 380.0,271.0 485.3,280.0 590.7,288.9 696.0,299.6"/>
+<polyline class="c4 ln " points="64.0,240.7 169.3,233.5 274.7,224.6 380.0,206.7 485.3,206.7 590.7,190.6 696.0,163.8"/>
+<text class="lab" x="692.0" y="155.8" text-anchor="end">net +0.4</text>
+</g>
+<line class="c1 ln" x1="64" x2="82" y1="386" y2="386"/><text class="lab" x="88" y="390">compressor efficiency (measured)</text>
+<line class="c3 ln" x1="340.4" x2="358.4" y1="386" y2="386"/><text class="lab" x="364.4" y="390">colder evaporator (measured)</text>
+<line class="c2 ln dash" x1="64" x2="82" y1="408" y2="408"/><text class="lab" x="88" y="412">warmer water for the radiators (estimate)</text>
+<line class="c4 ln" x1="405.2" x2="423.2" y1="408" y2="408"/><text class="lab" x="429.2" y="412">net</text>
+</svg>
