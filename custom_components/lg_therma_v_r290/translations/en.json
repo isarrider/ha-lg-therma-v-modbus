@@ -101,12 +101,12 @@
           },
           "compressor_statistics": {
             "name": "Compressor statistics",
-            "description": "Counts compressor starts and run time and averages its speed, from the values polled anyway; nothing extra is read from the unit. Many short runs mean the unit is cycling, which costs efficiency and wear.",
+            "description": "Counts compressor starts, run time and defrosts and averages the compressor speed, from the values polled anyway; nothing extra is read from the unit. Many short runs mean the unit is cycling, which costs efficiency and wear.",
             "data": {
               "compressor_statistics": "Switch on"
             },
             "data_description": {
-              "compressor_statistics": "Adds:\n\n- **Compressor Starts** — a counter; starts per day or hour come from the statistics. Attribute: the last run's duration\n- **Compressor Run Time** — hours, a counter\n- **Compressor Average Speed** — rpm while running, today (reset at midnight)\n\nAll three are kept across restarts."
+              "compressor_statistics": "Adds:\n\n- **Compressor Starts** — a counter; starts per day or hour come from the statistics. Attributes: today's starts, the last run's duration\n- **Compressor Run Time** — hours, a counter. Attribute: today's hours\n- **Compressor Average Speed** — rpm while running, today (reset at midnight)\n- **Defrosts** — a counter. Attributes: today's defrosts, the last defrost's duration\n- **Defrost Time** — minutes, a counter. Attribute: today's minutes\n\nAll of them are kept across restarts."
             }
           },
           "poll_statistics": {
@@ -221,12 +221,12 @@
           },
           "compressor_statistics": {
             "name": "Compressor statistics",
-            "description": "Counts compressor starts and run time and averages its speed, from the values polled anyway; nothing extra is read from the unit. Many short runs mean the unit is cycling, which costs efficiency and wear.",
+            "description": "Counts compressor starts, run time and defrosts and averages the compressor speed, from the values polled anyway; nothing extra is read from the unit. Many short runs mean the unit is cycling, which costs efficiency and wear.",
             "data": {
               "compressor_statistics": "Switch on"
             },
             "data_description": {
-              "compressor_statistics": "Adds:\n\n- **Compressor Starts** — a counter; starts per day or hour come from the statistics. Attribute: the last run's duration\n- **Compressor Run Time** — hours, a counter\n- **Compressor Average Speed** — rpm while running, today (reset at midnight)\n\nAll three are kept across restarts."
+              "compressor_statistics": "Adds:\n\n- **Compressor Starts** — a counter; starts per day or hour come from the statistics. Attributes: today's starts, the last run's duration\n- **Compressor Run Time** — hours, a counter. Attribute: today's hours\n- **Compressor Average Speed** — rpm while running, today (reset at midnight)\n- **Defrosts** — a counter. Attributes: today's defrosts, the last defrost's duration\n- **Defrost Time** — minutes, a counter. Attribute: today's minutes\n\nAll of them are kept across restarts."
             }
           },
           "poll_statistics": {
@@ -531,6 +531,12 @@
       },
       "compressor_average_speed": {
         "name": "Compressor Average Speed"
+      },
+      "defrosts": {
+        "name": "Defrosts"
+      },
+      "defrost_time": {
+        "name": "Defrost Time"
       },
       "cop_external_meter": {
         "name": "COP (External Meter)"

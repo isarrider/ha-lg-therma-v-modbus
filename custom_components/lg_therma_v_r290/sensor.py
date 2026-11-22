@@ -502,6 +502,8 @@ async def async_setup_entry(
                 LGCompressorStartsSensor(coordinator, entry),
                 LGCompressorRunTimeSensor(coordinator, entry),
                 LGCompressorAverageSpeedSensor(coordinator, entry),
+                LGDefrostsSensor(coordinator, entry),
+                LGDefrostTimeSensor(coordinator, entry),
             ]
         )
     else:
@@ -1052,8 +1054,13 @@ class LGCompressorStartsSensor(LGEntity, RestoreEntity, SensorEntity):
     @property
     def extra_state_attributes(self) -> dict[str, Any]:
         stats = self.coordinator.compressor_stats
-        last = None if stats is None else stats.last_run_s
-        return {"last_run_minutes": None if last is None else round(last / 60, 1)}
+        if stats is None:
+            return {}
+        last = stats.last_run_s
+        return {
+            "today": stats.day_starts,
+            "last_run_minutes": None if last is None else round(last / 60, 1),
+        }
 
 
 class LGCompressorRunTimeSensor(LGEntity, SensorEntity):
@@ -1072,6 +1079,13 @@ class LGCompressorRunTimeSensor(LGEntity, SensorEntity):
     def native_value(self) -> float | None:
         stats = self.coordinator.compressor_stats
         return None if stats is None else round(stats.run_hours, 3)
+
+    @property
+    def extra_state_attributes(self) -> dict[str, Any]:
+        stats = self.coordinator.compressor_stats
+        if stats is None:
+            return {}
+        return {"today": round(stats.day_run_s / 3600, 2)}
 
 
 class LGCompressorAverageSpeedSensor(LGEntity, SensorEntity):
@@ -1097,3 +1111,57 @@ class LGCompressorAverageSpeedSensor(LGEntity, SensorEntity):
         if stats is None:
             return {}
         return {"day": stats.day, "run_hours_today": round(stats.day_run_s / 3600, 2)}
+
+
+class LGDefrostsSensor(LGEntity, SensorEntity):
+    """How often the unit defrosted, a total counter; today as an attribute.
+
+    Kept across restarts by Compressor Starts, which stores all counts.
+    """
+
+    _attr_icon = "mdi:snowflake-melt"
+    _attr_state_class = SensorStateClass.TOTAL_INCREASING
+
+    def __init__(self, coordinator: LGThermaVCoordinator, entry: ConfigEntry) -> None:
+        super().__init__(coordinator, entry, compressor_stats.KEY_DEFROSTS)
+
+    @property
+    def native_value(self) -> int | None:
+        stats = self.coordinator.compressor_stats
+        return None if stats is None else stats.defrosts
+
+    @property
+    def extra_state_attributes(self) -> dict[str, Any]:
+        stats = self.coordinator.compressor_stats
+        if stats is None:
+            return {}
+        last = stats.last_defrost_s
+        return {
+            "today": stats.day_defrosts,
+            "last_defrost_minutes": None if last is None else round(last / 60, 1),
+        }
+
+
+class LGDefrostTimeSensor(LGEntity, SensorEntity):
+    """Minutes spent defrosting, a total counter; today as an attribute."""
+
+    _attr_icon = "mdi:timer-snowflake"
+    _attr_device_class = SensorDeviceClass.DURATION
+    _attr_native_unit_of_measurement = UnitOfTime.MINUTES
+    _attr_state_class = SensorStateClass.TOTAL_INCREASING
+    _attr_suggested_display_precision = 1
+
+    def __init__(self, coordinator: LGThermaVCoordinator, entry: ConfigEntry) -> None:
+        super().__init__(coordinator, entry, compressor_stats.KEY_DEFROST_TIME)
+
+    @property
+    def native_value(self) -> float | None:
+        stats = self.coordinator.compressor_stats
+        return None if stats is None else round(stats.defrost_minutes, 2)
+
+    @property
+    def extra_state_attributes(self) -> dict[str, Any]:
+        stats = self.coordinator.compressor_stats
+        if stats is None:
+            return {}
+        return {"today": round(stats.day_defrost_s / 60, 1)}
