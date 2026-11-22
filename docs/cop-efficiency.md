@@ -31,7 +31,7 @@ at 1,400 rpm. The unit is the one in [findings.md](findings.md).
 
 | Finding | Result | Confidence |
 |---|---|---|
-| Electrical Power (input 34–45) against the house meter | over a day about **1.4 ×** the real energy (real ≈ **0.72** × unit); while running real ≈ 0.93 × unit − 340 W, at standby ≈ 0.62 × unit | 🟢 31 starts and stops, 101 steps at 1-second resolution, 3–22 Nov |
+| Electrical Power (input 34–45) against the house meter | over a day about **1.4 ×** the real energy (real ≈ **0.71** × unit); while running real ≈ 0.94 × unit − 355 W; at night, idle, about **13 W** instead of the 49 W reported | 🟢 31 starts and stops, 121 three-phase steps at 1-second resolution, October against November nights |
 | Real COP at 1,400 rpm, about 6 °C outside | about **3.5** (the unit's own figures say 2.6) | 🟡 the flow sensor allows ±13 % |
 | Real COP at 1,700 rpm, same conditions | about **4.3** (unit: 3.2) | 🟡 same |
 | Gain from 1,400 to 1,700 rpm at the same lift | **+0.5 COP** | 🟢 210 matched minutes, 95 % of them better |
@@ -45,6 +45,8 @@ at 1,400 rpm. The unit is the one in [findings.md](findings.md).
 - **House meter:** the smart meter read by vzlogger, stored in VictoriaMetrics, in two resolutions:
   - **raw, one value per second** (1.7 million values, 3–22 November, `/api/v1/export` per day): for the calibration at 1-second resolution and the real power and energy factors;
   - **30-second averages** (`query_range` with `avg_over_time(...[30s])`, `step=30s`, in parts of eight days, as that API returns at most about 30,000 points per request): for the first comparison at the 31 starts and stops, and the minute values in the COP analysis.
+  - **the three phases L1, L2, L3, raw, one value per second** (3–22 November): to tell the heat pump's steps from the rest of the house (see [Three phases](#three-phases-the-heat-pumps-steps-apart-from-the-house)). They add up to the total exactly, second by second.
+  - **the nights of October** (00:00–06:00, the three phases and the total, raw): the heat pump was switched on, indoor and outdoor unit, on the morning of 23 October 2026, so the nights before and after give its real standby (see [Standby](#standby-october-against-november-nights)).
 - **Unit side:** *Electrical Power* changes are recorded at the poll interval (about 10 s); its figure arrives about 40 s after the house meter sees a change, which the 1-second comparison corrects for.
 - **Steady running:** compressor on for at least 20 minutes, the speed stable within ±30 rpm over 10 minutes, thermal power above 200 W, electrical above 300 W. **No defrosts:** minutes with a flow above 20 L/min or negative calculated heat, and the 15 minutes after them, were left out (the pump runs at about 34 L/min during a defrost).
 - That leaves **5,713 steady minutes**.
@@ -76,16 +78,49 @@ The same comparison with the house meter's raw values (one per second, 1.7 milli
 | Starts and stops | 5 (31 above) | 1,700 W | **0.72** (0.72–0.73) |
 | Compressor off: night preheating pulses | 12 | 280 W | **0.62** (0.41–0.71) |
 
-So each *additional* watt while running is reported almost right, but the step from standby to running carries a roughly constant overstatement. Fitted (robust, the 89 steps with the compressor running): **real ≈ 0.93 × unit − 340 W while running, real ≈ 0.62 × unit with the compressor off**. The two numbers of the running fit are uncertain on their own (bootstrap 90 %: slope 0.74–1.08, offset 10–580 W), as most steps are small; the factor therefore depends on the power level:
+So each *additional* watt while running is reported almost right, but the step from standby to running carries a roughly constant overstatement. Fitted on the house total (robust, the 89 steps with the compressor running): real ≈ 0.93 × unit − 340 W while running. The two numbers of that fit are uncertain on their own (bootstrap 90 %: slope 0.74–1.08, offset 10–580 W), as most steps are small and the rest of the house adds noise. The three phases narrow it down.
+
+### Three phases: the heat pump's steps apart from the house
+
+The heat pump is a **three-phase load**: each of its steps shows up on L1, L2 and L3 at the same time, each phase carrying 27–30 % of it. Almost everything else in the house is single-phase. So a step that all three phases share is the heat pump; a step on one phase is something else. Kept were the steps where all three phases moved in the unit's direction and none carried more than 55 % of the sum (121 of 151):
+
+| Steps | House ÷ unit (median, middle half) |
+|---|---|
+| Speed changes while running (103) | **0.96** (0.78–1.12) |
+| Starts and stops (8) | **0.73** (0.72–0.75) |
+| Compressor off (10), mostly the morning switch-on and preheating pulses | 0.66 (0.45–0.71) |
+
+Fitted (robust, all running steps, the heat pump's part taken as three times the middle one of the three phase steps, so a single-phase load at the same moment drops out):
+
+| Fit for the running compressor | Real power | Bootstrap 90 % |
+|---|---|---|
+| House total | 0.93 × unit − 340 W | 🟡 slope 0.74–1.08, offset 10–580 W |
+| **Three phases** | **0.94 × unit − 355 W** | 🟢 slope 0.89–1.00, offset 250–460 W |
+
+The factor therefore depends on the power level:
 
 | Unit shows | Real (fitted) | Factor |
 |---|---|---|
 | 1,000 W | about 590 W | 0.59 |
-| 1,500 W | about 1,060 W | 0.70 |
-| 2,000 W | about 1,520 W | 0.76 |
-| 2,500 W | about 1,990 W | 0.80 |
+| 1,500 W | about 1,060 W | 0.71 |
+| 2,000 W | about 1,530 W | 0.76 |
+| 2,500 W | about 2,000 W | 0.80 |
 
-Over whole days it is stable, whichever fit is used: the **real energy is 0.72 × the unit's** (0.71 with the first fit, 0.72–0.73 with this one, every day between 0.705 and 0.737). **All real COPs on this page use this 1-second fit** (0.93 × unit − 340 W for the running compressor). Against the first fit they come out about 0.07–0.09 lower; the comparisons between speeds do not change.
+### Standby: October against November nights
+
+With the compressor off at night, the unit reports a steady **49 W** (pump, controller, electronics). The steps are too small to measure that directly, but the nights before and after the heat pump was switched on (morning of 23 October 2026) are. The quietest minutes of each night (10th percentile of the one-minute means, 01:00–05:00), only nights without a computer that was sometimes left on (about 13 W on L3):
+
+| Nights | L1 | L2 | L3 | Total |
+|---|---|---|---|---|
+| 1–22 October, heat pump off | 5.5 W | 5.3 W | 42.3 W | **53.6 W** (middle half 52.5–54.3) |
+| from 24 October, heat pump on | 6.3 W | 13.1 W | 46.2 W | **65.9 W** (middle half 65.1–67.4) |
+| **Difference = heat pump** | +0.8 W | +7.8 W | +4.0 W | **about 13 W** |
+
+So the heat pump really draws **about 13 W** at night with the pump running, about a quarter of the 49 W it reports. The preheating pulses at night are a different load (the compressor heated, about 280 W by the unit) and come out at about 0.62 × the unit's figure.
+
+### Energy per day
+
+Running 0.94 × unit − 355 W, idle about 13 W, preheating 0.62 × unit: over whole days the **real energy is 0.71 × the unit's** (every day between 0.68 and 0.73). The idle part is only about 5 % of the unit's energy, so the standby changes the factor by about 0.01 (0.72 before). **All real COPs on this page use this calibration**; against the house-total fit (0.93 × unit − 340 W) the running figures move by at most 0.03, the whole days by about +0.09 because of the lower standby.
 
 **In Home Assistant**, two template sensors (*Settings → Devices & services → Helpers → Create helper → Template → Template a sensor*) give the real figures:
 
@@ -93,7 +128,7 @@ Over whole days it is stable, whichever fit is used: the **real energy is 0.72 �
 
   ```jinja
   {% set x = states('sensor.lg_therma_v_r290_electrical_energy_total') %}
-  {{ (x | float * 0.72) | round(2) if is_number(x) else none }}
+  {{ (x | float * 0.71) | round(2) if is_number(x) else none }}
   ```
 
 - *Heat pump power (real)*, unit W, device class *Power*, state class *Measurement*:
@@ -103,7 +138,9 @@ Over whole days it is stable, whichever fit is used: the **real energy is 0.72 �
   {% if is_number(x) %}
     {% set x = x | float %}
     {% if is_state('binary_sensor.lg_therma_v_r290_compressor', 'on') %}
-      {{ [x * 0.93 - 340, 0] | max | round(0) }}
+      {{ [x * 0.94 - 355, 0] | max | round(0) }}
+    {% elif x <= 80 %}
+      13
     {% else %}
       {{ (x * 0.62) | round(0) }}
     {% endif %}
@@ -183,9 +220,9 @@ What the house needs per day does not change: delivering, say, 40 kWh of heat at
 
 The real COP of each day (heat ÷ calibrated electricity), corrected to 7.5 °C outside, over the day's average speed:
 
-<img src="images/cop-daily.svg" alt="Scatter of 20 days: average compressor speed from 1,217 to 1,586 rpm against the day's real COP from 3.60 to 4.01. Days around 1,200 to 1,420 rpm sit at about 3.6 to 4.0, days around 1,450 to 1,530 rpm at about 3.6 to 3.75, one day at 1,586 rpm at 3.95.">
+<img src="images/cop-daily.svg" alt="Scatter of 20 days: average compressor speed from 1,217 to 1,586 rpm against the day's real COP from 3.67 to 4.10. Days around 1,200 to 1,420 rpm sit at about 3.7 to 4.1, days around 1,450 to 1,530 rpm at about 3.7 to 3.85, one day at 1,586 rpm at about 4.0.">
 
-The faster days came out slightly *worse* on average, not better (fitted with the outdoor temperature, about −0.08 per 100 rpm). That does not contradict the minutes: on this unit the speed is set by demand, so the faster days were the colder ones, with more defrosting and warmer water, and a simple outdoor correction removes only part of that. Twenty days cannot separate it. Whether the gain per minute survives a whole day has to be tested on purpose.
+The faster days came out slightly *worse* on average, not better (fitted with the outdoor temperature, about −0.06 per 100 rpm). That does not contradict the minutes: on this unit the speed is set by demand, so the faster days were the colder ones, with more defrosting and warmer water, and a simple outdoor correction removes only part of that. Twenty days cannot separate it. Whether the gain per minute survives a whole day has to be tested on purpose.
 
 ## What is being tested now
 
@@ -209,14 +246,15 @@ After a week or two, the same exports (Home Assistant history within 10 days, th
      --data-urlencode 'end=2026-11-03T23:59:59+01:00' > meter-11-03.json
    ```
 
-3. **Align the clocks:** find the delay between the unit's figure and the meter (here about 40 s) by cross-correlating their changes, before comparing steps.
-4. **Lift** from the two pressures: saturation temperature of propane at (gauge pressure + 1.013) bar, e.g. with CoolProp `PropsSI('T', 'P', p_abs_pa, 'Q', 1, 'Propane')`.
-5. **Steady minutes only**, no defrosts, then group by speed at the same lift or matched outdoor and condensing temperature.
+3. **Use the phases, if the meter gives them:** a three-phase heat pump moves all three at once, most other loads only one; keeping the steps all three share removes most of the noise. Nights before and after the heat pump was switched on give its standby.
+4. **Align the clocks:** find the delay between the unit's figure and the meter (here about 40 s) by cross-correlating their changes, before comparing steps.
+5. **Lift** from the two pressures: saturation temperature of propane at (gauge pressure + 1.013) bar, e.g. with CoolProp `PropsSI('T', 'P', p_abs_pa, 'Q', 1, 'Propane')`.
+6. **Steady minutes only**, no defrosts, then group by speed at the same lift or matched outdoor and condensing temperature.
 
 ## Limits
 
 - One unit, one house, radiators, 20 days in November at about 0–14 °C outside.
 - The absolute COP level rests on the flow sensor (±13 %); the comparisons between speeds do not.
-- The electricity calibration covers the running compressor at about 1,100–2,100 W of the unit's figure (99 % of the running minutes) and the night pulses at about 300 W; outside that, it is an extrapolation. The energy counter (input 38) is assumed to be off by the same factor as the power register.
+- The electricity calibration covers the running compressor at about 1,100–2,100 W of the unit's figure (99 % of the running minutes) the night pulses at about 300 W and the idle standby from the October and November nights; outside that, it is an extrapolation. The energy counter (input 38) is assumed to be off by the same factor as the power register.
 - The radiator penalty is an estimate with standard radiator physics, not a measurement in this house.
 - No steady data above 1,750 rpm yet.
