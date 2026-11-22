@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 400" width="720" height="400" role="img" aria-label="The unit overstates its electricity by about 45 %">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 400" width="720" height="400" role="img" aria-label="At starts and stops the house meter sees about 0.7 × the unit's jump">
 <style>
 .bg{fill:#fcfcfb}.t{fill:#0b0b0b;font:600 15px system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
 .s{fill:#52514e;font:12px system-ui,-apple-system,Segoe UI,Roboto,sans-serif}.lab{fill:#0b0b0b;font:12px system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
@@ -9,7 +9,7 @@
 .c1{stroke:#3987e5;fill:#3987e5}.c2{stroke:#d95926;fill:#d95926}.c3{stroke:#199e70;fill:#199e70}.c4{stroke:#9085e9;fill:#9085e9}.band{fill:#3987e5;fill-opacity:.22}.ring{stroke:#1a1a19}}
 </style>
 <rect class="bg" width="720" height="400" rx="8"/>
-<text class="t" x="64" y="26">The unit overstates its electricity by about 45 %</text>
+<text class="t" x="64" y="26">At starts and stops the house meter sees about 0.7 × the unit's jump</text>
 <text class="s" x="64" y="44">Jump in power at 31 compressor starts and stops, 3–22 Nov 2026: unit's figure vs the house meter</text>
 <line class="grid" x1="64" x2="696" y1="330.0" y2="330.0"/><text class="s" x="56" y="334.0" text-anchor="end">800</text>
 <line class="grid" x1="64" x2="696" y1="253.4" y2="253.4"/><text class="s" x="56" y="257.4" text-anchor="end">1200</text>
