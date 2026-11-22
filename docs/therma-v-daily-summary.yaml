@@ -1,0 +1,39 @@
+# Therma V daily summary: one push message at 18:05 with the day's compressor
+# starts, run time, average speed and defrosts. Needs the Compressor
+# statistics option (2.2.9+ for the "today" counts). Explained in
+# docs/automations.md. Paste it in Settings → Automations & scenes → Create
+# automation → ⋮ → Edit in YAML, and set notify_action to your phone's notify
+# action (Developer tools → Actions, search "notify.mobile_app").
+alias: Therma V daily summary
+description: >-
+  At 18:05, after the stop, sends the day's compressor starts, run time,
+  average speed while running, the last run's length, and the defrosts with
+  their total time, from the counters' "today" attributes.
+triggers:
+  - trigger: time
+    at: '18:05:00'
+conditions: []
+variables:
+  notify_action: notify.notify # e.g. notify.mobile_app_pixel_8_pro
+  starts: sensor.lg_therma_v_r290_compressor_starts
+  run_time: sensor.lg_therma_v_r290_compressor_run_time
+  speed: sensor.lg_therma_v_r290_compressor_average_speed
+  defrosts: sensor.lg_therma_v_r290_defrosts
+  defrost_time: sensor.lg_therma_v_r290_defrost_time
+  message: >-
+    {% set n = state_attr(starts, 'today') | int(0) %}
+    {% set rpm = states(speed) | int(0) %}
+    {% set last = state_attr(starts, 'last_run_minutes') %}
+    {% set d = state_attr(defrosts, 'today') | int(0) %}
+    {{ n }} start{{ '' if n == 1 else 's' }},
+    {{ state_attr(run_time, 'today') | float(0) | round(1) }} h run time
+    {%- if rpm > 0 %} (Ø {{ '{:,}'.format(rpm) }} rpm){% endif %}
+    {%- if last is number %}, last run {{ last | round(0) | int }} min{% endif %}
+    · {{ d }} defrost{{ '' if d == 1 else 's' }}
+    {%- if d > 0 %}, {{ state_attr(defrost_time, 'today') | float(0) | round(0) | int }} min{% endif %}
+actions:
+  - action: '{{ notify_action }}'
+    data:
+      title: Heat pump today
+      message: '{{ message }}'
+mode: single

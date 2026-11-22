@@ -29,6 +29,7 @@ FILES = [
     DOCS / "therma-v-start.yaml",
     DOCS / "autotemp-heat-circuit-1.yaml",
     DOCS / "therma-v-stop.yaml",
+    DOCS / "therma-v-daily-summary.yaml",
 ]
 STATUS_CARD = DOCS / "autotemp-status-card.yaml"
 
@@ -58,7 +59,7 @@ async def test_every_automation_entity_exists(hass, unit) -> None:
     entry = MockConfigEntry(
         domain=DOMAIN,
         data={"connection_type": "rtu", **RTU},
-        options={"compressor_modulation_limit": True},
+        options={"compressor_modulation_limit": True, "compressor_statistics": True},
         version=1,
         minor_version=4,
     )
@@ -207,3 +208,69 @@ async def test_the_status_card(hass, freezer) -> None:
     hass.states.async_set(SETPOINT, "35")
     freezer.move_to("2026-11-16 16:30:00+00:00")  # 17:30 in Berlin
     assert _card(hass).endswith("AutoTemp: done for today (after 17:00)")
+
+
+@pytest.mark.parametrize("expected_lingering_timers", [True])
+async def test_the_daily_summary(hass, unit) -> None:
+    notify = async_mock_service(hass, "notify", "notify")
+    entry = MockConfigEntry(
+        domain=DOMAIN,
+        data={"connection_type": "rtu", **RTU},
+        options={"compressor_statistics": True},
+        version=1,
+        minor_version=4,
+    )
+    entry.add_to_hass(hass)
+    assert await hass.config_entries.async_setup(entry.entry_id)
+    await hass.async_block_till_done()
+    stats = entry.runtime_data.compressor_stats
+    stats.day_starts, stats.day_run_s, stats.last_run_s = 3, 7.9 * 3600, 212 * 60
+    stats.day_run_s, stats.day_rpm_s = 7.9 * 3600, 7.9 * 3600 * 1588
+    stats.day_defrosts, stats.day_defrost_s = 2, 14 * 60
+    entry.runtime_data.async_update_listeners()
+    await hass.async_block_till_done()
+    config = yaml.safe_load((DOCS / "therma-v-daily-summary.yaml").read_text())
+    config["id"] = "summary"
+    assert await async_setup_component(hass, "automation", {"automation": [config]})
+    await hass.async_block_till_done()
+
+    await hass.services.async_call(
+        "automation",
+        "trigger",
+        {"entity_id": "automation.therma_v_daily_summary"},
+        blocking=True,
+    )
+    await hass.async_block_till_done()
+    assert notify[0].data["title"] == "Heat pump today"
+    assert " ".join(notify[0].data["message"].split()) == (
+        "3 starts, 7.9 h run time (Ø 1,588 rpm), last run 212 min · 2 defrosts, 14 min"
+    )
+
+
+@pytest.mark.parametrize("expected_lingering_timers", [True])
+async def test_the_daily_summary_on_a_quiet_day(hass, unit) -> None:
+    notify = async_mock_service(hass, "notify", "notify")
+    entry = MockConfigEntry(
+        domain=DOMAIN,
+        data={"connection_type": "rtu", **RTU},
+        options={"compressor_statistics": True},
+        version=1,
+        minor_version=4,
+    )
+    entry.add_to_hass(hass)
+    assert await hass.config_entries.async_setup(entry.entry_id)
+    await hass.async_block_till_done()
+    config = yaml.safe_load((DOCS / "therma-v-daily-summary.yaml").read_text())
+    config["id"] = "summary"
+    assert await async_setup_component(hass, "automation", {"automation": [config]})
+    await hass.async_block_till_done()
+    await hass.services.async_call(
+        "automation",
+        "trigger",
+        {"entity_id": "automation.therma_v_daily_summary"},
+        blocking=True,
+    )
+    await hass.async_block_till_done()
+    assert " ".join(notify[0].data["message"].split()) == (
+        "0 starts, 0.0 h run time · 0 defrosts"
+    )

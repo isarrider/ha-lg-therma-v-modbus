@@ -10,6 +10,7 @@ Three automations, each in its own file, that run circuit 1 (radiators) through 
 | until 17:00 | [AutoTemp](#autotemp) | The setpoint follows the inlet temperature, a morning ramp pulls it to 33–38 °C by 13:00, frost protection and oil boost as needed |
 | 17:00 | – | AutoTemp stops; the setpoint stays where it is |
 | 18:00 | [Stop](#stop-1800) | Setpoint 20 °C, max compressor modulation 40 %: the unit reaches thermo off and AutoTemp treats it as off |
+| 18:05 | [Daily summary](#daily-summary-1805) (optional) | One push message with the day's starts, run time and defrosts |
 
 They were written for a 12 kW unit. Entity ids are the defaults (`…lg_therma_v_r290_…`); if you renamed yours, adjust them. The stop automation needs the *Max compressor modulation* option; leave its second action out without it. The start and stop times can be changed freely: AutoTemp takes over 1 minute after the compressor starts, whenever that is (before 17:00), and stops as soon as the setpoint is at 20 °C.
 
@@ -93,3 +94,15 @@ The card uses the automation's entity id `automation.autotemp_heat_circuit_1`, w
 The YAML is its own file: [therma-v-stop.yaml](therma-v-stop.yaml).
 
 It sets the circuit 1 setpoint to 20 °C, the unit's lowest value with the backup heater off: with inlet control and a hysteresis of ±4 °C the unit switches off once the inlet is at 24 °C, which after a day of heating it always is. 20 °C is also "off" for AutoTemp, so it stops adjusting at once, even before 17:00. Heating stays switched on, so on a very cold night the unit restarts when the inlet drops below 16 °C and heats until it is back at 24 °C (safety net). It also resets the max compressor modulation to 40 %, in case it was raised by hand on a cold day. The time is in its trigger (`at: '18:00:00'`).
+
+## Daily summary (18:05)
+
+The YAML is its own file: [therma-v-daily-summary.yaml](therma-v-daily-summary.yaml). Optional, and independent of the other three.
+
+At 18:05, just after the stop, it sends one push message:
+
+> **Heat pump today**
+> 3 starts, 7.9 h run time (Ø 1,588 rpm), last run 212 min · 2 defrosts, 14 min
+
+It reads the `today` attributes of *Compressor Starts*, *Compressor Run Time* and *Defrosts* (2.2.9+), so it needs the *Compressor statistics* option. Set `notify_action` at the top to your phone's notify action: *Developer tools → Actions*, search for `notify.mobile_app`, e.g. `notify.mobile_app_pixel_8_pro`. With the default `notify.notify` the message goes to Home Assistant's default notifier. The time is in its trigger (`at: '18:05:00'`); keep it after the stop if the day's numbers should be complete.
+
