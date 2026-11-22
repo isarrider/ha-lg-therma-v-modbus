@@ -124,9 +124,10 @@ costs, not a fault.
 Compared with the smart meter, the unit's *Electrical Power* (input 34–45)
 reads **too high**, so every COP built on it comes out too low. At 31
 compressor starts and stops (3–22 November 2026) the house meter moved by a
-median **0.69 ×** the unit's figure (half between 0.67 and 0.75), i.e. the
-unit reports about 1.45 × the real power; fitted, real ≈ 0.89 × unit − 300 W
-between 1,300 and 2,000 W. At night the same: about 300 W by the unit, about
+median **0.69 ×** the unit's figure (half between 0.67 and 0.75). At
+1-second resolution the error is mostly a constant part while running: real ≈
+0.93 × unit − 340 W while running, ≈ 0.62 × unit with the compressor off; over
+whole days the real energy is **0.72 ×** the unit's. At night the same: about 300 W by the unit, about
 200 W by the meter for the preheating pulses. For billing and for a COP to rely
 on, use a separate meter. Details, and what it means for the COP:
 [cop-efficiency.md](cop-efficiency.md). See also the
