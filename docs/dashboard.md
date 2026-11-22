@@ -128,10 +128,11 @@ views:
             name: Defrost
 
       # --- Per day (option: Compressor statistics) ----------------------------
-      # Starts and run time are counters; "change" per day turns them into
-      # starts per day and hours per day. Many starts for few hours = cycling.
+      # Starts, run time and defrosts are counters; "change" per day turns
+      # them into starts, hours and defrosts per day. Many starts for few
+      # hours = cycling; many defrosts = a lot of ice on the coil.
       - type: statistics-graph
-        title: Compressor starts per day
+        title: Compressor starts and defrosts per day
         chart_type: bar
         period: day
         days_to_show: 30
@@ -140,6 +141,8 @@ views:
         entities:
           - entity: sensor.lg_therma_v_r290_compressor_starts
             name: Starts
+          - entity: sensor.lg_therma_v_r290_defrosts
+            name: Defrosts
       - type: statistics-graph
         title: Compressor hours per day
         chart_type: bar
@@ -189,7 +192,7 @@ Most of it needs options switched on in *Configure → Options*; without them th
 | Option | Cards |
 |---|---|
 | Energy registers | the power graph (*Electrical (reads high)*, *Thermal (reported)*), the COP cards, *Electrical today*, *Space heating today*, the energy counters below them, the daily *Electrical Energy Total* graph, *Demand vs supply* |
-| Compressor statistics | *Compressor Average Speed*, *Compressor Starts*, *Compressor Run Time*, *Starts today*, *Run time today* |
+| Compressor statistics | *Compressor Average Speed*, the table of starts, run time, defrosts and defrost time (today and total), *Starts and defrosts per day* |
 | Compressor modulation limit | *Max Compressor Modulation* |
 | Power limit | *Power Limit*, *Max Electrical Power* |
 | Poll statistics | *Poll Duration*, *Bus Load*, *Modbus Errors*, *Last Modbus Error*, *Last error at* (only shown after an error), *Counting since* |
@@ -197,6 +200,6 @@ Most of it needs options switched on in *Configure → Options*; without them th
 
 The *Target Room Air Temperature Circuit 1/2* sensors are disabled by default; enable them in the entity settings or remove the tiles. The weather card uses `weather.forecast_home`, the default of the Met.no integration; replace it with your own weather entity. The line under it shows dawn, sunrise, solar noon, day length (sunrise to sunset), sunset and dusk from the Sun integration; *Next dawn*, *Next dusk* and *Next noon* may be disabled by default: enable them in the entity settings if they show –. Between sunrise and sunset the day length pairs tomorrow's sunrise with today's sunset, so it can be a minute or two off.
 
-*Starts today*, *Run time today*, *Electrical today* and *Space heating today* read the long-term statistics, so they count from the time the integration was set up: the first day is incomplete.
+*Electrical today* and *Space heating today* read the long-term statistics, so they count from the time the integration was set up: the first day is incomplete. The table of starts and defrosts takes *today* from the sensors' `today` attribute (2.2.9+), which counts from midnight and survives restarts.
 
 The YAML is in its own file: **[dashboard-full.yaml](dashboard-full.yaml)**. Open it, use *Raw* (or the copy button) on GitHub, and paste all of it into the raw configuration editor of a new, empty dashboard.

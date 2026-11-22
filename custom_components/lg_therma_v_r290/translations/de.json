@@ -101,12 +101,12 @@
           },
           "compressor_statistics": {
             "name": "Verdichterstatistik",
-            "description": "Zählt Starts und Laufzeit des Verdichters und mittelt seine Drehzahl, aus den ohnehin abgefragten Werten; es wird nichts zusätzlich vom Gerät gelesen. Viele kurze Läufe bedeuten, dass das Gerät taktet, was Effizienz und Verschleiß kostet.",
+            "description": "Zählt Starts und Laufzeit des Verdichters und die Abtauvorgänge und mittelt die Verdichterdrehzahl, aus den ohnehin abgefragten Werten; es wird nichts zusätzlich vom Gerät gelesen. Viele kurze Läufe bedeuten, dass das Gerät taktet, was Effizienz und Verschleiß kostet.",
             "data": {
               "compressor_statistics": "Einschalten"
             },
             "data_description": {
-              "compressor_statistics": "Legt an:\n\n- **Verdichterstarts** — ein Zähler; Starts pro Tag oder Stunde liefert die Statistik. Attribut: Dauer des letzten Laufs\n- **Verdichterlaufzeit** — Stunden, ein Zähler\n- **Mittlere Verdichterdrehzahl** — Drehzahl während des Laufs, heute (Rücksetzung um Mitternacht)\n\nAlle drei bleiben über Neustarts erhalten."
+              "compressor_statistics": "Legt an:\n\n- **Verdichterstarts** — ein Zähler; Starts pro Tag oder Stunde liefert die Statistik. Attribute: Starts heute, Dauer des letzten Laufs\n- **Verdichterlaufzeit** — Stunden, ein Zähler. Attribut: Stunden heute\n- **Mittlere Verdichterdrehzahl** — Drehzahl während des Laufs, heute (Rücksetzung um Mitternacht)\n- **Abtauvorgänge** — ein Zähler. Attribute: Abtauvorgänge heute, Dauer des letzten Abtauens\n- **Abtauzeit** — Minuten, ein Zähler. Attribut: Minuten heute\n\nAlle bleiben über Neustarts erhalten."
             }
           },
           "poll_statistics": {
@@ -221,12 +221,12 @@
           },
           "compressor_statistics": {
             "name": "Verdichterstatistik",
-            "description": "Zählt Starts und Laufzeit des Verdichters und mittelt seine Drehzahl, aus den ohnehin abgefragten Werten; es wird nichts zusätzlich vom Gerät gelesen. Viele kurze Läufe bedeuten, dass das Gerät taktet, was Effizienz und Verschleiß kostet.",
+            "description": "Zählt Starts und Laufzeit des Verdichters und die Abtauvorgänge und mittelt die Verdichterdrehzahl, aus den ohnehin abgefragten Werten; es wird nichts zusätzlich vom Gerät gelesen. Viele kurze Läufe bedeuten, dass das Gerät taktet, was Effizienz und Verschleiß kostet.",
             "data": {
               "compressor_statistics": "Einschalten"
             },
             "data_description": {
-              "compressor_statistics": "Legt an:\n\n- **Verdichterstarts** — ein Zähler; Starts pro Tag oder Stunde liefert die Statistik. Attribut: Dauer des letzten Laufs\n- **Verdichterlaufzeit** — Stunden, ein Zähler\n- **Mittlere Verdichterdrehzahl** — Drehzahl während des Laufs, heute (Rücksetzung um Mitternacht)\n\nAlle drei bleiben über Neustarts erhalten."
+              "compressor_statistics": "Legt an:\n\n- **Verdichterstarts** — ein Zähler; Starts pro Tag oder Stunde liefert die Statistik. Attribute: Starts heute, Dauer des letzten Laufs\n- **Verdichterlaufzeit** — Stunden, ein Zähler. Attribut: Stunden heute\n- **Mittlere Verdichterdrehzahl** — Drehzahl während des Laufs, heute (Rücksetzung um Mitternacht)\n- **Abtauvorgänge** — ein Zähler. Attribute: Abtauvorgänge heute, Dauer des letzten Abtauens\n- **Abtauzeit** — Minuten, ein Zähler. Attribut: Minuten heute\n\nAlle bleiben über Neustarts erhalten."
             }
           },
           "poll_statistics": {
@@ -534,6 +534,12 @@
       },
       "compressor_average_speed": {
         "name": "Mittlere Verdichterdrehzahl"
+      },
+      "defrosts": {
+        "name": "Abtauvorgänge"
+      },
+      "defrost_time": {
+        "name": "Abtauzeit"
       },
       "cop_external_meter": {
         "name": "COP (externer Zähler)"

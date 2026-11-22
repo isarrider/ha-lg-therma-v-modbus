@@ -202,7 +202,7 @@ The config flow asks for connection type first, then connection-specific paramet
 | Power limit | off | Options; coil 6 + holding 24, not served by every unit; effect not confirmed yet |
 | Emergency operation button | off | Options; coil 5 |
 | Experimental registers | off | Options; 18 undocumented registers, read only |
-| Compressor statistics | off | Options; *Compressor Starts*, *Run Time*, *Average Speed* |
+| Compressor statistics | off | Options; *Compressor Starts*, *Run Time*, *Average Speed*, *Defrosts*, *Defrost Time* |
 | Poll statistics | off | Options; *Poll Duration* and *Bus Load* diagnostic sensors |
 
 ### Which options the unit supports
@@ -308,15 +308,17 @@ Both counters are kept across restarts. Gaps over five minutes (Home Assistant d
 
 #### Compressor statistics (option)
 
-Switch on **Compressor statistics** in *Configure → Options*. Counted from the *Compressor* status and *Compressor Speed* on every poll; nothing extra is read from the unit.
+Switch on **Compressor statistics** in *Configure → Options*. Counted from the *Compressor* and *Defrost* status and *Compressor Speed* on every poll; nothing extra is read from the unit.
 
 | Entity | What it shows |
 |---|---|
-| `sensor.lg_therma_v_r290_compressor_starts` | starts, a `total_increasing` counter: starts per day or per hour come from Home Assistant's statistics (e.g. a *Statistic* card, *change* per day). Attribute `last_run_minutes`: the run in progress, or the last one |
-| `sensor.lg_therma_v_r290_compressor_run_time` | hours the compressor ran, a counter |
+| `sensor.lg_therma_v_r290_compressor_starts` | starts, a `total_increasing` counter: starts per day or per hour come from Home Assistant's statistics (e.g. a *Statistic* card, *change* per day). Attributes `today`: starts today (reset at midnight); `last_run_minutes`: the run in progress, or the last one |
+| `sensor.lg_therma_v_r290_compressor_run_time` | hours the compressor ran, a counter. Attribute `today`: hours today |
 | `sensor.lg_therma_v_r290_compressor_average_speed` | rpm while running, today; resets at midnight, so the history shows one value per day. Standstill is left out. Attributes `day`, `run_hours_today` |
+| `sensor.lg_therma_v_r290_defrosts` | defrosts, a `total_increasing` counter (2.2.9+). Attributes `today`: defrosts today; `last_defrost_minutes`: the defrost in progress, or the last one |
+| `sensor.lg_therma_v_r290_defrost_time` | minutes spent defrosting, a counter (2.2.9+). Attribute `today`: minutes today |
 
-Many short runs mean the unit is cycling, which costs efficiency and wear; a low average speed over long runs means it mostly modulates at the bottom of its range. All three are kept across restarts; a gap over five minutes is not counted, and a restart never counts as a start.
+Many short runs mean the unit is cycling, which costs efficiency and wear; a low average speed over long runs means it mostly modulates at the bottom of its range. Frequent defrosts show how much ice the coil collects; each one takes heat out of the water. All of them, including today's counts, are kept across restarts; a gap over five minutes is not counted, and a restart never counts as a start or a defrost. The `today` attributes let a dashboard show today and the total side by side, e.g. in one markdown line.
 
 #### Poll statistics (option)
 

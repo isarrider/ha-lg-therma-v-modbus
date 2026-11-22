@@ -116,3 +116,95 @@ def test_restore_continues_and_keeps_only_todays_average() -> None:
     next_day.restore(saved)
     assert next_day.starts == 1
     assert next_day.average_rpm_today is None  # yesterday's average is gone
+
+
+def _defrosts(stats, samples, day=DAY):
+    """(defrost, time) with the compressor off throughout."""
+    for defrost, time_s in samples:
+        stats.add(False, 0, time_s, day, defrost)
+
+
+def test_defrosts_and_defrost_time() -> None:
+    stats = cs.CompressorStats()
+    _defrosts(
+        stats,
+        [
+            (False, 0),
+            (True, 30),  # defrost 1
+            (True, 90),  # 60 s
+            (False, 150),  # 60 s, over: 120 s
+            (True, 400),  # defrost 2
+            (False, 430),  # 30 s
+        ],
+    )
+    assert stats.defrosts == 2
+    assert stats.defrost_s == 150
+    assert stats.defrost_minutes == 2.5
+    assert stats.last_defrost_s == 30
+    assert (stats.day_defrosts, stats.day_defrost_s) == (2, 150)
+
+
+def test_a_defrost_at_the_first_poll_or_after_unknown_is_not_counted() -> None:
+    stats = cs.CompressorStats()
+    _defrosts(stats, [(True, 0), (True, 30), (None, 60), (True, 90)])
+    assert stats.defrosts == 0
+    # Each interval counts with the state of the poll before it: 0-30 s and
+    # 30-60 s were defrosting; 60-90 s follows an unknown poll and is left out.
+    assert stats.defrost_s == 60
+
+
+def test_today_counts_reset_at_midnight_and_totals_keep_going() -> None:
+    stats = cs.CompressorStats()
+    for on, defrost, time_s in (
+        (False, False, 0),
+        (True, True, 30),
+        (False, False, 90),
+    ):
+        stats.add(on, 2000 if on else 0, time_s, "2026-10-12", defrost)
+    assert (stats.day_starts, stats.day_defrosts) == (1, 1)
+    stats.add(True, 2000, 150, "2026-10-13", True)
+    assert (stats.starts, stats.defrosts) == (2, 2)
+    assert (stats.day_starts, stats.day_defrosts) == (1, 1)  # today's only
+
+
+def test_restore_keeps_defrosts_and_todays_counts() -> None:
+    old = cs.CompressorStats()
+    for on, defrost, time_s in (
+        (False, False, 0),
+        (True, True, 30),
+        (False, False, 90),
+    ):
+        old.add(on, 2000 if on else 0, time_s, DAY, defrost)
+    saved = old.state()
+
+    same_day = cs.CompressorStats()
+    same_day.add(False, 0, 0, DAY, False)
+    same_day.restore(saved)
+    assert (same_day.defrosts, same_day.defrost_s) == (1, 60)
+    assert (same_day.day_starts, same_day.day_defrosts) == (1, 1)
+    assert same_day.last_defrost_s == 60
+
+    next_day = cs.CompressorStats()
+    next_day.add(False, 0, 0, "2026-10-14", False)
+    next_day.restore(saved)
+    assert next_day.defrosts == 1
+    assert (next_day.day_starts, next_day.day_defrosts) == (0, 0)
+
+
+def test_restore_from_before_defrosts_were_counted() -> None:
+    """Restore data of 2.2.8 has no defrost or per-day counts: they start at 0."""
+    stats = cs.CompressorStats()
+    stats.add(False, 0, 0, DAY, False)
+    stats.restore(
+        {
+            "starts": 41,
+            "run_s": 36000.0,
+            "day": DAY,
+            "day_run_s": 600.0,
+            "day_rpm_s": 1_200_000.0,
+            "last_run_s": 900.0,
+        }
+    )
+    assert stats.starts == 41
+    assert (stats.defrosts, stats.defrost_s, stats.day_starts) == (0, 0.0, 0)
+    assert stats.last_defrost_s is None

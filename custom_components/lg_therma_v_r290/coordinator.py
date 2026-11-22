@@ -190,11 +190,13 @@ class LGThermaVCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         data = await self._async_poll()
         if self.compressor_stats is not None:
             on = data.get("discrete_compressor")
+            defrost = data.get("discrete_defrost")
             self.compressor_stats.add(
                 None if on is None else bool(on),
                 data.get("input_compressor_speed"),
                 _monotonic(),
                 dt_util.now().date().isoformat(),
+                None if defrost is None else bool(defrost),
             )
         data.update(
             stats(
