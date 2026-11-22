@@ -42,7 +42,10 @@ at 1,400 rpm. The unit is the one in [findings.md](findings.md).
 ## The data
 
 - **Unit:** Home Assistant history of this integration, exported as CSV: compressor speed, *Electrical Power*, *Thermal Power (Reported)* and *(Calculated)*, flow, outdoor temperature, evaporator coil, high and low pressure. Only the minutes Home Assistant keeps raw were used (it keeps 10 days raw; older days are hourly averages and were left out), from two exports: **3–22 November 2026**, 20 days.
-- **House meter:** the smart meter read by vzlogger, exported from VictoriaMetrics as 30-second averages (`query_range` with `avg_over_time(...[30s])`, `step=30s`, in parts of eight days, as the API returns at most about 30,000 points per request).
+- **House meter:** the smart meter read by vzlogger, stored in VictoriaMetrics, in two resolutions:
+  - **raw, one value per second** (1.7 million values, 3–22 November, `/api/v1/export` per day): for the calibration at 1-second resolution and the real power and energy factors;
+  - **30-second averages** (`query_range` with `avg_over_time(...[30s])`, `step=30s`, in parts of eight days, as that API returns at most about 30,000 points per request): for the first comparison at the 31 starts and stops, and the minute values in the COP analysis.
+- **Unit side:** *Electrical Power* changes are recorded at the poll interval (about 10 s); its figure arrives about 40 s after the house meter sees a change, which the 1-second comparison corrects for.
 - **Steady running:** compressor on for at least 20 minutes, the speed stable within ±30 rpm over 10 minutes, thermal power above 200 W, electrical above 300 W. **No defrosts:** minutes with a flow above 20 L/min or negative calculated heat, and the 15 minutes after them, were left out (the pump runs at about 34 L/min during a defrost).
 - That leaves **5,713 steady minutes**.
 
@@ -197,9 +200,18 @@ After a week or two, the same exports (Home Assistant history within 10 days, th
 ## How to repeat this on your own unit
 
 1. **A meter for the heat pump**, or the house meter. With the house meter, use the steps at compressor starts and stops, at times with little else switching and no solar ramp.
-2. **Raw data:** export the Home Assistant history (*History → ⋮ → Download data*) within 10 days, or read it from a long-term store. Hourly averages hide the starts and stops.
-3. **Lift** from the two pressures: saturation temperature of propane at (gauge pressure + 1.013) bar, e.g. with CoolProp `PropsSI('T', 'P', p_abs_pa, 'Q', 1, 'Propane')`.
-4. **Steady minutes only**, no defrosts, then group by speed at the same lift or matched outdoor and condensing temperature.
+2. **Raw data:** export the Home Assistant history (*History → ⋮ → Download data*) within 10 days, or read it from a long-term store. Hourly averages hide the starts and stops. For the meter, the raw values (here one per second) separate the steps while running from the starts and stops; averages blur them. With VictoriaMetrics, one day per request:
+
+   ```bash
+   curl -s -G 'http://VM-HOST:8428/api/v1/export' \
+     --data-urlencode 'match[]=METER_SERIES' \
+     --data-urlencode 'start=2026-11-03T00:00:00+01:00' \
+     --data-urlencode 'end=2026-11-03T23:59:59+01:00' > meter-11-03.json
+   ```
+
+3. **Align the clocks:** find the delay between the unit's figure and the meter (here about 40 s) by cross-correlating their changes, before comparing steps.
+4. **Lift** from the two pressures: saturation temperature of propane at (gauge pressure + 1.013) bar, e.g. with CoolProp `PropsSI('T', 'P', p_abs_pa, 'Q', 1, 'Propane')`.
+5. **Steady minutes only**, no defrosts, then group by speed at the same lift or matched outdoor and condensing temperature.
 
 ## Limits
 
