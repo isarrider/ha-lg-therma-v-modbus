@@ -23,6 +23,7 @@ at 1,400 rpm. The unit is the one in [findings.md](findings.md).
 - [Why faster is more efficient](#why-faster-is-more-efficient)
 - [The catch: more heat needs warmer water](#the-catch-more-heat-needs-warmer-water)
 - [Whole days](#whole-days)
+- [Solar: how much more the heat pump could take](#solar-how-much-more-the-heat-pump-could-take)
 - [What is being tested now](#what-is-being-tested-now)
 - [How to repeat this on your own unit](#how-to-repeat-this-on-your-own-unit)
 - [Limits](#limits)
@@ -38,6 +39,8 @@ at 1,400 rpm. The unit is the one in [findings.md](findings.md).
 | Cost of each kelvin of lift | about **−0.115 COP** (about 3 %) | 🟢 fitted over 5,700 minutes |
 | Net gain once the radiators need warmer water | about **+0.4 COP** at 1,700 rpm | 🟡 radiator part estimated, not measured |
 | Whole days | **no gain visible yet** | 🔴 20 days, faster days were also colder |
+| Unused solar (export) | November about **0.5 kWh/day**, late October about **2.8 kWh/day**; 93–97 % of it while the heat pump was already running | 🟢 house meter, 3–21 Nov and 24–31 Oct |
+| Export a faster heat pump could have taken (24–31 Oct) | a third at 45 % modulation, **two thirds at 55–60 %** | 🟡 minute by minute, the heat pump's power from hourly averages |
 
 ## The data
 
@@ -46,6 +49,7 @@ at 1,400 rpm. The unit is the one in [findings.md](findings.md).
   - **raw, one value per second** (1.7 million values, 3–22 November, `/api/v1/export` per day): for the calibration at 1-second resolution and the real power and energy factors;
   - **30-second averages** (`query_range` with `avg_over_time(...[30s])`, `step=30s`, in parts of eight days, as that API returns at most about 30,000 points per request): for the first comparison at the 31 starts and stops, and the minute values in the COP analysis.
   - **the three phases L1, L2, L3, raw, one value per second** (3–22 November): to tell the heat pump's steps from the rest of the house (see [Three phases](#three-phases-the-heat-pumps-steps-apart-from-the-house)). They add up to the total exactly, second by second.
+  - **24–31 October during the day** (06:00–20:00, the three phases and the total, raw): for the [solar](#solar-how-much-more-the-heat-pump-could-take) analysis, with the heat pump's **hourly averages** from Home Assistant's long-term statistics for those days (compressor speed, *Electrical Power*, thermal power, outdoor temperature), as the raw history no longer exists.
   - **the nights of October** (00:00–06:00, the three phases and the total, raw): the heat pump was switched on, indoor and outdoor unit, on the morning of 23 October 2026, so the nights before and after give its real standby (see [Standby](#standby-october-against-november-nights)).
 - **Unit side:** *Electrical Power* changes are recorded at the poll interval (about 10 s); its figure arrives about 40 s after the house meter sees a change, which the 1-second comparison corrects for.
 - **Steady running:** compressor on for at least 20 minutes, the speed stable within ±30 rpm over 10 minutes, thermal power above 200 W, electrical above 300 W. **No defrosts:** minutes with a flow above 20 L/min or negative calculated heat, and the 15 minutes after them, were left out (the pump runs at about 34 L/min during a defrost).
@@ -224,6 +228,29 @@ The real COP of each day (heat ÷ calibrated electricity), corrected to 7.5 °C 
 
 The faster days came out slightly *worse* on average, not better (fitted with the outdoor temperature, about −0.06 per 100 rpm). That does not contradict the minutes: on this unit the speed is set by demand, so the faster days were the colder ones, with more defrosting and warmer water, and a simple outdoor correction removes only part of that. Twenty days cannot separate it. Whether the gain per minute survives a whole day has to be tested on purpose.
 
+## Solar: how much more the heat pump could take
+
+The house has a solar system on the same meter, so a negative meter reading is solar going to the grid. Its own production is not recorded (the inverter no longer reports), so only the surplus is seen, which is the part that matters here: the solar the house does not use.
+
+**November (3–21, 19 days):** the meter imported 196 kWh and exported **10 kWh, about 0.5 kWh per day** (0 to 2.6), almost only between 10:00 and 15:00 and mostly on four sunny days (5, 13, 14 and 18 November: 8 of the 10 kWh). **93 % of it came while the heat pump was running**, typically about 360 W of surplus (90th percentile about 1.2 kW, 1,148 minutes); outside its running hours there was practically nothing (23 minutes above 300 W, all before 11:00). The heat pump, about 10 kWh of real electricity a day, already sits in the solar hours.
+
+**Late October (24–31, 8 days):** **22.1 kWh exported, about 2.8 kWh per day**, up to 7.2 kWh on 27 October (15–17 °C outside) and up to 2.5 kW at a time, between 09:00 and 16:00. **97 % of it (21.4 kWh) came while the heat pump was running**, at only 1,250–1,400 rpm (about 1.1–1.4 kW real): it had room to take more.
+
+How much a faster compressor could have taken, minute by minute, while it ran: the export, but at most the difference between its real power at the cap and what it drew in that hour (the hour's average, as only hourly values are left for October):
+
+<img src="images/cop-solar-october.svg" alt="Grouped bar chart per day, 24 to 31 October 2026: exported energy (2.6, 0, 3.2, 7.2, 0.05, 5.4, 3.2 and 0.5 kWh), the part absorbed at 45 % modulation (0.6, 0, 1.3, 2.5, 0, 1.6, 1.2, 0.2 kWh) and at 55 to 60 % (1.4, 0, 2.2, 4.8, 0, 3.8, 2.3, 0.4 kWh).">
+
+| Cap | Real power at the cap | Export absorbed (24–31 Oct) | Per sunny day |
+|---|---|---|---|
+| 45 %, about 1,700 rpm (the test from 23 November) | about 1.6 kW | 🟡 **7.4 of 22.1 kWh**, a third | 1.2–2.5 kWh |
+| 55–60 %, about 2,100 rpm, only while exporting | about 2.0 kW | 🟢 **14.9 of 22.1 kWh**, two thirds | 2.2–4.8 kWh |
+
+- The 45 % of the running test already takes about a third without any extra rule. Faster running is also where the COP was best ([above](#cop-over-compressor-speed)), so the extra heat comes at good efficiency; above 1,750 rpm that is not yet measured.
+- **The heat has to go somewhere:** on a mild day the house gets warmer. A boost should raise the setpoint by only 2–3 K and stop at a ceiling. What it saves is the heat the heat pump does not have to make later from the grid.
+- **Shifting the run window** gains next to nothing: the heat pump already runs through the solar hours.
+
+**Planned (not yet running):** Home Assistant reads the grid power from vzlogger (its built-in HTTP server, or the VictoriaMetrics query), and AutoTemp gets a **solar boost**: export above about 300 W for 5 minutes → max modulation 55 % and setpoint +2 K up to the ceiling; import for 5 minutes → back. LG's own SG Ready input over Modbus (*Energy state*, holding 9) would be the alternative, with the offsets set in the installer menu.
+
 ## What is being tested now
 
 From 23 November 2026, on the 12 kW unit:
@@ -258,3 +285,4 @@ After a week or two, the same exports (Home Assistant history within 10 days, th
 - The electricity calibration covers the running compressor at about 1,100–2,100 W of the unit's figure (99 % of the running minutes) the night pulses at about 300 W and the idle standby from the October and November nights; outside that, it is an extrapolation. The energy counter (input 38) is assumed to be off by the same factor as the power register.
 - The radiator penalty is an estimate with standard radiator physics, not a measurement in this house.
 - No steady data above 1,750 rpm yet.
+- Solar: only the surplus is seen (no production data); October's heat pump power is from hourly averages, so the absorbed export is an estimate; November and October are short windows, spring is not yet covered.
