@@ -32,9 +32,9 @@ at 1,400 rpm. The unit is the one in [findings.md](findings.md).
 | Finding | Result | Confidence |
 |---|---|---|
 | Electrical Power (input 34–45) against the house meter | over a day about **1.4 ×** the real energy (real ≈ **0.72** × unit); while running real ≈ 0.93 × unit − 340 W, at standby ≈ 0.62 × unit | 🟢 31 starts and stops, 101 steps at 1-second resolution, 3–22 Nov |
-| Real COP at 1,400 rpm, about 6 °C outside | about **3.7** (the unit's own figures say 2.7) | 🟡 the flow sensor allows ±13 % |
-| Real COP at 1,700 rpm, same conditions | about **4.3** | 🟡 same |
-| Gain from 1,400 to 1,700 rpm at the same lift | **+0.5 COP** | 🟢 210 matched minutes, 96 % of them better |
+| Real COP at 1,400 rpm, about 6 °C outside | about **3.5** (the unit's own figures say 2.6) | 🟡 the flow sensor allows ±13 % |
+| Real COP at 1,700 rpm, same conditions | about **4.3** (unit: 3.2) | 🟡 same |
+| Gain from 1,400 to 1,700 rpm at the same lift | **+0.5 COP** | 🟢 210 matched minutes, 95 % of them better |
 | Cost of each kelvin of lift | about **−0.115 COP** (about 3 %) | 🟢 fitted over 5,700 minutes |
 | Net gain once the radiators need warmer water | about **+0.4 COP** at 1,700 rpm | 🟡 radiator part estimated, not measured |
 | Whole days | **no gain visible yet** | 🔴 20 days, faster days were also colder |
@@ -64,7 +64,7 @@ At every compressor start (about 08:00) and stop (about 16:00), the step in the 
 | Start, 7 Nov 08:32 | +1,482 W | +869 W | 0.59 |
 | **All 31 (median)** | | | **0.69** (half between 0.67 and 0.75) |
 
-Fitted over the range seen (1,300–2,000 W): **real ≈ 0.89 × unit − 300 W**. The error is relatively larger at low power. This matches the night pulses in [findings.md](findings.md#at-night-fan-runs-and-compressor-preheating) (about 300 W by the unit, about 200 W by the meter). Every COP built on *Electrical Power* is therefore too low; the "real" COP on this page uses this fitted line.
+Fitted over the range seen (1,300–2,000 W): **real ≈ 0.89 × unit − 300 W**. The error is relatively larger at low power. This matches the night pulses in [findings.md](findings.md#at-night-fan-runs-and-compressor-preheating) (about 300 W by the unit, about 200 W by the meter). Every COP built on *Electrical Power* is therefore too low. This was the first estimate; the real COPs on this page use the finer fit from the 1-second data below.
 
 ### At 1-second resolution: not one factor
 
@@ -85,7 +85,7 @@ So each *additional* watt while running is reported almost right, but the step f
 | 2,000 W | about 1,520 W | 0.76 |
 | 2,500 W | about 1,990 W | 0.80 |
 
-Over whole days it is stable, whichever fit is used: the **real energy is 0.72 × the unit's** (0.71 with the first fit, 0.72–0.73 with this one, every day between 0.705 and 0.737). With the 1-second fit, every real COP on this page comes out about 0.07–0.09 lower (at 40 K lift: 3.49 instead of 3.56 at 1,400 rpm, 4.34 instead of 4.43 at 1,700 rpm); the comparisons between speeds do not change.
+Over whole days it is stable, whichever fit is used: the **real energy is 0.72 × the unit's** (0.71 with the first fit, 0.72–0.73 with this one, every day between 0.705 and 0.737). **All real COPs on this page use this 1-second fit** (0.93 × unit − 340 W for the running compressor). Against the first fit they come out about 0.07–0.09 lower; the comparisons between speeds do not change.
 
 **In Home Assistant**, two template sensors (*Settings → Devices & services → Helpers → Create helper → Template → Template a sensor*) give the real figures:
 
@@ -128,10 +128,10 @@ Minutes at 5–7.5 °C outside:
 
 | Speed | Minutes | Evaporating | Condensing | Lift | Water ΔT | Real COP | Share of ideal |
 |---|---|---|---|---|---|---|---|
-| below 1,300 rpm | 160 | 2.6 °C | 31.9 °C | 🟢 29.3 K | 5.6 K | 4.61 | 0.45 |
-| 1,300–1,500 rpm | 1,539 | 2.6 °C | 42.7 °C | 🟡 40.3 K | 6.1 K | 3.61 | 0.45 |
-| 1,550–1,650 rpm | 250 | 1.8 °C | 44.7 °C | 🟡 42.1 K | 6.9 K | 3.69 | 🟢 0.49 |
-| 1,650–1,750 rpm | 106 | 1.8 °C | 43.7 °C | 🟡 42.0 K | 7.0 K | 3.89 | 🟢 0.51 |
+| below 1,300 rpm | 160 | 2.6 °C | 31.9 °C | 🟢 29.3 K | 5.6 K | 4.57 | 0.45 |
+| 1,300–1,500 rpm | 1,539 | 2.6 °C | 42.7 °C | 🟡 40.3 K | 6.1 K | 3.54 | 0.44 |
+| 1,550–1,650 rpm | 250 | 1.8 °C | 44.7 °C | 🟡 42.1 K | 6.9 K | 3.61 | 🟢 0.48 |
+| 1,650–1,750 rpm | 106 | 1.8 °C | 43.7 °C | 🟡 42.0 K | 7.0 K | 3.80 | 🟢 0.50 |
 
 Fitted over all steady minutes:
 
@@ -142,10 +142,10 @@ Fitted over all steady minutes:
 
 To see the speed alone, each minute's real COP was moved to a common lift of 40 K with the 0.115 per kelvin from above, and the minutes were grouped per 50 rpm.
 
-<img src="images/cop-vs-speed.svg" alt="Line chart of real COP at 40 K lift over compressor speed from 1,000 to 1,700 rpm: flat at about 3.4 to 3.7 up to 1,400 rpm, then rising steadily to 3.8 at 1,500, 4.05 at 1,600 and 4.4 at 1,700 rpm. A band shows the middle half of the minutes. A dashed line shows the COP from the unit's own figures, the same shape about one point lower.">
+<img src="images/cop-vs-speed.svg" alt="Line chart of real COP at 40 K lift over compressor speed from 1,000 to 1,700 rpm: flat at about 3.3 to 3.6 up to 1,400 rpm, then rising steadily to 3.7 at 1,500, 4.0 at 1,600 and 4.3 at 1,700 rpm. A band shows the middle half of the minutes. A dashed line shows the COP from the unit's own figures, the same shape about one point lower.">
 
-- **Up to about 1,400 rpm the curve is flat** at about 3.5–3.6.
-- **From about 1,450 rpm it rises steadily**, by about 0.25 per 100 rpm, to about 4.4 at 1,700 rpm, with no sign of levelling off yet.
+- **Up to about 1,400 rpm the curve is flat** at about 3.4–3.5.
+- **From about 1,450 rpm it rises steadily**, by about 0.25 per 100 rpm, to about 4.3 at 1,700 rpm, with no sign of levelling off yet.
 - The unit's own COP has the same shape, about one point lower: its electricity figure is too high.
 - Above 1,750 rpm there was no steady running in the data, so the curve beyond is unknown. The bins below 1,100 rpm come from mild days with only about 27 K lift and need the largest correction; they are the least certain.
 
@@ -154,38 +154,38 @@ To see the speed alone, each minute's real COP was moved to a common lift of 40 
 | Speed | Matched minutes | Real COP | Better in |
 |---|---|---|---|
 | 1,550–1,650 rpm | 346 | 🟢 +0.20 | 90 % |
-| 1,650–1,750 rpm | 210 | 🟢 +0.49 | 96 % |
+| 1,650–1,750 rpm | 210 | 🟢 +0.46 | 95 % |
 
 Sensor lag cannot explain it: during a speed-up the heat reading lags behind the electricity, which would make the faster minutes look *worse*. With the speed stable for 10 minutes the gap was, if anything, slightly larger.
 
 ## Why faster is more efficient
 
-In the lift table, the share of the ideal COP rises from **0.45 at 1,400 rpm to 0.51 at 1,700 rpm**: the compressor itself works better. 1,400 rpm is about 23 Hz, the bottom of an inverter compressor's range. At low speed, more refrigerant leaks back inside the compressor and the motor and its inverter run at poor efficiency, so the same heat costs relatively more electricity. Compressors of this kind usually work best somewhere around 50–60 Hz (3,000–3,600 rpm); the data so far only reach 1,750 rpm.
+In the lift table, the share of the ideal COP rises from **0.44 at 1,400 rpm to 0.50 at 1,700 rpm**: the compressor itself works better. 1,400 rpm is about 23 Hz, the bottom of an inverter compressor's range. At low speed, more refrigerant leaks back inside the compressor and the motor and its inverter run at poor efficiency, so the same heat costs relatively more electricity. Compressors of this kind usually work best somewhere around 50–60 Hz (3,000–3,600 rpm); the data so far only reach 1,750 rpm.
 
 ## The catch: more heat needs warmer water
 
 Faster also means more heat: about 5.8 kW at 1,700 rpm instead of 4.8 kW at 1,400 rpm. The house can only take more heat through the radiators if they are warmer: their output grows with about the 1.3rd power of their temperature above the room. Assuming the water is now about 19 K above the room (about 39 °C mean against 20 °C), 20 % more heat needs about **3 K warmer water**, which adds 3 K of lift.
 
-<img src="images/cop-speed-tradeoff.svg" alt="Line chart of the change in real COP against 1,400 rpm, from 1,400 to 1,700 rpm: compressor efficiency rises to +0.87, the colder evaporator costs up to -0.12, the warmer water for the radiators costs up to -0.33 (estimated, dashed), and the net rises to +0.43 at 1,700 rpm.">
+<img src="images/cop-speed-tradeoff.svg" alt="Line chart of the change in real COP against 1,400 rpm, from 1,400 to 1,700 rpm: compressor efficiency rises to +0.85, the colder evaporator costs up to -0.12, the warmer water for the radiators costs up to -0.33 (estimated, dashed), and the net rises to +0.40 at 1,700 rpm.">
 
 | Effect of 1,400 → 1,700 rpm | Real COP | Source |
 |---|---|---|
-| Compressor works better (same lift) | +0.87 | 🟢 measured |
+| Compressor works better (same lift) | +0.85 | 🟢 measured |
 | Evaporator about 1 K colder | −0.12 | 🟢 measured |
 | Water about 3 K warmer for the radiators | −0.33 | 🟡 estimated (standard radiators) |
-| **Net** | **+0.43** (3.56 → about 4.0) | 🟡 |
+| **Net** | **+0.40** (3.49 → about 3.9) | 🟡 |
 
 With 30 % more heat instead of 20 % (as the raw medians suggest), the net is still about +0.3. With smaller radiators the water penalty grows.
 
-What the house needs per day does not change: delivering, say, 40 kWh of heat at a COP of 3.56 takes 11.2 kWh of electricity, at 4.0 it takes 10.0 kWh (−11 %), in about 6.9 instead of 8.4 hours. The extra power is not the gain, the better COP is; if the faster heating also makes the house warmer than before, it loses more (about 6 % per kelvin indoors), and part of the gain goes into that.
+What the house needs per day does not change: delivering, say, 40 kWh of heat at a COP of 3.49 takes 11.5 kWh of electricity, at 3.9 it takes 10.3 kWh (−10 %), in about 6.9 instead of 8.4 hours. The extra power is not the gain, the better COP is; if the faster heating also makes the house warmer than before, it loses more (about 6 % per kelvin indoors), and part of the gain goes into that.
 
 ## Whole days
 
 The real COP of each day (heat ÷ calibrated electricity), corrected to 7.5 °C outside, over the day's average speed:
 
-<img src="images/cop-daily.svg" alt="Scatter of 20 days: average compressor speed from 1,217 to 1,586 rpm against the day's real COP from 3.61 to 4.01. Days around 1,200 to 1,350 rpm sit at about 3.8 to 4.0, days around 1,450 to 1,530 rpm at about 3.6 to 3.7, one day at 1,586 rpm at 3.88.">
+<img src="images/cop-daily.svg" alt="Scatter of 20 days: average compressor speed from 1,217 to 1,586 rpm against the day's real COP from 3.60 to 4.01. Days around 1,200 to 1,420 rpm sit at about 3.6 to 4.0, days around 1,450 to 1,530 rpm at about 3.6 to 3.75, one day at 1,586 rpm at 3.95.">
 
-The faster days came out *worse*, not better. That does not contradict the minutes: on this unit the speed is set by demand, so the faster days were the colder ones, with more defrosting and warmer water, and a simple outdoor correction removes only part of that. Twenty days cannot separate it. Whether the gain per minute survives a whole day has to be tested on purpose.
+The faster days came out slightly *worse* on average, not better (fitted with the outdoor temperature, about −0.08 per 100 rpm). That does not contradict the minutes: on this unit the speed is set by demand, so the faster days were the colder ones, with more defrosting and warmer water, and a simple outdoor correction removes only part of that. Twenty days cannot separate it. Whether the gain per minute survives a whole day has to be tested on purpose.
 
 ## What is being tested now
 
@@ -217,6 +217,6 @@ After a week or two, the same exports (Home Assistant history within 10 days, th
 
 - One unit, one house, radiators, 20 days in November at about 0–14 °C outside.
 - The absolute COP level rests on the flow sensor (±13 %); the comparisons between speeds do not.
-- The electricity calibration covers 1,300–2,000 W; outside that range the fitted line is an extrapolation.
+- The electricity calibration covers the running compressor at about 1,100–2,100 W of the unit's figure (99 % of the running minutes) and the night pulses at about 300 W; outside that, it is an extrapolation. The energy counter (input 38) is assumed to be off by the same factor as the power register.
 - The radiator penalty is an estimate with standard radiator physics, not a measurement in this house.
 - No steady data above 1,750 rpm yet.
