@@ -16,7 +16,7 @@ at 1,400 rpm. The unit is the one in [findings.md](findings.md).
 
 - [In short](#in-short)
 - [The data](#the-data)
-- [Electricity: the unit's figure is about 45 % too high](#electricity-the-units-figure-is-about-45--too-high)
+- [Electricity: the unit's figure is about 40 % too high](#electricity-the-units-figure-is-about-40--too-high)
 - [Heat: reported and calculated agree, the flow sensor sets the limit](#heat-reported-and-calculated-agree-the-flow-sensor-sets-the-limit)
 - [Lift: what the compressor has to overcome](#lift-what-the-compressor-has-to-overcome)
 - [COP over compressor speed](#cop-over-compressor-speed)
@@ -31,7 +31,7 @@ at 1,400 rpm. The unit is the one in [findings.md](findings.md).
 
 | Finding | Result | Confidence |
 |---|---|---|
-| Electrical Power (input 34–45) against the house meter | about **1.45 ×** the real power (real ≈ 0.69 × unit) | 🟢 31 starts and stops, 3–22 Nov |
+| Electrical Power (input 34–45) against the house meter | over a day about **1.4 ×** the real energy (real ≈ **0.72** × unit); while running real ≈ 0.93 × unit − 340 W, at standby ≈ 0.62 × unit | 🟢 31 starts and stops, 101 steps at 1-second resolution, 3–22 Nov |
 | Real COP at 1,400 rpm, about 6 °C outside | about **3.7** (the unit's own figures say 2.7) | 🟡 the flow sensor allows ±13 % |
 | Real COP at 1,700 rpm, same conditions | about **4.3** | 🟡 same |
 | Gain from 1,400 to 1,700 rpm at the same lift | **+0.5 COP** | 🟢 210 matched minutes, 96 % of them better |
@@ -46,7 +46,7 @@ at 1,400 rpm. The unit is the one in [findings.md](findings.md).
 - **Steady running:** compressor on for at least 20 minutes, the speed stable within ±30 rpm over 10 minutes, thermal power above 200 W, electrical above 300 W. **No defrosts:** minutes with a flow above 20 L/min or negative calculated heat, and the 15 minutes after them, were left out (the pump runs at about 34 L/min during a defrost).
 - That leaves **5,713 steady minutes**.
 
-## Electricity: the unit's figure is about 45 % too high
+## Electricity: the unit's figure is about 40 % too high
 
 At every compressor start (about 08:00) and stop (about 16:00), the step in the house meter is the heat pump's real share: the rest of the house does not change within those few minutes, and at those hours there is little solar on the meter. The mean of five minutes before and after was compared, after the compressor had settled (8–13 minutes after a start, 2–7 minutes after a stop). Events where the house load itself jumped at the same time were left out (31 of 43 remained).
 
@@ -61,7 +61,53 @@ At every compressor start (about 08:00) and stop (about 16:00), the step in the 
 | Start, 7 Nov 08:32 | +1,482 W | +869 W | 0.59 |
 | **All 31 (median)** | | | **0.69** (half between 0.67 and 0.75) |
 
-Fitted over the range seen (1,300–2,000 W): **real ≈ 0.89 × unit − 300 W**. The error is relatively larger at low power. This matches the night pulses in [findings.md](findings.md#at-night-fan-runs-and-compressor-preheating) (about 300 W by the unit, about 200 W by the meter). Every COP built on *Electrical Power* is therefore too low; the "real" COP on this page uses the fitted line.
+Fitted over the range seen (1,300–2,000 W): **real ≈ 0.89 × unit − 300 W**. The error is relatively larger at low power. This matches the night pulses in [findings.md](findings.md#at-night-fan-runs-and-compressor-preheating) (about 300 W by the unit, about 200 W by the meter). Every COP built on *Electrical Power* is therefore too low; the "real" COP on this page uses this fitted line.
+
+### At 1-second resolution: not one factor
+
+The same comparison with the house meter's raw values (one per second, 1.7 million values, 3–22 November) instead of averages shows *which* part is too high. The unit's figure arrives about **40 seconds after** the house meter sees the change; with that delay corrected, every step of at least 100 W was taken where the unit's figure was stable for a minute before and after and nothing else in the house switched at the same time (101 of 151 steps):
+
+| Situation | Steps | Typical step | House ÷ unit (median, middle half) |
+|---|---|---|---|
+| Speed changes while running | 84 | 210 W | **0.93** (0.75–1.09) |
+| Starts and stops | 5 (31 above) | 1,700 W | **0.72** (0.72–0.73) |
+| Compressor off: night preheating pulses | 12 | 280 W | **0.62** (0.41–0.71) |
+
+So each *additional* watt while running is reported almost right, but the step from standby to running carries a roughly constant overstatement. Fitted (robust, the 89 steps with the compressor running): **real ≈ 0.93 × unit − 340 W while running, real ≈ 0.62 × unit with the compressor off**. The two numbers of the running fit are uncertain on their own (bootstrap 90 %: slope 0.74–1.08, offset 10–580 W), as most steps are small; the factor therefore depends on the power level:
+
+| Unit shows | Real (fitted) | Factor |
+|---|---|---|
+| 1,000 W | about 590 W | 0.59 |
+| 1,500 W | about 1,060 W | 0.70 |
+| 2,000 W | about 1,520 W | 0.76 |
+| 2,500 W | about 1,990 W | 0.80 |
+
+Over whole days it is stable, whichever fit is used: the **real energy is 0.72 × the unit's** (0.71 with the first fit, 0.72–0.73 with this one, every day between 0.705 and 0.737). With the 1-second fit, every real COP on this page comes out about 0.07–0.09 lower (at 40 K lift: 3.49 instead of 3.56 at 1,400 rpm, 4.34 instead of 4.43 at 1,700 rpm); the comparisons between speeds do not change.
+
+**In Home Assistant**, two template sensors (*Settings → Devices & services → Helpers → Create helper → Template → Template a sensor*) give the real figures:
+
+- *Heat pump energy (real)*, unit kWh, device class *Energy*, state class *Total increasing*:
+
+  ```jinja
+  {% set x = states('sensor.lg_therma_v_r290_electrical_energy_total') %}
+  {{ (x | float * 0.72) | round(2) if is_number(x) else none }}
+  ```
+
+- *Heat pump power (real)*, unit W, device class *Power*, state class *Measurement*:
+
+  ```jinja
+  {% set x = states('sensor.lg_therma_v_r290_electrical_power_heat_pump') %}
+  {% if is_number(x) %}
+    {% set x = x | float %}
+    {% if is_state('binary_sensor.lg_therma_v_r290_compressor', 'on') %}
+      {{ [x * 0.93 - 340, 0] | max | round(0) }}
+    {% else %}
+      {{ (x * 0.62) | round(0) }}
+    {% endif %}
+  {% else %}none{% endif %}
+  ```
+
+`none` makes the sensor *unknown* during a Modbus hiccup instead of 0, which a *Total increasing* sensor would take as a meter reset. The factors are from this one unit; on another, measure them first. Whether the energy counter (input 38) is off by the same factor as the power register is assumed, not yet checked.
 
 ## Heat: reported and calculated agree, the flow sensor sets the limit
 
