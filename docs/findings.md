@@ -35,7 +35,7 @@ COP, compressor speed and lift have their own page: [cop-efficiency.md](cop-effi
 night. The house meter showed an hour of square pulses, about 200 W on one
 phase, one minute on, one minute off, from 23:56 to 01:00; at each end a block
 of about 250 W for two minutes. Before and after: the standby (about 50 W by
-the unit's own figure) and the fridge.
+the unit's own figure, really about 13 W, see [below](#the-electrical-figures-run-high)) and the fridge.
 
 **The 250 W blocks are the outdoor unit's fan.** At 23:55:30 *Outdoor
 Temperature* fell from 4.6 to 1.4 °C within 90 s and the evaporator coil from
@@ -125,10 +125,13 @@ Compared with the smart meter, the unit's *Electrical Power* (input 34–45)
 reads **too high**, so every COP built on it comes out too low. At 31
 compressor starts and stops (3–22 November 2026) the house meter moved by a
 median **0.69 ×** the unit's figure (half between 0.67 and 0.75). At
-1-second resolution the error is mostly a constant part while running: real ≈
-0.93 × unit − 340 W while running, ≈ 0.62 × unit with the compressor off; over
-whole days the real energy is **0.72 ×** the unit's. At night the same: about 300 W by the unit, about
-200 W by the meter for the preheating pulses. For billing and for a COP to rely
+1-second resolution, with the heat pump's steps told apart from the house by
+the three phases (it moves all three at once), the error is mostly a constant
+part while running: real ≈ 0.94 × unit − 355 W. At night, idle, it reports
+49 W but draws **about 13 W** (nights before and after it was switched on on 23
+October 2026); the preheating pulses come out at about 0.62 × (about 300 W by
+the unit, about 200 W by the meter). Over whole days the real energy is
+**0.71 ×** the unit's. For billing and for a COP to rely
 on, use a separate meter. Details, and what it means for the COP:
 [cop-efficiency.md](cop-efficiency.md). See also the
 [README](../README.md#energy-registers-optional).
