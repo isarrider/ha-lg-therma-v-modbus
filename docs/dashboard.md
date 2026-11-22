@@ -192,7 +192,7 @@ Most of it needs options switched on in *Configure → Options*; without them th
 | Option | Cards |
 |---|---|
 | Energy registers | the power graph (*Electrical (reads high)*, *Thermal (reported)*), the COP cards, *Electrical today*, *Space heating today*, the energy counters below them, the daily *Electrical Energy Total* graph, *Demand vs supply* |
-| Compressor statistics | *Compressor Average Speed*, the table of starts, run time, defrosts and defrost time (today and total), *Starts and defrosts per day* |
+| Compressor statistics | *Compressor Average Speed*, the table of starts, run time, defrosts, defrost time and defrost energy (today and total), *Starts and defrosts per day* |
 | Compressor modulation limit | *Max Compressor Modulation* |
 | Power limit | *Power Limit*, *Max Electrical Power* |
 | Poll statistics | *Poll Duration*, *Bus Load*, *Modbus Errors*, *Last Modbus Error*, *Last error at* (only shown after an error), *Counting since* |

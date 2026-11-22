@@ -35,6 +35,7 @@ from .const import (
     WRITABLE_COILS,
     WRITABLE_HOLDING_REGISTERS,
 )
+from .cop import thermal_power_w
 from .decode import signed16, temperature
 from .energy import (
     ENERGY_BLOCK_COUNT,
@@ -197,6 +198,11 @@ class LGThermaVCoordinator(DataUpdateCoordinator[dict[str, Any]]):
                 _monotonic(),
                 dt_util.now().date().isoformat(),
                 None if defrost is None else bool(defrost),
+                thermal_power_w(
+                    data.get("input_flow_rate"),
+                    data.get("input_inlet_temperature"),
+                    data.get("input_outlet_temperature"),
+                ),
             )
         data.update(
             stats(

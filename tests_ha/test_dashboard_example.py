@@ -104,6 +104,7 @@ async def test_the_starts_and_defrosts_table(hass, unit) -> None:
     stats.defrosts, stats.day_defrosts = 7, 2
     stats.defrost_s, stats.day_defrost_s = 42 * 60, 14 * 60
     stats.last_run_s, stats.last_defrost_s = 23 * 60, 6 * 60
+    stats.defrost_ws, stats.day_defrost_ws = 1.84 * 3_600_000, 0.42 * 3_600_000
     entry.runtime_data.async_update_listeners()
     await hass.async_block_till_done()
 
@@ -113,4 +114,5 @@ async def test_the_starts_and_defrosts_table(hass, unit) -> None:
     assert "Run time | **3.2 h** | 240 h |" in lines[3]
     assert "Defrosts | **2** | 7 |" in lines[4]
     assert "Defrost time | **14 min** | 42 min |" in lines[5]
-    assert lines[6] == "Last run 23 min · last defrost 6 min"
+    assert "Defrost energy | **0.42 kWh** | 1.8 kWh |" in lines[6]
+    assert lines[7] == "Last run 23 min · last defrost 6 min"

@@ -93,12 +93,14 @@ views:
               {% set r = 'sensor.lg_therma_v_r290_compressor_run_time' %}
               {% set d = 'sensor.lg_therma_v_r290_defrosts' %}
               {% set t = 'sensor.lg_therma_v_r290_defrost_time' %}
+              {% set e = 'sensor.lg_therma_v_r290_defrost_energy' %}
               | | Today | Total |
               |:--|--:|--:|
               | <ha-icon icon="mdi:counter"></ha-icon> Compressor starts | **{{ state_attr(s, 'today') | int(0) }}** | {{ states(s) }} |
               | <ha-icon icon="mdi:timer-cog-outline"></ha-icon> Run time | **{{ state_attr(r, 'today') | float(0) | round(1) }} h** | {{ states(r) | float(0) | round(0) | int }} h |
               | <ha-icon icon="mdi:snowflake-melt"></ha-icon> Defrosts | **{{ state_attr(d, 'today') | int(0) }}** | {{ states(d) }} |
               | <ha-icon icon="mdi:timer-snowflake"></ha-icon> Defrost time | **{{ state_attr(t, 'today') | float(0) | round(0) | int }} min** | {{ states(t) | float(0) | round(0) | int }} min |
+              | <ha-icon icon="mdi:snowflake-thermometer"></ha-icon> Defrost energy | **{{ state_attr(e, 'today') | float(0) | round(2) }} kWh** | {{ states(e) | float(0) | round(1) }} kWh |
 
               Last run {{ state_attr(s, 'last_run_minutes') | float(0) | round(0) | int }} min · last defrost {{ state_attr(d, 'last_defrost_minutes') | float(0) | round(0) | int }} min
           - type: statistics-graph

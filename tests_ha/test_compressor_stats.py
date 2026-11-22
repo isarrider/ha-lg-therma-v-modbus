@@ -17,6 +17,7 @@ RUN_TIME = "sensor.lg_therma_v_r290_compressor_run_time"
 SPEED = "sensor.lg_therma_v_r290_compressor_average_speed"
 DEFROSTS = "sensor.lg_therma_v_r290_defrosts"
 DEFROST_TIME = "sensor.lg_therma_v_r290_defrost_time"
+DEFROST_ENERGY = "sensor.lg_therma_v_r290_defrost_energy"
 
 
 class Compressor:
@@ -183,4 +184,43 @@ async def test_not_created_without_the_option(hass, unit) -> None:
     await hass.async_block_till_done()
     assert hass.states.get(STARTS) is None
     assert hass.states.get(DEFROSTS) is None
+    assert hass.states.get(DEFROST_ENERGY) is None
     assert entry.runtime_data.compressor_stats is None
+
+
+async def test_defrost_energy_from_flow_and_delta_t(hass, unit) -> None:
+    """20 L/min, outlet 3 K below the inlet: 20/60 × 3 × 4186 = 4186 W lost."""
+    clock = iter(float(t) for t in range(0, 10_000, 60))
+    pump = {("discrete", 0): 1, ("discrete", 1): 1, ("input", 8): 200}
+    with patch(
+        "custom_components.lg_therma_v_r290.coordinator._monotonic",
+        side_effect=lambda: next(clock),
+    ):
+        unit.values = {**pump, ("input", 2): 300, ("input", 3): 300}
+        entry = await _set_up(hass)  # t=0: no defrost, no ΔT
+        coordinator = entry.runtime_data
+        for defrost, inlet, outlet in (
+            (1, 300, 270),  # t=60: defrost, outlet 3 K below
+            (1, 300, 270),  # t=120: 60 s at -4186 W
+            (0, 300, 270),  # t=180: over, still losing: 60 s at -4186 W
+            (0, 300, 320),  # t=240: heating again: 60 s at -4186 W counted
+            (0, 300, 299),  # t=300: noise outside a defrost: not counted
+            (0, 300, 299),  # t=360
+        ):
+            unit.values = {
+                **pump,
+                ("discrete", 4): defrost,
+                ("input", 2): inlet,
+                ("input", 3): outlet,
+            }
+            await coordinator.async_refresh()
+        await hass.async_block_till_done()
+
+    energy = hass.states.get(DEFROST_ENERGY)
+    # 3 × 60 s × 4186 W = 753 480 Ws = 0.209 kWh
+    assert float(energy.state) == round(3 * 60 * 4186 / 3_600_000, 3)
+    assert energy.attributes["today"] == 0.21
+    assert energy.attributes["unit_of_measurement"] == "kWh"
+    assert energy.attributes["device_class"] == "energy"
+    assert energy.attributes["state_class"] == "total_increasing"
+    assert hass.states.get(DEFROSTS).state == "1"

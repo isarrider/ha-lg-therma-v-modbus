@@ -504,6 +504,7 @@ async def async_setup_entry(
                 LGCompressorAverageSpeedSensor(coordinator, entry),
                 LGDefrostsSensor(coordinator, entry),
                 LGDefrostTimeSensor(coordinator, entry),
+                LGDefrostEnergySensor(coordinator, entry),
             ]
         )
     else:
@@ -1165,3 +1166,33 @@ class LGDefrostTimeSensor(LGEntity, SensorEntity):
         if stats is None:
             return {}
         return {"today": round(stats.day_defrost_s / 60, 1)}
+
+
+class LGDefrostEnergySensor(LGEntity, SensorEntity):
+    """Heat the defrosts took out of the heating water, kWh; today as an attribute.
+
+    From the calculated thermal power, during and right after each defrost
+    (compressor_stats.py). Already part of Thermal Energy (Calculated), which
+    drops a little during a defrost; this shows it on its own.
+    """
+
+    _attr_icon = "mdi:snowflake-thermometer"
+    _attr_device_class = SensorDeviceClass.ENERGY
+    _attr_native_unit_of_measurement = UnitOfEnergy.KILO_WATT_HOUR
+    _attr_state_class = SensorStateClass.TOTAL_INCREASING
+    _attr_suggested_display_precision = 2
+
+    def __init__(self, coordinator: LGThermaVCoordinator, entry: ConfigEntry) -> None:
+        super().__init__(coordinator, entry, compressor_stats.KEY_DEFROST_ENERGY)
+
+    @property
+    def native_value(self) -> float | None:
+        stats = self.coordinator.compressor_stats
+        return None if stats is None else round(stats.defrost_kwh, 3)
+
+    @property
+    def extra_state_attributes(self) -> dict[str, Any]:
+        stats = self.coordinator.compressor_stats
+        if stats is None:
+            return {}
+        return {"today": round(stats.day_defrost_kwh, 2)}
