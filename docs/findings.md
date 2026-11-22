@@ -27,6 +27,8 @@ can be compared with a calibrated reading.
 - [Cooling active is on while heating](#cooling-active-is-on-while-heating)
 - [The water pump runs while Heating/Cooling is on](#the-water-pump-runs-while-heatingcooling-is-on)
 
+COP, compressor speed and lift have their own page: [cop-efficiency.md](cop-efficiency.md).
+
 ## At night: fan runs and compressor preheating
 
 **Seen** on 13/14 November 2026, outdoor about 1.5–4.5 °C, compressor off all
@@ -120,9 +122,14 @@ costs, not a fault.
 ## The electrical figures run high
 
 Compared with the smart meter, the unit's *Electrical Power* (input 34–45)
-usually reads **too high**, so every COP built on it comes out too low. Last
-night again: about 300 W by the unit, about 200 W by the meter for the same
-pulses. For billing and for a COP to rely on, use a separate meter. See the
+reads **too high**, so every COP built on it comes out too low. At 31
+compressor starts and stops (3–22 November 2026) the house meter moved by a
+median **0.69 ×** the unit's figure (half between 0.67 and 0.75), i.e. the
+unit reports about 1.45 × the real power; fitted, real ≈ 0.89 × unit − 300 W
+between 1,300 and 2,000 W. At night the same: about 300 W by the unit, about
+200 W by the meter for the preheating pulses. For billing and for a COP to rely
+on, use a separate meter. Details, and what it means for the COP:
+[cop-efficiency.md](cop-efficiency.md). See also the
 [README](../README.md#energy-registers-optional).
 
 ## Heating setpoints below 20 °C are not accepted
