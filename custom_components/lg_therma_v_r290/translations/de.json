@@ -106,7 +106,7 @@
               "compressor_statistics": "Einschalten"
             },
             "data_description": {
-              "compressor_statistics": "Legt an:\n\n- **Verdichterstarts** — ein Zähler; Starts pro Tag oder Stunde liefert die Statistik. Attribute: Starts heute, Dauer des letzten Laufs\n- **Verdichterlaufzeit** — Stunden, ein Zähler. Attribut: Stunden heute\n- **Mittlere Verdichterdrehzahl** — Drehzahl während des Laufs, heute (Rücksetzung um Mitternacht)\n- **Abtauvorgänge** — ein Zähler. Attribute: Abtauvorgänge heute, Dauer des letzten Abtauens\n- **Abtauzeit** — Minuten, ein Zähler. Attribut: Minuten heute\n\nAlle bleiben über Neustarts erhalten."
+              "compressor_statistics": "Legt an:\n\n- **Verdichterstarts** — ein Zähler; Starts pro Tag oder Stunde liefert die Statistik. Attribute: Starts heute, Dauer des letzten Laufs\n- **Verdichterlaufzeit** — Stunden, ein Zähler. Attribut: Stunden heute\n- **Mittlere Verdichterdrehzahl** — Drehzahl während des Laufs, heute (Rücksetzung um Mitternacht)\n- **Abtauvorgänge** — ein Zähler. Attribute: Abtauvorgänge heute, Dauer des letzten Abtauens\n- **Abtauzeit** — Minuten, ein Zähler. Attribut: Minuten heute\n- **Abtauenergie** — kWh, die das Abtauen dem Heizwasser entzogen hat (aus Durchfluss × ΔT), ein Zähler. Attribut: kWh heute\n\nAlle bleiben über Neustarts erhalten."
             }
           },
           "poll_statistics": {
@@ -226,7 +226,7 @@
               "compressor_statistics": "Einschalten"
             },
             "data_description": {
-              "compressor_statistics": "Legt an:\n\n- **Verdichterstarts** — ein Zähler; Starts pro Tag oder Stunde liefert die Statistik. Attribute: Starts heute, Dauer des letzten Laufs\n- **Verdichterlaufzeit** — Stunden, ein Zähler. Attribut: Stunden heute\n- **Mittlere Verdichterdrehzahl** — Drehzahl während des Laufs, heute (Rücksetzung um Mitternacht)\n- **Abtauvorgänge** — ein Zähler. Attribute: Abtauvorgänge heute, Dauer des letzten Abtauens\n- **Abtauzeit** — Minuten, ein Zähler. Attribut: Minuten heute\n\nAlle bleiben über Neustarts erhalten."
+              "compressor_statistics": "Legt an:\n\n- **Verdichterstarts** — ein Zähler; Starts pro Tag oder Stunde liefert die Statistik. Attribute: Starts heute, Dauer des letzten Laufs\n- **Verdichterlaufzeit** — Stunden, ein Zähler. Attribut: Stunden heute\n- **Mittlere Verdichterdrehzahl** — Drehzahl während des Laufs, heute (Rücksetzung um Mitternacht)\n- **Abtauvorgänge** — ein Zähler. Attribute: Abtauvorgänge heute, Dauer des letzten Abtauens\n- **Abtauzeit** — Minuten, ein Zähler. Attribut: Minuten heute\n- **Abtauenergie** — kWh, die das Abtauen dem Heizwasser entzogen hat (aus Durchfluss × ΔT), ein Zähler. Attribut: kWh heute\n\nAlle bleiben über Neustarts erhalten."
             }
           },
           "poll_statistics": {
@@ -540,6 +540,9 @@
       },
       "defrost_time": {
         "name": "Abtauzeit"
+      },
+      "defrost_energy": {
+        "name": "Abtauenergie"
       },
       "cop_external_meter": {
         "name": "COP (externer Zähler)"

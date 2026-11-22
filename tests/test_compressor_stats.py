@@ -208,3 +208,64 @@ def test_restore_from_before_defrosts_were_counted() -> None:
     assert stats.starts == 41
     assert (stats.defrosts, stats.defrost_s, stats.day_starts) == (0, 0.0, 0)
     assert stats.last_defrost_s is None
+
+
+def _energy(stats, samples, day=DAY):
+    """(defrost, thermal power in W, time) with the compressor off."""
+    for defrost, watts, time_s in samples:
+        stats.add(False, 0, time_s, day, defrost, watts)
+
+
+def test_defrost_energy_during_and_right_after_a_defrost() -> None:
+    stats = cs.CompressorStats()
+    _energy(
+        stats,
+        [
+            (False, -80, 0),  # standstill noise: not counted
+            (False, -80, 60),
+            (True, -6000, 120),  # defrost starts; 60 s at -80 W not counted
+            (True, -9000, 180),  # 60 s at -6000 W
+            (False, -3000, 240),  # defrost over; 60 s at -9000 W
+            (False, -1000, 300),  # still losing heat: 60 s at -3000 W
+            (False, 2000, 360),  # heating again: 60 s at -1000 W, tail ends
+            (False, -80, 420),  # noise again: not counted
+            (False, -80, 480),
+        ],
+    )
+    # (6000 + 9000 + 3000 + 1000) W × 60 s = 1 140 000 Ws
+    assert stats.defrost_ws == 1_140_000
+    assert round(stats.defrost_kwh, 4) == round(1_140_000 / 3_600_000, 4)
+    assert stats.day_defrost_ws == 1_140_000
+    assert stats.defrosts == 1
+
+
+def test_defrost_energy_ignores_unknown_power_and_positive_values() -> None:
+    stats = cs.CompressorStats()
+    _energy(
+        stats,
+        [
+            (False, 0, 0),
+            (True, None, 60),  # defrost, power unknown
+            (True, 500, 120),  # 60 s unknown: not counted
+            (True, -2000, 180),  # 60 s at +500 W: not a loss
+            (False, None, 240),  # 60 s at -2000 W; then power unknown ends it
+            (False, -2000, 300),
+        ],
+    )
+    assert stats.defrost_ws == 120_000
+
+
+def test_restore_keeps_defrost_energy_and_starts_it_at_zero_before_2_3_0() -> None:
+    old = cs.CompressorStats()
+    _energy(old, [(False, 0, 0), (True, -3600, 60), (False, 0, 120)])
+    saved = old.state()
+    restored = cs.CompressorStats()
+    restored.add(False, 0, 0, DAY, False, 0)
+    restored.restore(saved)
+    assert restored.defrost_ws == 3600 * 60
+    assert restored.day_defrost_ws == 3600 * 60
+
+    before = cs.CompressorStats()
+    before.add(False, 0, 0, DAY, False, 0)
+    before.restore({k: v for k, v in saved.items() if "_ws" not in k})
+    assert (before.defrost_ws, before.day_defrost_ws) == (0.0, 0.0)

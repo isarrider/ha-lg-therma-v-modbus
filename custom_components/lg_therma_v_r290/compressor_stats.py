@@ -13,6 +13,12 @@ unit. With the Compressor statistics option, five sensors show them:
   value would measure how often it runs, not how hard.
 - Defrosts: off-to-on changes of the Defrost input, a total counter.
 - Defrost Time: minutes spent defrosting, a total counter.
+- Defrost Energy: the heat the defrosts take out of the heating water, kWh,
+  a total counter. From the calculated thermal power (flow × ΔT, negative
+  while the water loses heat): added up while the unit defrosts and after it,
+  until the thermal power is no longer negative, as the water flowing through
+  the cold heat exchanger keeps losing heat for a moment. Negative values
+  outside a defrost (sensor noise at standstill) are not counted.
 
 Starts and defrosts also count today (reset at local midnight, kept across
 restarts), shown as an attribute, so a dashboard can show today and the total
@@ -39,12 +45,14 @@ KEY_COMPRESSOR_RUN_TIME = "compressor_run_time"
 KEY_COMPRESSOR_AVERAGE_SPEED = "compressor_average_speed"
 KEY_DEFROSTS = "defrosts"
 KEY_DEFROST_TIME = "defrost_time"
+KEY_DEFROST_ENERGY = "defrost_energy"
 KEYS = (
     KEY_COMPRESSOR_STARTS,
     KEY_COMPRESSOR_RUN_TIME,
     KEY_COMPRESSOR_AVERAGE_SPEED,
     KEY_DEFROSTS,
     KEY_DEFROST_TIME,
+    KEY_DEFROST_ENERGY,
 )
 
 MAX_GAP_S = 300.0
@@ -58,6 +66,8 @@ class CompressorStats:
         self.run_s = 0.0
         self.defrosts = 0
         self.defrost_s = 0.0
+        # Heat taken out of the water by defrosts, in watt-seconds.
+        self.defrost_ws = 0.0
         # Today: the day, seconds running, rpm × s, starts, defrosts and
         # seconds defrosting.
         self.day: str | None = None
@@ -66,6 +76,7 @@ class CompressorStats:
         self.day_starts = 0
         self.day_defrosts = 0
         self.day_defrost_s = 0.0
+        self.day_defrost_ws = 0.0
         # The run in progress, or the last one: its duration in seconds.
         self.last_run_s: float | None = None
         self._on: bool | None = None
@@ -77,6 +88,10 @@ class CompressorStats:
         self._defrost: bool | None = None
         self._defrost_time_s: float | None = None
         self._defrost_started_s: float | None = None
+        # Thermal power at the previous poll, and whether its heat loss is
+        # counted: during a defrost and after it while still negative.
+        self._thermal_w: float | None = None
+        self._defrost_tail = False
 
     def add(
         self,
@@ -85,9 +100,11 @@ class CompressorStats:
         time_s: float,
         day: str,
         defrost: bool | None = None,
+        thermal_w: float | None = None,
     ) -> None:
         """Record one poll: compressor on/off (None: unknown), speed, time, day,
-        defrosting (None: unknown)."""
+        defrosting (None: unknown), calculated thermal power in W (None:
+        unknown)."""
         if day != self.day:
             self.day = day
             self.day_run_s = 0.0
@@ -95,7 +112,8 @@ class CompressorStats:
             self.day_starts = 0
             self.day_defrosts = 0
             self.day_defrost_s = 0.0
-        self._add_defrost(defrost, time_s)
+            self.day_defrost_ws = 0.0
+        self._add_defrost(defrost, time_s, thermal_w)
         elapsed = (
             time_s - self._time_s
             if self._time_s is not None and self._on is not None
@@ -120,14 +138,21 @@ class CompressorStats:
         self._rpm = rpm if on else None
         self._time_s = time_s
 
-    def _add_defrost(self, defrost: bool | None, time_s: float) -> None:
-        """The same counting as for the compressor, for the Defrost input."""
+    def _add_defrost(
+        self, defrost: bool | None, time_s: float, thermal_w: float | None
+    ) -> None:
+        """The same counting as for the compressor, for the Defrost input;
+        and the heat the water loses during and right after a defrost."""
         elapsed = (
             time_s - self._defrost_time_s
             if self._defrost_time_s is not None and self._defrost is not None
             else None
         )
         if elapsed is not None and 0 < elapsed <= MAX_GAP_S:
+            counted = self._defrost or self._defrost_tail
+            if counted and self._thermal_w is not None and self._thermal_w < 0:
+                self.defrost_ws -= self._thermal_w * elapsed
+                self.day_defrost_ws -= self._thermal_w * elapsed
             if self._defrost:
                 self.defrost_s += elapsed
                 self.day_defrost_s += elapsed
@@ -139,8 +164,16 @@ class CompressorStats:
             self.last_defrost_s = time_s - self._defrost_started_s
         if not defrost:
             self._defrost_started_s = None
+        # After a defrost, keep counting while the water still loses heat.
+        if defrost:
+            self._defrost_tail = False
+        elif self._defrost:
+            self._defrost_tail = True
+        if self._defrost_tail and (thermal_w is None or thermal_w >= 0):
+            self._defrost_tail = False
         self._defrost = defrost
         self._defrost_time_s = time_s
+        self._thermal_w = thermal_w
 
     @property
     def run_hours(self) -> float:
@@ -149,6 +182,14 @@ class CompressorStats:
     @property
     def defrost_minutes(self) -> float:
         return self.defrost_s / 60
+
+    @property
+    def defrost_kwh(self) -> float:
+        return self.defrost_ws / 3_600_000
+
+    @property
+    def day_defrost_kwh(self) -> float:
+        return self.day_defrost_ws / 3_600_000
 
     @property
     def average_rpm_today(self) -> int | None:
@@ -164,6 +205,8 @@ class CompressorStats:
         self.run_s = float(data.get("run_s") or 0.0)
         self.defrosts = int(data.get("defrosts") or 0)
         self.defrost_s = float(data.get("defrost_s") or 0.0)
+        # Stored before 2.3.0 without the defrost energy: 0.
+        self.defrost_ws = float(data.get("defrost_ws") or 0.0)
         if data.get("day") is not None and self.day in (None, data["day"]):
             self.day = data["day"]
             self.day_run_s += float(data.get("day_run_s") or 0.0)
@@ -171,6 +214,7 @@ class CompressorStats:
             self.day_starts += int(data.get("day_starts") or 0)
             self.day_defrosts += int(data.get("day_defrosts") or 0)
             self.day_defrost_s += float(data.get("day_defrost_s") or 0.0)
+            self.day_defrost_ws += float(data.get("day_defrost_ws") or 0.0)
         self.last_run_s = data.get("last_run_s")
         self.last_defrost_s = data.get("last_defrost_s")
 
@@ -188,4 +232,6 @@ class CompressorStats:
             "day_defrosts": self.day_defrosts,
             "day_defrost_s": self.day_defrost_s,
             "last_defrost_s": self.last_defrost_s,
+            "defrost_ws": self.defrost_ws,
+            "day_defrost_ws": self.day_defrost_ws,
         }

@@ -89,7 +89,7 @@ async def test_all_options_create_their_entities(hass, unit) -> None:
         "sensor.lg_therma_v_r290_last_modbus_error",
     ):
         assert entity_id in entities, entity_id
-    assert len(entities) == 117
+    assert len(entities) == 118
 
 
 async def test_writes_reach_the_unit(hass, unit) -> None:

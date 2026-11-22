@@ -106,7 +106,7 @@
               "compressor_statistics": "Switch on"
             },
             "data_description": {
-              "compressor_statistics": "Adds:\n\n- **Compressor Starts** — a counter; starts per day or hour come from the statistics. Attributes: today's starts, the last run's duration\n- **Compressor Run Time** — hours, a counter. Attribute: today's hours\n- **Compressor Average Speed** — rpm while running, today (reset at midnight)\n- **Defrosts** — a counter. Attributes: today's defrosts, the last defrost's duration\n- **Defrost Time** — minutes, a counter. Attribute: today's minutes\n\nAll of them are kept across restarts."
+              "compressor_statistics": "Adds:\n\n- **Compressor Starts** — a counter; starts per day or hour come from the statistics. Attributes: today's starts, the last run's duration\n- **Compressor Run Time** — hours, a counter. Attribute: today's hours\n- **Compressor Average Speed** — rpm while running, today (reset at midnight)\n- **Defrosts** — a counter. Attributes: today's defrosts, the last defrost's duration\n- **Defrost Time** — minutes, a counter. Attribute: today's minutes\n- **Defrost Energy** — kWh the defrosts took out of the heating water (from flow × ΔT), a counter. Attribute: today's kWh\n\nAll of them are kept across restarts."
             }
           },
           "poll_statistics": {
@@ -226,7 +226,7 @@
               "compressor_statistics": "Switch on"
             },
             "data_description": {
-              "compressor_statistics": "Adds:\n\n- **Compressor Starts** — a counter; starts per day or hour come from the statistics. Attributes: today's starts, the last run's duration\n- **Compressor Run Time** — hours, a counter. Attribute: today's hours\n- **Compressor Average Speed** — rpm while running, today (reset at midnight)\n- **Defrosts** — a counter. Attributes: today's defrosts, the last defrost's duration\n- **Defrost Time** — minutes, a counter. Attribute: today's minutes\n\nAll of them are kept across restarts."
+              "compressor_statistics": "Adds:\n\n- **Compressor Starts** — a counter; starts per day or hour come from the statistics. Attributes: today's starts, the last run's duration\n- **Compressor Run Time** — hours, a counter. Attribute: today's hours\n- **Compressor Average Speed** — rpm while running, today (reset at midnight)\n- **Defrosts** — a counter. Attributes: today's defrosts, the last defrost's duration\n- **Defrost Time** — minutes, a counter. Attribute: today's minutes\n- **Defrost Energy** — kWh the defrosts took out of the heating water (from flow × ΔT), a counter. Attribute: today's kWh\n\nAll of them are kept across restarts."
             }
           },
           "poll_statistics": {
@@ -537,6 +537,9 @@
       },
       "defrost_time": {
         "name": "Defrost Time"
+      },
+      "defrost_energy": {
+        "name": "Defrost Energy"
       },
       "cop_external_meter": {
         "name": "COP (External Meter)"
