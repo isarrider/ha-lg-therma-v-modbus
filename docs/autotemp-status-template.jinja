@@ -1,0 +1,16 @@
+{#- AutoTemp status as one word or two, for a template sensor whose history
+    shows AutoTemp through the day (docs/automations.md, "On the dashboard").
+    Checked in the order of AutoTemp's own conditions; the first match wins.
+    20 is AutoTemp's off_setpoint, 1 its frost_limit: change them here too if
+    you change them there. -#}
+{% set sp = states('number.lg_therma_v_r290_target_temperature_circuit_1_radiators') | float(0) %}
+{% set coil = states('sensor.lg_therma_v_r290_temperature_before_evaporator') | float(none) %}
+{% set defrost = states.binary_sensor.lg_therma_v_r290_defrost %}
+{% if is_state('automation.autotemp_heat_circuit_1', 'off') %}disabled
+{% elif sp <= 20 %}off
+{% elif now().hour >= 17 %}done for today
+{% elif defrost and (defrost.state == 'on' or now() - defrost.last_changed < timedelta(minutes=5)) %}paused (defrost)
+{% elif is_state('binary_sensor.lg_therma_v_r290_compressor', 'off') %}waiting for the compressor
+{% elif is_state('select.lg_therma_v_r290_control_method', 'Outlet Water Temp Control') %}cold start
+{% elif coil is number and coil < 1 %}frost protection
+{% else %}active{% endif %}

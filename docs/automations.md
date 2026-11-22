@@ -88,6 +88,26 @@ Two cards (*Edit dashboard → Add card → Manual*):
 
 The card uses the automation's entity id `automation.autotemp_heat_circuit_1`, which it gets when saved with the alias from the file; if yours differs (*Settings → Automations → AutoTemp → ⋮ → Information → Settings*), adjust it in the card.
 
+### AutoTemp through the day (optional)
+
+The status card shows only the moment. To see the whole day as a coloured bar next to *Compressor* and *Defrost* (*off → waiting for the compressor → cold start → active → paused (defrost) → … → done for today → off*), the status has to be an entity, so Home Assistant records it: a **template sensor**.
+
+1. *Settings → Devices & services → Helpers → Create helper → Template → Template a sensor*.
+   - **Name:** `AutoTemp status`.
+   - **State template:** the content of [autotemp-status-template.jinja](autotemp-status-template.jinja). The preview at the bottom of the dialog shows the current state, e.g. *off* in the evening.
+   - Leave *unit of measurement*, *device class* and *state class* empty, so the history is drawn as a bar, not as a line.
+   - **Device** (optional): *LG Therma V R290*, so the sensor sits with the heat pump.
+   - *Submit*.
+2. Look up its entity id: *Developer tools → States*, filter `autotemp`. Without a device it is `sensor.autotemp_status`; with the device it takes the device's name (and area) as a prefix, e.g. `sensor.heatpump_lg_therma_v_r290_autotemp_status`.
+3. Add it as a row to a history graph, e.g. below *Defrost* in the full dashboard's overview:
+
+   ```yaml
+   - entity: sensor.autotemp_status   # the id from step 2
+     name: AutoTemp
+   ```
+
+It shows the same states as the first line of the status card, in the same order: *disabled*, *off*, *done for today*, *paused (defrost)*, *waiting for the compressor*, *cold start*, *frost protection*, *active*. The history starts when the sensor is created. Short sections, like the minute of waiting or a defrost, are too narrow for a label; hovering or tapping one shows its name and time span.
+
 ## Stop (18:00)
 
 The YAML is its own file: [therma-v-stop.yaml](therma-v-stop.yaml).
