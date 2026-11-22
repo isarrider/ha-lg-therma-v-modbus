@@ -82,7 +82,7 @@ So each *additional* watt while running is reported almost right, but the step f
 
 ### Three phases: the heat pump's steps apart from the house
 
-The heat pump is a **three-phase load**: each of its steps shows up on L1, L2 and L3 at the same time, each phase carrying 27–30 % of it. Almost everything else in the house is single-phase. So a step that all three phases share is the heat pump; a step on one phase is something else. Kept were the steps where all three phases moved in the unit's direction and none carried more than 55 % of the sum (121 of 151):
+The heat pump is a **three-phase load**: each of its steps shows up on L1, L2 and L3 at the same time and is split evenly: each phase carries a third of what the meter sees (median 33 / 34 / 33 % for L1 / L2 / L3, 114 steps). Measured against the unit's own figure, each phase sees only about 29 %, together about 0.87, which is the overstatement again. Almost everything else in the house is single-phase. So a step that all three phases share is the heat pump; a step on one phase is something else. Kept were the steps where all three phases moved in the unit's direction and none carried more than 55 % of the sum (121 of 151):
 
 | Steps | House ÷ unit (median, middle half) |
 |---|---|
