@@ -25,16 +25,33 @@ views:
               - entity: switch.lg_therma_v_r290_heating_cooling
                 name: Heating/Cooling
               - entity: sensor.lg_therma_v_r290_operation_mode
+          # Quick view. Line 1: error code, fault, water pressure (⚠ below 1.0 bar),
+          # flow (⚠ below 10 L/min) and Modbus errors since the start (option: Poll
+          # statistics; ⚠ and how long ago while the last one is under an hour old),
+          # "defrosting" during a defrost. Line 2: compressor speed, outlet → inlet,
+          # outdoor → evaporator coil.
           - type: markdown
             text_only: true
             grid_options:
               rows: auto
             content: >-
-              <ha-icon icon="mdi:alert-circle-outline"></ha-icon> Error Code {{
-              states('sensor.lg_therma_v_r290_error_code') }} &nbsp;&nbsp; {% if
-              is_state('binary_sensor.lg_therma_v_r290_fault', 'on') %}<ha-icon
-              icon="mdi:alert"></ha-icon> Fault{% else %}<ha-icon
-              icon="mdi:check-circle-outline"></ha-icon> No fault{% endif %}
+              {% set code = states('sensor.lg_therma_v_r290_error_code') %}
+              {% set fault = is_state('binary_sensor.lg_therma_v_r290_fault', 'on') %}
+              {% set bar = states('sensor.lg_therma_v_r290_water_pressure') | float(none) %}
+              {% set flow = states('sensor.lg_therma_v_r290_flow_rate') | float(none) %}
+              {% set errors = states('sensor.lg_therma_v_r290_modbus_errors') | int(0) %}
+              {% set last = state_attr('sensor.lg_therma_v_r290_last_modbus_error', 'time') | as_datetime(none) %}
+              {% set recent = last is not none and now() - last < timedelta(hours=1) %}
+              {% macro n(e, d=1) -%}{%- set x = states('sensor.lg_therma_v_r290_' ~ e) -%}{{ '%.*f' | format(d, x | float) if x | is_number else '–' }}{%- endmacro %}
+              {{ '⚠ ' if code not in ['0', 'unknown', 'unavailable'] }}<ha-icon icon="mdi:alert-circle-outline"></ha-icon> Error Code {{ code }}
+              &nbsp;&nbsp; {% if fault %}⚠ <ha-icon icon="mdi:alert"></ha-icon> Fault{% else %}<ha-icon icon="mdi:check-circle-outline"></ha-icon> No fault{% endif %}
+              &nbsp;&nbsp; {{ '⚠ ' if bar is number and bar < 1.0 }}<ha-icon icon="mdi:gauge"></ha-icon> {{ '%.2f' | format(bar) if bar is number else '–' }} bar
+              &nbsp;&nbsp; {{ '⚠ ' if flow is number and flow < 10 }}<ha-icon icon="mdi:waves-arrow-right"></ha-icon> {{ flow | round(0) | int if flow is number else '–' }} L/min
+              &nbsp;&nbsp; {{ '⚠ ' if recent }}<ha-icon icon="mdi:lan"></ha-icon> {{ errors }}{% if recent %}, last {{ relative_time(last) }} ago{% endif %}
+              {%- if is_state('binary_sensor.lg_therma_v_r290_defrost', 'on') %} &nbsp;&nbsp; <ha-icon icon="mdi:snowflake-melt"></ha-icon> defrosting{% endif %}<br>
+              <ha-icon icon="mdi:fan"></ha-icon> {{ n('compressor_speed', 0) }} rpm
+              &nbsp;&nbsp; <ha-icon icon="mdi:thermometer-water"></ha-icon> {{ n('outlet_temperature') }} → {{ n('inlet_temperature') }} °C
+              &nbsp;&nbsp; <ha-icon icon="mdi:sun-thermometer-outline"></ha-icon> {{ n('outdoor_temperature') }} → {{ n('temperature_before_evaporator') }} °C
           - type: history-graph
             entities:
               - entity: sensor.lg_therma_v_r290_inlet_temperature
@@ -94,13 +111,14 @@ views:
               {% set d = 'sensor.lg_therma_v_r290_defrosts' %}
               {% set t = 'sensor.lg_therma_v_r290_defrost_time' %}
               {% set e = 'sensor.lg_therma_v_r290_defrost_energy' %}
-              | | Today | Total |
-              |:--|--:|--:|
-              | <ha-icon icon="mdi:counter"></ha-icon> Compressor starts | **{{ state_attr(s, 'today') | int(0) }}** | {{ states(s) }} |
-              | <ha-icon icon="mdi:timer-cog-outline"></ha-icon> Run time | **{{ state_attr(r, 'today') | float(0) | round(1) }} h** | {{ states(r) | float(0) | round(0) | int }} h |
-              | <ha-icon icon="mdi:snowflake-melt"></ha-icon> Defrosts | **{{ state_attr(d, 'today') | int(0) }}** | {{ states(d) }} |
-              | <ha-icon icon="mdi:timer-snowflake"></ha-icon> Defrost time | **{{ state_attr(t, 'today') | float(0) | round(0) | int }} min** | {{ states(t) | float(0) | round(0) | int }} min |
-              | <ha-icon icon="mdi:snowflake-thermometer"></ha-icon> Defrost energy | **{{ state_attr(e, 'today') | float(0) | round(2) }} kWh** | {{ states(e) | float(0) | round(1) }} kWh |
+              <table width="100%">
+              <tr><td></td><td align="right"><b>Today</b></td><td align="right"><b>Total</b></td></tr>
+              <tr><td>Starts</td><td align="right"><b>{{ state_attr(s, 'today') | int(0) }}</b></td><td align="right">{{ states(s) }}</td></tr>
+              <tr><td>Run time</td><td align="right"><b>{{ state_attr(r, 'today') | float(0) | round(1) }} h</b></td><td align="right">{{ states(r) | float(0) | round(0) | int }} h</td></tr>
+              <tr><td>Defrosts</td><td align="right"><b>{{ state_attr(d, 'today') | int(0) }}</b></td><td align="right">{{ states(d) | int(0) }}</td></tr>
+              <tr><td>Defrost time</td><td align="right"><b>{{ state_attr(t, 'today') | float(0) | round(0) | int }} min</b></td><td align="right">{{ states(t) | float(0) | round(0) | int }} min</td></tr>
+              <tr><td>Defrost energy</td><td align="right"><b>{{ state_attr(e, 'today') | float(0) | round(2) }} kWh</b></td><td align="right">{{ states(e) | float(0) | round(1) }} kWh</td></tr>
+              </table>
 
               Last run {{ state_attr(s, 'last_run_minutes') | float(0) | round(0) | int }} min · last defrost {{ state_attr(d, 'last_defrost_minutes') | float(0) | round(0) | int }} min
           - type: statistics-graph
@@ -151,6 +169,8 @@ views:
                 name: Electrical (reads high)
               - entity: sensor.lg_therma_v_r290_thermal_power_reported
                 name: Thermal (reported)
+              - entity: sensor.lg_therma_v_r290_thermal_power_calculated
+                name: Thermal (calculated)
             hours_to_show: 24
             logarithmic_scale: false
           - type: history-graph
@@ -194,38 +214,22 @@ views:
             stat_type: change
             grid_options:
               rows: auto
-          - type: entity
-            entity: sensor.lg_therma_v_r290_cop_calculated
-            name: COP (flow × ΔT)
+          # Now and total: power, energy and the three COPs (option: Energy registers)
+          - type: markdown
+            text_only: true
             grid_options:
               rows: auto
-          - type: entity
-            entity: sensor.lg_therma_v_r290_cop_reported
-            name: COP (reported)
-            grid_options:
-              rows: auto
-          - type: entity
-            entity: sensor.lg_therma_v_r290_cop_system_reported
-            name: COP system
-            grid_options:
-              rows: auto
-          - type: entity
-            entity: sensor.lg_therma_v_r290_cop_heating_cumulative
-            name: COP heating (cumulative)
-            grid_options:
-              rows: auto
-          - color: none
-            type: entities
-            show_header_toggle: false
-            entities:
-              - entity: sensor.lg_therma_v_r290_electrical_energy_space_heating
-                name: Electrical Energy Space Heating
-              - entity: sensor.lg_therma_v_r290_thermal_energy_space_heating
-                name: Thermal Energy Space Heating
-              - entity: sensor.lg_therma_v_r290_electrical_power_total_system
-                name: Electrical Power Total System
-              - entity: sensor.lg_therma_v_r290_thermal_power_heating_circuit_calculated
-                name: Thermal Power Heating Circuit (Calculated)
+            content: |-
+              {% macro v(e, digits=2, scale=1) -%}
+              {%- set x = states('sensor.lg_therma_v_r290_' ~ e) -%}
+              {{ '%.*f' | format(digits, (x | float) / scale) if x | is_number else '–' }}
+              {%- endmacro %}
+              <table width="100%">
+              <tr><td></td><td align="right"><b>Now</b></td><td align="right"><b>Total</b></td></tr>
+              <tr><td>Electrical</td><td align="right"><b>{{ v('electrical_power_total_system', 2, 1000) }} kW</b></td><td align="right">{{ v('electrical_energy_space_heating', 0) | int(0) }} kWh</td></tr>
+              <tr><td>Heat</td><td align="right"><b>{{ v('thermal_power_heating_circuit_calculated', 2, 1000) }} kW</b></td><td align="right">{{ v('thermal_energy_space_heating', 0) | int(0) }} kWh</td></tr>
+              <tr><td>COP (flow / rep / sys)</td><td align="right"><b>{{ v('cop_calculated') }} / {{ v('cop_reported') }} / {{ v('cop_system_reported') }}</b></td><td align="right">{{ v('cop_heating_cumulative') }}</td></tr>
+              </table>
           - type: weather-forecast
             entity: weather.forecast_home
             show_current: true
@@ -238,6 +242,7 @@ views:
             grid_options:
               rows: auto
             content: >-
+              <center>
               {% macro t(e) -%}
               {%- set d = states(e) | as_datetime(None) -%}
               {{ (d | as_local).strftime('%H:%M') if d else '–' }}
@@ -264,6 +269,7 @@ views:
               &nbsp;&nbsp;
               <ha-icon icon="mdi:weather-night"></ha-icon>
               {{ t('sensor.sun_next_dusk') }}
+              </center>
           - type: entities
             show_header_toggle: false
             entities:
@@ -289,6 +295,19 @@ views:
                 attribute: since
                 name: Counting since
                 icon: mdi:timer-play-outline
+          # Electrical and space heating energy per day (option: Energy registers)
+          - type: statistics-graph
+            title: Energy per day
+            entities:
+              - entity: sensor.lg_therma_v_r290_electrical_energy_total
+                name: Electrical
+              - entity: sensor.lg_therma_v_r290_thermal_energy_space_heating
+                name: Space heating
+            days_to_show: 7
+            period: day
+            chart_type: bar
+            stat_types:
+              - change
       - type: grid
         cards:
           - type: heading
@@ -351,23 +370,6 @@ views:
         cards:
           - type: heading
             heading: Energy state (holding 9)
-          - type: statistics-graph
-            entities:
-              - sensor.lg_therma_v_r290_electrical_energy_total
-            days_to_show: 7
-            period: day
-            chart_type: bar
-            stat_types:
-              - change
-          - type: statistics-graph
-            entities:
-              - sensor.lg_therma_v_r290_thermal_power_calculated
-            days_to_show: 1
-            period: 5minute
-            chart_type: line-stack
-            stat_types:
-              - mean
-            expand_legend: false
           - type: entities
             show_header_toggle: false
             entities:
