@@ -10,11 +10,32 @@ description: >-
   over: cold start on outlet control (setpoint just below the outlet) while the
   inlet is below 22 °C, then Inlet Water Temp Control for the rest of the day
   (until 17:00). The max compressor modulation is not changed here; it stays at
-  the 40 % set by the stop automation unless raised by hand.
+  the 40 % set by the stop automation unless raised by hand. One minute after
+  the writes it checks that they took (heating on, setpoint above 20 °C) and
+  tries once more if not; if that fails too, it says so in the logbook and as
+  a notification. At 08:10 it starts again if the setpoint is still at 20 °C,
+  e.g. when Home Assistant was restarting at 08:00.
 triggers:
   - trigger: time
     at: '08:00:00'
-conditions: []
+    id: start
+  # Safety net: the 08:00 start did not run or did not take.
+  - trigger: time
+    at: '08:10:00'
+    id: catch_up
+conditions:
+  - condition: or
+    conditions:
+      - condition: trigger
+        id: start
+      - condition: template
+        value_template: '{{ states(setpoint_entity) | float(0) <= off_setpoint }}'
+variables:
+  setpoint_entity: number.lg_therma_v_r290_target_temperature_circuit_1_radiators
+  off_setpoint: 20 # the stop automation's setpoint, "off" for AutoTemp
+  what: >-
+    {{ 'catch-up at 08:10: ' if trigger.id | default('') == 'catch_up' else '' }}heating on,
+    outlet control, 60 °C
 actions:
   - action: switch.turn_on
     target:
@@ -26,12 +47,69 @@ actions:
       option: Outlet Water Temp Control
   - action: number.set_value
     target:
-      entity_id: number.lg_therma_v_r290_target_temperature_circuit_1_radiators
+      entity_id: '{{ setpoint_entity }}'
     data:
       value: 60
-  - action: logbook.log
-    data:
-      name: Therma V start
-      entity_id: number.lg_therma_v_r290_target_temperature_circuit_1_radiators
-      message: heating on, outlet control, 60 °C
+  # Did it take? Heating on and the setpoint away from 20 °C (AutoTemp may
+  # already have lowered it from 60 when the compressor was running before).
+  - delay:
+      seconds: 60
+  - if:
+      - condition: template
+        value_template: >-
+          {{ is_state('switch.lg_therma_v_r290_heating_cooling', 'on') and
+             states(setpoint_entity) | float(0) > off_setpoint }}
+    then:
+      - action: logbook.log
+        data:
+          name: Therma V start
+          entity_id: '{{ setpoint_entity }}'
+          message: '{{ what }}'
+    else:
+      # Once more.
+      - action: switch.turn_on
+        target:
+          entity_id: switch.lg_therma_v_r290_heating_cooling
+      - action: select.select_option
+        target:
+          entity_id: select.lg_therma_v_r290_control_method
+        data:
+          option: Outlet Water Temp Control
+      - action: number.set_value
+        target:
+          entity_id: '{{ setpoint_entity }}'
+        data:
+          value: 60
+      - delay:
+          seconds: 60
+      - if:
+          - condition: template
+            value_template: >-
+              {{ is_state('switch.lg_therma_v_r290_heating_cooling', 'on') and
+                 states(setpoint_entity) | float(0) > off_setpoint }}
+        then:
+          - action: logbook.log
+            data:
+              name: Therma V start
+              entity_id: '{{ setpoint_entity }}'
+              message: '{{ what }} (second try)'
+        else:
+          - variables:
+              failed: >-
+                start failed: setpoint {{ states(setpoint_entity) }} °C,
+                {{ states('select.lg_therma_v_r290_control_method') }},
+                heating {{ states('switch.lg_therma_v_r290_heating_cooling') }}
+          - action: logbook.log
+            data:
+              name: Therma V start
+              entity_id: '{{ setpoint_entity }}'
+              message: '{{ failed }}'
+          - action: persistent_notification.create
+            data:
+              notification_id: therma_v_start_failed
+              title: Therma V start failed
+              message: >-
+                {{ failed }}. The writes were sent twice but did not take. Look
+                at Settings → System → Logs (filter lg_therma_v) and at this
+                automation's trace.
 mode: single

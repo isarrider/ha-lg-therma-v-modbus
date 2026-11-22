@@ -33,6 +33,8 @@ It switches heating on, sets **outlet control** and the circuit 1 setpoint to 60
 
 The start must set **outlet control**: the cold start and the kick-in only take over from there.
 
+**It checks that the start took.** One minute after the writes it looks whether heating is on and the setpoint is above 20 °C. If not, it sends the writes once more and checks again after another minute; if that fails too, the logbook says *start failed: setpoint 20.0 °C, Inlet Water Temp Control, heating on* and a notification appears, pointing to the log and the automation's trace. **At 08:10 it catches up** when the setpoint is still at 20 °C: the 08:00 start did not run (Home Assistant restarting at 08:00, say) or did not take. Its logbook line then starts with *catch-up at 08:10*; a start that needed the second try ends with *(second try)*.
+
 ## AutoTemp
 
 The YAML is its own file: [autotemp-heat-circuit-1.yaml](autotemp-heat-circuit-1.yaml). Everything worth tuning is at the top (`trigger_variables`) or the bottom (`variables`) of it.
@@ -64,7 +66,7 @@ All three automations explain every change of the setpoint in one line in Home A
 
 | Automation | Example line in the logbook |
 |---|---|
-| Start | *Therma V start* heating on, outlet control, 60 °C |
+| Start | *Therma V start* heating on, outlet control, 60 °C · … (second try) · catch-up at 08:10: … · start failed: setpoint 20.0 °C, Inlet Water Temp Control, heating on |
 | AutoTemp, cold start | *AutoTemp* cold start: 33 °C, just below the outlet (34.6 °C); inlet 19.8 °C |
 | AutoTemp, kick-in | *AutoTemp* kick-in: inlet control, 21 °C (inlet 22.3 °C) |
 | AutoTemp, follow the inlet | *AutoTemp* raised to 35 °C: inlet 37.9 °C, 2.9 K above · raised to 30 °C: morning ramp (30 °C) · lowered to 34 °C: inlet 33.8 °C, 1.2 K below for 5 min |
