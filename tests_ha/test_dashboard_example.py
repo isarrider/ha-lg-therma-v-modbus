@@ -73,3 +73,44 @@ async def test_every_dashboard_entity_exists(hass, unit) -> None:
     assert len(ids) > 20
     missing = sorted(i for i in ids if registry.async_get(i) is None)
     assert missing == []
+
+
+def _counts_table() -> str:
+    """The markdown card with starts and defrosts, today and total."""
+    view = yaml.safe_load(FULL_VIEW.read_text())["views"][0]
+    for section in view["sections"]:
+        for card in section["cards"]:
+            if card["type"] == "markdown" and "Compressor starts" in card["content"]:
+                return card["content"]
+    raise AssertionError("the starts and defrosts table is gone")
+
+
+async def test_the_starts_and_defrosts_table(hass, unit) -> None:
+    from homeassistant.helpers.template import Template
+
+    entry = MockConfigEntry(
+        domain=DOMAIN,
+        data={"connection_type": "rtu", **RTU},
+        options={"compressor_statistics": True},
+        version=1,
+        minor_version=4,
+    )
+    entry.add_to_hass(hass)
+    assert await hass.config_entries.async_setup(entry.entry_id)
+    await hass.async_block_till_done()
+    stats = entry.runtime_data.compressor_stats
+    stats.starts, stats.day_starts, stats.run_s = 31, 3, 240.4 * 3600
+    stats.day_run_s = 3.2 * 3600
+    stats.defrosts, stats.day_defrosts = 7, 2
+    stats.defrost_s, stats.day_defrost_s = 42 * 60, 14 * 60
+    stats.last_run_s, stats.last_defrost_s = 23 * 60, 6 * 60
+    entry.runtime_data.async_update_listeners()
+    await hass.async_block_till_done()
+
+    text = Template(_counts_table(), hass).async_render()
+    lines = [" ".join(line.split()) for line in text.splitlines() if line.strip()]
+    assert "Compressor starts | **3** | 31 |" in lines[2]
+    assert "Run time | **3.2 h** | 240 h |" in lines[3]
+    assert "Defrosts | **2** | 7 |" in lines[4]
+    assert "Defrost time | **14 min** | 42 min |" in lines[5]
+    assert lines[6] == "Last run 23 min · last defrost 6 min"
