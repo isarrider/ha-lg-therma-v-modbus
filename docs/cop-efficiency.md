@@ -66,7 +66,7 @@ At every compressor start (about 08:00) and stop (about 16:00), the step in the 
 | Start, 7 Nov 08:32 | +1,482 W | +869 W | 0.59 |
 | **All 31 (median)** | | | **0.69** (half between 0.67 and 0.75) |
 
-Fitted over the range seen (1,300–2,000 W): **real ≈ 0.89 × unit − 300 W**. The error is relatively larger at low power. This matches the night pulses in [findings.md](findings.md#at-night-fan-runs-and-compressor-preheating) (about 300 W by the unit, about 200 W by the meter). Every COP built on *Electrical Power* is therefore too low. This was the first estimate; the real COPs on this page use the finer fit from the 1-second data below.
+Fitted over the range seen (1,300–2,000 W): **real ≈ 0.89 × unit − 300 W**. The error is relatively larger at low power. This matches the night pulses in [findings.md](findings.md#at-night-fan-runs-and-compressor-preheating) (about 300 W by the unit, about 180 W by the meter). Every COP built on *Electrical Power* is therefore too low. This was the first estimate; the real COPs on this page use the finer fit from the 1-second data below.
 
 ### At 1-second resolution: not one factor
 
@@ -116,7 +116,7 @@ With the compressor off at night, the unit reports a steady **49 W** (pump, cont
 | from 24 October, heat pump on | 6.3 W | 13.1 W | 46.2 W | **65.9 W** (middle half 65.1–67.4) |
 | **Difference = heat pump** | +0.8 W | +7.8 W | +4.0 W | **about 13 W** |
 
-So the heat pump really draws **about 13 W** at night with the pump running, about a quarter of the 49 W it reports. The preheating pulses at night are a different load (the compressor heated, about 280 W by the unit) and come out at about 0.62 × the unit's figure.
+So the heat pump really draws **about 13 W** at night with the pump running, about a quarter of the 49 W it reports. The preheating pulses at night are a different load (current through the compressor windings, about 280 W by the unit, about 180 W by the meter, evenly on all three phases) and come out at about 0.62 × the unit's figure.
 
 ### Energy per day
 
