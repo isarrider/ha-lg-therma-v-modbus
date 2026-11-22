@@ -31,11 +31,16 @@ FILES = [
     DOCS / "therma-v-stop.yaml",
 ]
 STATUS_CARD = DOCS / "autotemp-status-card.yaml"
+STATUS_TEMPLATE = DOCS / "autotemp-status-template.jinja"
 
 
 def test_automations_md_links_every_file() -> None:
     text = AUTOMATIONS.read_text()
-    missing = [f.name for f in [*FILES, STATUS_CARD] if f"]({f.name})" not in text]
+    missing = [
+        f.name
+        for f in [*FILES, STATUS_CARD, STATUS_TEMPLATE]
+        if f"]({f.name})" not in text
+    ]
     assert missing == []
 
 
@@ -44,7 +49,7 @@ def _configs() -> list[dict]:
 
 
 def _texts() -> str:
-    files = [*FILES, STATUS_CARD]
+    files = [*FILES, STATUS_CARD, STATUS_TEMPLATE]
     return AUTOMATIONS.read_text() + "".join(f.read_text() for f in files)
 
 
@@ -207,3 +212,44 @@ async def test_the_status_card(hass, freezer) -> None:
     hass.states.async_set(SETPOINT, "35")
     freezer.move_to("2026-11-16 16:30:00+00:00")  # 17:30 in Berlin
     assert _card(hass).endswith("AutoTemp: done for today (after 17:00)")
+
+
+def _timeline(hass) -> str:
+    return Template(STATUS_TEMPLATE.read_text(), hass).async_render()
+
+
+async def test_the_timeline_template(hass, freezer) -> None:
+    """The template sensor's states, in the order of AutoTemp's conditions."""
+    await hass.config.async_set_time_zone("Europe/Berlin")
+    freezer.move_to("2026-11-16 09:00:00+00:00")  # 10:00 in Berlin
+    for entity_id, state in {
+        AUTOTEMP: "on",
+        SETPOINT: "35",
+        "sensor.lg_therma_v_r290_temperature_before_evaporator": "4.2",
+        "binary_sensor.lg_therma_v_r290_defrost": "off",
+        "binary_sensor.lg_therma_v_r290_compressor": "on",
+        "select.lg_therma_v_r290_control_method": "Inlet Water Temp Control",
+    }.items():
+        hass.states.async_set(entity_id, state)
+    assert _timeline(hass) == "paused (defrost)"  # the defrost ended just now
+
+    freezer.tick(timedelta(minutes=6))
+    assert _timeline(hass) == "active"
+    hass.states.async_set(
+        "sensor.lg_therma_v_r290_temperature_before_evaporator", "0.6"
+    )
+    assert _timeline(hass) == "frost protection"
+    hass.states.async_set(
+        "select.lg_therma_v_r290_control_method", "Outlet Water Temp Control"
+    )
+    assert _timeline(hass) == "cold start"
+    hass.states.async_set("binary_sensor.lg_therma_v_r290_compressor", "off")
+    assert _timeline(hass) == "waiting for the compressor"
+    hass.states.async_set(SETPOINT, "20")
+    assert _timeline(hass) == "off"
+    hass.states.async_set(AUTOTEMP, "off")
+    assert _timeline(hass) == "disabled"
+    hass.states.async_set(AUTOTEMP, "on")
+    hass.states.async_set(SETPOINT, "35")
+    freezer.move_to("2026-11-16 16:30:00+00:00")  # 17:30 in Berlin
+    assert _timeline(hass) == "done for today"
