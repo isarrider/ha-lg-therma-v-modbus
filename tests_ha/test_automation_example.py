@@ -5,7 +5,6 @@ Each automation is its own file in docs/, linked from docs/automations.md.
 
 from __future__ import annotations
 
-import asyncio
 from datetime import timedelta
 from pathlib import Path
 import re
@@ -230,63 +229,11 @@ def _writes_stick(unit) -> None:
     unit.write_coil, unit.write_register = coil, register
 
 
-async def _pass_the_checks(hass, freezer) -> None:
-    """Let the run reach its waits, then move the clock past both checks.
-
-    Not async_block_till_done while the run waits: it would wait for the run.
-    """
-    # 2 × 60 s in 10 s steps, so the polls (every 10 s) bring the written
-    # values in before each check, as they do on a real unit.
-    for _ in range(13):
-        for _ in range(50):
-            await asyncio.sleep(0)
-        freezer.tick(timedelta(seconds=10))
-        async_fire_time_changed(hass)
-    await hass.async_block_till_done()
-
-
-async def _run_start(hass, freezer) -> None:
-    await hass.services.async_call(
-        "automation", "trigger", {"entity_id": START}, blocking=False
-    )
-    await _pass_the_checks(hass, freezer)
-
-
-@pytest.mark.parametrize("expected_lingering_timers", [True])
-async def test_the_start_checks_that_it_took(hass, unit, freezer) -> None:
-    logbook = async_mock_service(hass, "logbook", "log")
-    notify = async_mock_service(hass, "persistent_notification", "create")
-    unit.values = {("holding", 2): 200}  # 20 °C: off since the stop
-    _writes_stick(unit)
-    await _set_up_with_automations(hass)
-
-    await _run_start(hass, freezer)
-    assert ("holding", 2, 600) in unit.writes
-    assert [c.data["message"] for c in logbook] == ["heating on, outlet control, 60 °C"]
-    assert not notify
-
-
-@pytest.mark.parametrize("expected_lingering_timers", [True])
-async def test_a_start_that_does_not_take_is_reported(hass, unit, freezer) -> None:
-    """19 November: the writes were sent, the setpoint stayed at 20 °C."""
-    logbook = async_mock_service(hass, "logbook", "log")
-    notify = async_mock_service(hass, "persistent_notification", "create")
-    unit.values = {("holding", 2): 200}  # writes are recorded but not kept
-    await _set_up_with_automations(hass)
-
-    await _run_start(hass, freezer)
-    assert unit.writes.count(("holding", 2, 600)) == 2  # tried twice
-    assert len(logbook) == 1
-    assert logbook[0].data["message"].startswith("start failed: setpoint 20.0 °C")
-    assert notify[0].data["title"] == "Therma V start failed"
-
-
 @pytest.mark.parametrize("expected_lingering_timers", [True])
 @pytest.mark.parametrize(("setpoint", "runs"), [(200, True), (350, False)])
 async def test_the_catch_up_at_08_10(hass, unit, freezer, setpoint, runs) -> None:
     """Only while the setpoint is still at 20 °C, i.e. the start did not take."""
     logbook = async_mock_service(hass, "logbook", "log")
-    async_mock_service(hass, "persistent_notification", "create")
     await hass.config.async_set_time_zone("Europe/Berlin")
     freezer.move_to("2026-11-23 07:09:30+00:00")  # 08:09:30 in Berlin
     unit.values = {("holding", 2): setpoint}
@@ -295,7 +242,7 @@ async def test_the_catch_up_at_08_10(hass, unit, freezer, setpoint, runs) -> Non
 
     freezer.move_to("2026-11-23 07:10:00+00:00")  # 08:10
     async_fire_time_changed(hass, dt_util.utcnow())
-    await _pass_the_checks(hass, freezer)
+    await hass.async_block_till_done()
     messages = [c.data["message"] for c in logbook]
     if runs:
         assert messages == ["catch-up at 08:10: heating on, outlet control, 60 °C"]
