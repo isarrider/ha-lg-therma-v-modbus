@@ -1,0 +1,58 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 422" width="720" height="422" role="img" aria-label="In October a faster heat pump could have taken a third to two thirds of the export">
+<style>
+.bg{fill:#fcfcfb}.t{fill:#0b0b0b;font:600 15px system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
+.s{fill:#52514e;font:12px system-ui,-apple-system,Segoe UI,Roboto,sans-serif}.lab{fill:#0b0b0b;font:12px system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
+.grid{stroke:#e4e3df;stroke-width:1}.axis{stroke:#9d9c96;stroke-width:1}
+.c1{stroke:#2a78d6;fill:#2a78d6}.c2{stroke:#eb6834;fill:#eb6834}.c3{stroke:#1baf7a;fill:#1baf7a}.c4{stroke:#6250d6;fill:#6250d6}.c0{stroke:#9d9c96;fill:#9d9c96}
+.band{fill:#2a78d6;fill-opacity:.15;stroke:none}.ln{fill:none!important;stroke-width:2}.dash{stroke-dasharray:5 4}.ring{stroke:#fcfcfb;stroke-width:2}
+@media (prefers-color-scheme: dark){.bg{fill:#1a1a19}.t,.lab{fill:#f0efec}.s{fill:#c3c2b7}.grid{stroke:#33332f}.axis{stroke:#6d6c66}
+.c1{stroke:#3987e5;fill:#3987e5}.c2{stroke:#d95926;fill:#d95926}.c3{stroke:#199e70;fill:#199e70}.c4{stroke:#9085e9;fill:#9085e9}.band{fill:#3987e5;fill-opacity:.22}.ring{stroke:#1a1a19}}
+</style>
+<rect class="bg" width="720" height="422" rx="8"/>
+<text class="t" x="64" y="26">In October a faster heat pump could have taken a third to two thirds of the export</text>
+<text class="s" x="64" y="44">Export per day, 24–31 Oct 2026, and the part a faster compressor could have absorbed while it ran</text>
+<line class="grid" x1="64" x2="696" y1="330.0" y2="330.0"/><text class="s" x="56" y="334.0" text-anchor="end">0</text>
+<line class="grid" x1="64" x2="696" y1="263.0" y2="263.0"/><text class="s" x="56" y="267.0" text-anchor="end">2</text>
+<line class="grid" x1="64" x2="696" y1="196.0" y2="196.0"/><text class="s" x="56" y="200.0" text-anchor="end">4</text>
+<line class="grid" x1="64" x2="696" y1="129.0" y2="129.0"/><text class="s" x="56" y="133.0" text-anchor="end">6</text>
+<line class="grid" x1="64" x2="696" y1="62.0" y2="62.0"/><text class="s" x="56" y="66.0" text-anchor="end">8</text>
+<text class="s" x="103.5" y="348" text-anchor="middle">24 Oct</text>
+<text class="s" x="182.5" y="348" text-anchor="middle">25 Oct</text>
+<text class="s" x="261.5" y="348" text-anchor="middle">26 Oct</text>
+<text class="s" x="340.5" y="348" text-anchor="middle">27 Oct</text>
+<text class="s" x="419.5" y="348" text-anchor="middle">28 Oct</text>
+<text class="s" x="498.5" y="348" text-anchor="middle">29 Oct</text>
+<text class="s" x="577.5" y="348" text-anchor="middle">30 Oct</text>
+<text class="s" x="656.5" y="348" text-anchor="middle">31 Oct</text>
+<line class="axis" x1="64" x2="696" y1="330" y2="330"/>
+<text class="s" x="380.0" y="368" text-anchor="middle"></text>
+<text class="s" x="14" y="196.0" transform="rotate(-90 14 196.0)" text-anchor="middle">kWh per day</text>
+<clipPath id="plot"><rect x="64" y="56" width="632" height="274"/></clipPath><g clip-path="url(#plot)">
+<rect class="c0" x="76.5" y="242.6" width="16" height="87.4" rx="2"/>
+<rect class="c1" x="95.5" y="310.6" width="16" height="19.4" rx="2"/>
+<rect class="c2" x="114.5" y="283.4" width="16" height="46.6" rx="2"/>
+<rect class="c0" x="155.5" y="329.7" width="16" height="0.3" rx="2"/>
+<rect class="c0" x="234.5" y="223.1" width="16" height="106.9" rx="2"/>
+<rect class="c1" x="253.5" y="287.5" width="16" height="42.5" rx="2"/>
+<rect class="c2" x="272.5" y="255.6" width="16" height="74.4" rx="2"/>
+<rect class="c0" x="313.5" y="87.8" width="16" height="242.2" rx="2"/>
+<rect class="c1" x="332.5" y="247.9" width="16" height="82.1" rx="2"/>
+<rect class="c2" x="351.5" y="170.2" width="16" height="159.8" rx="2"/>
+<rect class="c0" x="392.5" y="328.3" width="16" height="1.7" rx="2"/>
+<rect class="c1" x="411.5" y="329.3" width="16" height="0.7" rx="2"/>
+<rect class="c2" x="430.5" y="329.3" width="16" height="0.7" rx="2"/>
+<rect class="c0" x="471.5" y="150.4" width="16" height="179.6" rx="2"/>
+<rect class="c1" x="490.5" y="275.1" width="16" height="54.9" rx="2"/>
+<rect class="c2" x="509.5" y="201.7" width="16" height="128.3" rx="2"/>
+<rect class="c0" x="550.5" y="224.5" width="16" height="105.5" rx="2"/>
+<rect class="c1" x="569.5" y="288.5" width="16" height="41.5" rx="2"/>
+<rect class="c2" x="588.5" y="254.0" width="16" height="76.0" rx="2"/>
+<rect class="c0" x="629.5" y="312.6" width="16" height="17.4" rx="2"/>
+<rect class="c1" x="648.5" y="322.3" width="16" height="7.7" rx="2"/>
+<rect class="c2" x="667.5" y="317.3" width="16" height="12.7" rx="2"/>
+<text class="lab" x="321.5" y="81.8" text-anchor="middle">7.2</text>
+</g>
+<circle class="c0" cx="73" cy="386" r="5"/><text class="lab" x="88" y="390">exported</text>
+<circle class="c1" cx="176.6" cy="386" r="5"/><text class="lab" x="191.6" y="390">absorbed at 45 % (about 1,700 rpm)</text>
+<circle class="c2" cx="73" cy="408" r="5"/><text class="lab" x="88" y="412">absorbed at 55–60 % (about 2,100 rpm)</text>
+</svg>
