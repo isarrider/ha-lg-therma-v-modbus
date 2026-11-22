@@ -32,12 +32,14 @@ COP, compressor speed and lift have their own page: [cop-efficiency.md](cop-effi
 ## At night: fan runs and compressor preheating
 
 **Seen** on 13/14 November 2026, outdoor about 1.5–4.5 °C, compressor off all
-night. The house meter showed an hour of square pulses, about 200 W on one
-phase, one minute on, one minute off, from 23:56 to 01:00; at each end a block
-of about 250 W for two minutes. Before and after: the standby (about 50 W by
+night. The house meter showed an hour of square pulses from 23:58 to 00:57,
+about **180 W, split evenly over the three phases** (60 / 61 / 62 W on L1 /
+L2 / L3), each about 40 seconds on and 80 seconds off; at each end a block of
+about **150 W for about a minute** (41 / 70 / 37 W), at 23:55:40 and 00:57:50.
+The phases come from the meter's raw values, one per second. Before and after: the standby (about 50 W by
 the unit's own figure, really about 13 W, see [below](#the-electrical-figures-run-high)) and the fridge.
 
-**The 250 W blocks are the outdoor unit's fan.** At 23:55:30 *Outdoor
+**The 150 W blocks are the outdoor unit's fan.** At 23:55:30 *Outdoor
 Temperature* fell from 4.6 to 1.4 °C within 90 s and the evaporator coil from
 7.3 to 3.1 °C; at 00:58 the same, 3.6 → 1.4 °C and 6.2 → 2.7 °C. Only moving air
 does that; afterwards both crept back up. The unit runs its fan briefly to
@@ -46,23 +48,28 @@ not part of it: it runs all the time, and its flow did not change during the
 blocks ([below](#the-water-pump-runs-while-heatingcooling-is-on)).
 
 **The pulses heat the compressor.** The unit's own *Electrical Power* read
-about 300 W on the polls that hit an "on" minute (00:12, 00:27, 00:40, 00:45)
-and 46–49 W otherwise, with the compressor at 0 rpm throughout. Over the same
+about 300 W on the polls that hit a pulse (00:12, 00:27, 00:40, 00:45) and
+46–49 W otherwise, with the compressor at 0 rpm throughout; the meter saw
+about 180 W per pulse. Over the same
 hour, at about 2 °C outside, *Hot Gas Temperature* rose from 15 to 20 °C (22 °C
 by 01:07) and *Suction Temperature* from 13.0 to 14.7 °C. With the compressor
-standing still, that heat can only come from the unit heating the compressor
-(a crankcase heater, or current through the motor windings), which keeps the
-oil warm so refrigerant does not dissolve into it before the next start. The
-coil warming back up afterwards matches the still air after the fan run, so a
-drain pan heater is the less likely explanation.
+standing still, that heat can only come from the unit heating the compressor,
+which keeps the oil warm so refrigerant does not dissolve into it before the
+next start. The phases say how: the pulses load all three phases evenly, as
+the compressor's inverter does, while a crankcase heater (a resistance on one
+phase) would show on a single phase. So the inverter drives **current through
+the motor windings** without turning the compressor. A drain pan heater would
+be single-phase too, and the coil warming back up afterwards matches the still
+air after the fan run.
 
 **The sequence:** fan run → real outdoor temperature below a threshold of
 roughly 2–3 °C → about an hour of preheating → fan run again. In ten days of
 history such phases appeared only on nights at or below about 5 °C (as read in
 still air), never on the mild nights in between.
 
-**Cost:** about 200 W at half duty for an hour, roughly 0.1 kWh per phase; a
-few tenths of a kWh on a cold night. Normal, and it protects the compressor.
+**Cost:** about 180 W at a third of the time for an hour, about 0.06 kWh per
+preheating hour; a few tenths of a kWh on a cold night at most. Normal, and it
+protects the compressor.
 
 None of the [experimental registers](register-scan.md), *Operation State ODU*
 or *Operation Cycle ODU* changed during the phase, so the integration has no
@@ -130,7 +137,7 @@ the three phases (it moves all three at once), the error is mostly a constant
 part while running: real ≈ 0.94 × unit − 355 W. At night, idle, it reports
 49 W but draws **about 13 W** (nights before and after it was switched on on 23
 October 2026); the preheating pulses come out at about 0.62 × (about 300 W by
-the unit, about 200 W by the meter). Over whole days the real energy is
+the unit, about 180 W by the meter). Over whole days the real energy is
 **0.71 ×** the unit's. For billing and for a COP to rely
 on, use a separate meter. Details, and what it means for the COP:
 [cop-efficiency.md](cop-efficiency.md). See also the
