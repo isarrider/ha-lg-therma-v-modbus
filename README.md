@@ -482,6 +482,7 @@ Switch on **Compressor modulation limit** in the integration's options. Holding 
 - Every write is clamped to 40–100 % and read back, so the slider shows what the unit stored.
 - While the unit reports 0 (no limit), the slider shows *unknown*; the attributes `register_value` and `limit_active` show the raw state.
 - A unit that does not answer leaves the slider unavailable, with the same back-off as the energy registers. Switching the option off removes the entity.
+- What a percentage means in speed, read on a 12 kW unit (23 November 2026, at the cap): 41 % → 1,800 rpm, 42 % → 1,860 rpm, 45 % → 1,980 rpm. Not linear; above about 1,750 rpm the real COP no longer rises ([docs/cop-efficiency.md](docs/cop-efficiency.md#first-day-max-modulation-4045--without-the-morning-ramp)).
 
 #### Power limit (optional)
 
