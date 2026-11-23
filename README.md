@@ -88,6 +88,8 @@ The full result of the scan, what the manual lists and what it does not, is in [
 
 Please tell me what you see, in particular if the values move with the compressor. A first reading from my unit: input 30015 reads 64887 (−64.9 °C as a signed tenth, the pattern of a temperature channel without a sensor), input 30018 reads 12000, and all of holding 40011–40023 read 0.
 
+**Wanted: input 30018 from other sizes.** It reads 12000 on a 9 kW and on a 12 kW, which may be the capacity class of the outdoor unit's hardware (LG has a 9 kW in the large UB60 casing too; see [docs/register-scan.md](docs/register-scan.md#input-30018-12000-on-a-9-kw-and-a-12-kw)). If you have a 5, 7, 9, 14 or 16 kW, please open an issue with the value of *Experimental Input 30018* and the outdoor model **with its casing** from the type plate (e.g. *HM093HFX UB60*), plus the indoor unit (e.g. *HN1639HC NK0*).
+
 ---
 
 ## Requirements
