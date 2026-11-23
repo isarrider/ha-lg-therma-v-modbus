@@ -24,6 +24,7 @@ at 1,400 rpm. The unit is the one in [findings.md](findings.md).
 - [The catch: more heat needs warmer water](#the-catch-more-heat-needs-warmer-water)
 - [Whole days](#whole-days)
 - [Solar: how much more the heat pump could take](#solar-how-much-more-the-heat-pump-could-take)
+- [First day: max modulation 40–45 % without the morning ramp](#first-day-max-modulation-4045--without-the-morning-ramp)
 - [What is being tested now](#what-is-being-tested-now)
 - [How to repeat this on your own unit](#how-to-repeat-this-on-your-own-unit)
 - [Limits](#limits)
@@ -38,6 +39,8 @@ at 1,400 rpm. The unit is the one in [findings.md](findings.md).
 | Gain from 1,400 to 1,700 rpm at the same lift | **+0.5 COP** | 🟢 210 matched minutes, 95 % of them better |
 | Cost of each kelvin of lift | about **−0.115 COP** (about 3 %) | 🟢 fitted over 5,700 minutes |
 | Net gain once the radiators need warmer water | about **+0.4 COP** at 1,700 rpm | 🟡 radiator part estimated, not measured |
+| Max modulation → speed (23 Nov, inlet below the setpoint) | 41 % → **1,800 rpm**, 42 % → 1,860 rpm, 45 % → 1,980 rpm | 🟢 read directly |
+| Real COP at 40 K lift, 41 % against 45 % | about **4.2** against 4.05: above about 1,750 rpm the curve flattens | 🟡 one day, 44–112 minutes per setting |
 | Whole days | **no gain visible yet** | 🔴 20 days, faster days were also colder |
 | Unused solar (export) | November about **0.5 kWh/day**, late October about **2.8 kWh/day**; 93–97 % of it while the heat pump was already running | 🟢 house meter, 3–21 Nov and 24–31 Oct |
 | Export a faster heat pump could have taken (24–31 Oct) | a third at 45 % modulation, **two thirds at 55–60 %** | 🟡 minute by minute, the heat pump's power from hourly averages |
@@ -188,7 +191,7 @@ To see the speed alone, each minute's real COP was moved to a common lift of 40 
 - **Up to about 1,400 rpm the curve is flat** at about 3.4–3.5.
 - **From about 1,450 rpm it rises steadily**, by about 0.25 per 100 rpm, to about 4.3 at 1,700 rpm, with no sign of levelling off yet.
 - The unit's own COP has the same shape, about one point lower: its electricity figure is too high.
-- Above 1,750 rpm there was no steady running in the data, so the curve beyond is unknown. The bins below 1,100 rpm come from mild days with only about 27 K lift and need the largest correction; they are the least certain.
+- Above 1,750 rpm there was no steady running in these 20 days. The first day at 1,800–1,980 rpm ([below](#first-day-max-modulation-4045--without-the-morning-ramp)) shows the curve flattening there: about 4.2 at 1,800 rpm, 4.05 at 1,980 rpm. The bins below 1,100 rpm come from mild days with only about 27 K lift and need the largest correction; they are the least certain.
 
 **Without the lift correction, matched instead:** every minute at a higher speed was compared with minutes at 1,300–1,500 rpm with the same outdoor temperature (±0.5 K) and the same condensing temperature (±1 K):
 
@@ -201,7 +204,7 @@ Sensor lag cannot explain it: during a speed-up the heat reading lags behind the
 
 ## Why faster is more efficient
 
-In the lift table, the share of the ideal COP rises from **0.44 at 1,400 rpm to 0.50 at 1,700 rpm**: the compressor itself works better. 1,400 rpm is about 23 Hz, the bottom of an inverter compressor's range. At low speed, more refrigerant leaks back inside the compressor and the motor and its inverter run at poor efficiency, so the same heat costs relatively more electricity. Compressors of this kind usually work best somewhere around 50–60 Hz (3,000–3,600 rpm); the data so far only reach 1,750 rpm.
+In the lift table, the share of the ideal COP rises from **0.44 at 1,400 rpm to 0.50 at 1,700 rpm**: the compressor itself works better. 1,400 rpm is about 23 Hz, the bottom of an inverter compressor's range. At low speed, more refrigerant leaks back inside the compressor and the motor and its inverter run at poor efficiency, so the same heat costs relatively more electricity. Compressors of this kind usually work best somewhere around 50–60 Hz (3,000–3,600 rpm); on this unit the gain flattens out already above about 1,750 rpm, at least in the range the max modulation was tried in (up to 1,980 rpm).
 
 ## The catch: more heat needs warmer water
 
@@ -242,21 +245,56 @@ How much a faster compressor could have taken, minute by minute, while it ran: t
 
 | Cap | Real power at the cap | Export absorbed (24–31 Oct) | Per sunny day |
 |---|---|---|---|
-| 45 %, about 1,700 rpm (the test from 23 November) | about 1.6 kW | 🟡 **7.4 of 22.1 kWh**, a third | 1.2–2.5 kWh |
+| 41–45 %, 1,800–1,980 rpm (the test from 23 November) | about 1.6 kW | 🟡 **7.4 of 22.1 kWh**, a third | 1.2–2.5 kWh |
 | 55–60 %, about 2,100 rpm, only while exporting | about 2.0 kW | 🟢 **14.9 of 22.1 kWh**, two thirds | 2.2–4.8 kWh |
 
-- The 45 % of the running test already takes about a third without any extra rule. Faster running is also where the COP was best ([above](#cop-over-compressor-speed)), so the extra heat comes at good efficiency; above 1,750 rpm that is not yet measured.
+- The 45 % of the running test already takes about a third without any extra rule. Faster running is also where the COP was best ([above](#cop-over-compressor-speed)), so the extra heat comes at good efficiency; up to 1,980 rpm that holds ([below](#first-day-max-modulation-4045--without-the-morning-ramp)).
 - **The heat has to go somewhere:** on a mild day the house gets warmer. A boost should raise the setpoint by only 2–3 K and stop at a ceiling. What it saves is the heat the heat pump does not have to make later from the grid.
 - **Shifting the run window** gains next to nothing: the heat pump already runs through the solar hours.
 
 **Planned (not yet running):** Home Assistant reads the grid power from vzlogger (its built-in HTTP server, or the VictoriaMetrics query), and AutoTemp gets a **solar boost**: export above about 300 W for 5 minutes → max modulation 55 % and setpoint +2 K up to the ceiling; import for 5 minutes → back. LG's own SG Ready input over Modbus (*Energy state*, holding 9) would be the alternative, with the offsets set in the installer menu.
 
+## First day: max modulation 40–45 % without the morning ramp
+
+On 23 November 2026 (outside 2.5–4 °C, cloudy) the new AutoTemp ran for the first full day, and the max compressor modulation was changed by hand during the morning: 45 % from the start, 42 % at 11:06, 41 % at 11:13. Each change acted within seconds. The inlet was still below the 37 °C setpoint until about 12:00, so the unit ran at the cap and the speed read directly gives what each setting allows:
+
+| Max modulation | Speed at the cap |
+|---|---|
+| 40 % | not read cleanly; 1,500–1,620 rpm was the most common in November (the setting was not logged) |
+| **41 %** | **1,800 rpm** |
+| 42 % | 1,860 rpm |
+| 45 % | 1,980 rpm (not 1,650–1,750 rpm as expected before the test) |
+
+The unit changes speed in steps of 60 rpm, and the percentages do not map linearly: 42 → 45 % adds only 120 rpm.
+
+**All settings compared.** Real electricity from the power formula (0.94 × unit − 355 W while running), the unit's reported heat, outside 1.5–5 °C. Today's rows leave out the first 3 minutes after each speed change; the November rows start 10 minutes after each start. *COP at 40 K* moves each row to the same lift with the 0.115 per kelvin from above, so the settings can be compared; that correction is an approximation, and it stretches furthest for the slowest row.
+
+| Setting | When | Minutes | Speed | Inlet → outlet | Lift | Heat | Real electricity | Real COP | COP at 40 K | Share of Carnot | Outdoor − coil (max over 10 min) | |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| Old frost rule (coil < 1 °C) | 23 Nov 08:40–09:15 | 35 | ~1,030 rpm | 21 → 25 °C | 26 K | 3.0 kW | 0.61 kW | 4.83 | ~3.2 | **0.42** | 2.7 (3.4) K | 🔴 |
+| Throttled by the unit | November | 541 | ~1,390 rpm | – | 35 K | 4.5 kW | 1.17 kW | 3.84 | 3.3 | 0.44 | 3.1 K | 🔴 |
+| 40 % | November | 321 | ~1,555 rpm | – | 40 K | 5.2 kW | 1.40 kW | 3.70 | 3.8 | 0.48 | 3.3 K | 🟡 |
+| (unlogged, 40–41 %) | November | 213 | ~1,725 rpm | – | 39 K | 5.9 kW | 1.44 kW | 4.07 | 4.0 | 0.51 | 3.4 K | 🟢 |
+| **41 %, heating up** | 23 Nov 11:16–12:00 | 44 | 1,800 rpm | 35 → 42 °C | 45 K | 6.0 kW | 1.64 kW | 3.67 | **4.3** | 0.52 | 4.1 (4.3) K | 🟢 |
+| **41 %, holding** | 23 Nov 12:00–13:52 | 112 | 1,680–1,800 rpm | 37 → 44 °C | 46 K | 5.7 kW | 1.65 kW | 3.43 | **4.2** | 0.50 | 3.8 (4.2) K | 🟢 |
+| 42 % | 23 Nov 11:09–11:13 | 4 | 1,860 rpm | 34 → 41 °C | 45 K | 6.2 kW | 1.64 kW | 3.76 | (4.4) | 0.54 | 4.0 K | 🟡 4 minutes only |
+| 45 %, heating up | 23 Nov 09:35–11:06 | 91 | 1,980 rpm | 30 → 37 °C | 40 K | 6.5 kW | 1.62 kW | 4.00 | **4.05** | 0.52 | 4.1 (4.4) K | 🟡 |
+
+- **The big step is from 40 % to 41 %:** about +0.4 COP at the same lift and about +0.8 kW heat. Above 41 % the share of Carnot stays at 0.50–0.54 and the COP at 40 K does not rise any more; 45 % comes out slightly *lower* than 41 %. The extra speed buys heat, not efficiency. 42 % looked best for 4 minutes, within the ±0.2 that the COP swings from minute to minute; only alternating whole days could separate 41 % from 42 %.
+- **41 % is the setting kept:** the same efficiency as 42–45 %, about 0.5 kW less heat than 45 %, and the coil slightly warmer.
+- **Ice:** at 41–45 % the coil ran at −1.4 to +0.5 °C with 2.9–3.9 °C outside, the gap at about 4 K (at most 4.4 K over 10 minutes). A thin layer of frost was visible from about 09:40 and did not grow: the gap stayed flat, the evaporating pressure rose instead of falling, the heat output held. No defrost all day, and the new frost protection never had to act ([A cold coil is not yet ice](findings.md#a-cold-coil-is-not-yet-ice)).
+- **The new cost is warm water.** With Inlet Water Temp Control the unit only throttles a little while the inlet is just above the setpoint, so the water settled 1–1.5 K above it (inlet 38.3 °C at a setpoint of 37 °C, outlet 45 °C). The lift went up to about 46 K and the real COP down to about 3.4 in the afternoon, and the house got almost too warm. From 24 November the target is 1 K lower (37 °C at 0 °C outside to 32 °C at 15 °C); each kelvin is worth about 0.1 COP.
+- **The old frost rule was the worst part of the day:** it lowered the setpoint from 37 to 21 °C right after the start and held the compressor at about 1,000 rpm for 40 minutes at a share of Carnot of 0.42, until the new AutoTemp was installed. The first version of that also stepped back up by 1 °C every 5 minutes; it now goes straight back to the target.
+- **The day so far** (08:31–13:52): 29.6 kWh heat for 7.9 kWh real electricity, a real COP of **3.76** at a mean lift of 41 K. 22 November, at a similar lift and outside temperature with the old AutoTemp, gave 3.70. One day, with the morning lost to the old frost rule and the afternoon at too warm water, does not show a gain over a whole day yet; the week at 41 % with the lower target has to.
+
+The unit's own counter said 10.4 kWh for the same time. With the energy factor 0.71 that gives about 7.4–7.8 kWh and a COP of about 3.8–3.85, slightly higher than the power formula: at about 2.1 kW (unit) the real share is about 0.77, not the 0.71 of the slower November running. The factor will be checked against the house meter after the test week.
+
 ## What is being tested now
 
 From 23 November 2026, on the 12 kW unit:
 
-- **Max compressor modulation 45 %** instead of 40 % (40 % mostly gave about 1,500–1,600 rpm, 45 % should give about 1,650–1,750 rpm; the stop automation resets it to 45 % each evening).
-- **A simpler AutoTemp:** once the compressor has run 1 minute, inlet control and the setpoint straight to the target (38 °C at 0 °C outside, 33 °C at 15 °C, linear in between), so the unit heats at the cap until the water gets there and then holds it on its own. No cold start, no following, no morning ramp. Kept, but changed: **frost protection** that only reacts to ice: the coil below 0.5 °C, below the frost point of the air (temperature and humidity from the weather entity) and more than 5 K colder than the air for 2 minutes → straight to just below the inlet so the unit throttles at once, then 1 °C every 2 minutes; straight back to the target once the gap is below 4 K or the coil is above 0.5 °C or the frost point ([why](findings.md#a-cold-coil-is-not-yet-ice)). Not step by step: the max compressor modulation caps the speed anyway, full speed only adds about 0.6 K to the gap between air and coil (2.9 K median at the lowest speeds, 3.5 K at the highest), and new ice is caught within 2 minutes. The first version stepped up 1 °C every 5 minutes; after the switch on 23 November that took 70 minutes from 22 to 36 °C in dry air, with the unit idling near its minimum because the setpoint was just at the inlet. Also kept: a **thermo off guard** (inlet 3 K above the setpoint → +1 °C up to 40 °C, back down to the target once the water has cooled), and the **oil boost**.
+- **Max compressor modulation 41 %** (1,800 rpm) instead of 40 %. The test started at 45 %, which turned out to give 1,980 rpm with no better COP than 41 % ([first day](#first-day-max-modulation-4045--without-the-morning-ramp)); 41 % since 23 November 11:13. The stop automation (now at 17:30) resets it to 41 % each evening.
+- **A simpler AutoTemp:** once the compressor has run 1 minute, inlet control and the setpoint straight to the target (37 °C at 0 °C outside, 32 °C at 15 °C, linear in between; 38 / 33 °C on the first day, which made the house almost too warm), so the unit heats at the cap until the water gets there and then holds it on its own. No cold start, no following, no morning ramp. Kept, but changed: **frost protection** that only reacts to ice: the coil below 0.5 °C, below the frost point of the air (temperature and humidity from the weather entity) and more than 5 K colder than the air for 2 minutes → straight to just below the inlet so the unit throttles at once, then 1 °C every 2 minutes; straight back to the target once the gap is below 4 K or the coil is above 0.5 °C or the frost point ([why](findings.md#a-cold-coil-is-not-yet-ice)). Not step by step: the max compressor modulation caps the speed anyway, full speed only adds about 0.6 K to the gap between air and coil (2.9 K median at the lowest speeds, 3.5 K at the highest), and new ice is caught within 2 minutes. The first version stepped up 1 °C every 5 minutes; after the switch on 23 November that took 70 minutes from 22 to 36 °C in dry air, with the unit idling near its minimum because the setpoint was just at the inlet. Also kept: a **thermo off guard** (inlet 3 K above the setpoint → +1 °C up to 40 °C, back down to the target once the water has cooled), and the **oil boost**.
 - It also warms the house earlier in the day, which is wanted, and costs some heat.
 
 After a week or two, the same exports (Home Assistant history within 10 days, the house meter from VictoriaMetrics) decide: real kWh of electricity per day, real COP per day, compressor starts and defrosts per day (2.3.0 counts them), each against days with similar outdoor temperatures from 3–22 November. If it holds up, the new AutoTemp replaces the example in [automations.md](automations.md).
