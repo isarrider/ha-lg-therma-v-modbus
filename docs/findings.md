@@ -20,6 +20,7 @@ can be compared with a calibrated reading.
 - [Suction is a separate sensor](#suction-is-a-separate-sensor)
 - [The flow rate reads 5.0 L/min with the pump stopped](#the-flow-rate-reads-50-lmin-with-the-pump-stopped)
 - [Heat goes negative during a defrost](#heat-goes-negative-during-a-defrost)
+- [A cold coil is not yet ice](#a-cold-coil-is-not-yet-ice)
 - [The electrical figures run high](#the-electrical-figures-run-high)
 - [Heating setpoints below 20 °C are not accepted](#heating-setpoints-below-20-c-are-not-accepted)
 - [Inputs without a sensor send 64887](#inputs-without-a-sensor-send-64887)
@@ -125,6 +126,47 @@ inlet with the pump running, and input 48–49 (*Thermal Power (Reported)*)
 negative. Both thermal powers and both COPs are negative then (2.2.3),
 and *Thermal Energy (Calculated)* drops a little. That is what the defrost
 costs, not a fault.
+
+## A cold coil is not yet ice
+
+To take heat from the air, the evaporator coil has to be colder than the air.
+While the compressor ran (3–22 November 2026, steady running, defrosts left
+out), the gap between *Outdoor Temperature* and the coil (*Temperature Before
+Evaporator*) was small and steady, growing a little with the speed:
+
+| Compressor speed | Outdoor − coil (median) | 97 % of the minutes below |
+|---|---|---|
+| up to 1,300 rpm | 2.9 K | 3.6 K |
+| 1,300–1,500 rpm | 3.0 K | 3.9 K |
+| 1,500–1,650 rpm | 3.3 K | 4.3 K |
+| 1,650–1,800 rpm | 3.5 K | 4.7 K |
+
+So **at 3 °C outside or colder the coil is below 1 °C in 97 % of the running
+minutes**, and below 0 °C most of the time. That alone does not mean ice:
+
+- **Ice needs moisture.** It only forms where the coil is below 0 °C *and*
+  below the **frost point** of the air. At 2.5 °C outside the frost point is
+  +1.9 °C at 95 % humidity, −0.2 °C at 80 %, −2.7 °C at 65 % and −4.7 °C at
+  55 % (Magnus formula over ice). On the morning of 23 November the coil ran at
+  −0.2 °C and no ice formed: dry air.
+- **Ice shows in the gap.** Ice on the fins blocks the air, and the coil gets
+  colder against the air. Before the defrost on 22 November at 10:54 the gap
+  rose from 3.1 K to 5.7, 6.9 and 7.2 K within 25 minutes at 1,400–1,500 rpm,
+  well above the normal 3–4 K; it fell back after the defrost.
+
+**For automations:** throttling the compressor whenever the coil is below
+about 1 °C throttles it all day on every cold day, whether ice forms or not.
+On 23 November at 08:33 such a rule (the [example AutoTemp's
+frost protection](automations.md#autotemp)) lowered the setpoint from 37 to
+21 °C at 2.5 °C outside and held the compressor at 960 rpm, with a coil at
+−0.6 °C in dry air. A rule that only reacts to ice needs three conditions:
+coil below about 0.5 °C, coil below the frost point of the air, and the coil
+more than about 5 K colder than the air; it releases once the gap is below
+about 4 K. That rule is **being tested** on this unit from 23 November 2026,
+with the humidity from the weather entity (see [cop-efficiency.md](cop-efficiency.md#what-is-being-tested-now));
+the 5 K and 4 K are first estimates from two defrosts and will be checked
+against the defrost counter (*Defrosts*, *Defrost Energy*, 2.3.0) over the
+coming cold days.
 
 ## The electrical figures run high
 
