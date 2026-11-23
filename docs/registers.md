@@ -66,7 +66,7 @@ Marks: ⚠ the unit behaves differently from the manual (measured) · ⚙ only w
 | 30015 | ⚙ `experimental_input_30015` (*Experimental registers*) | raw |
 | 30016 | ✗ — no answer; a block read that includes it fails | — |
 | 30017 | `liquid_gas_temperature` | 0.1 °C |
-| 30018 | ⚙ `experimental_input_30018` — constant 12000, not a temperature; possibly the capacity class of the outdoor unit's hardware in W ([hypothesis](register-scan.md#input-30018-12000-on-a-9-kw-and-a-12-kw)) | raw |
+| 30018 | ⚙ `experimental_input_30018` — constant 12000 on 9 kW (UB40 and the scanned unit) and 12 kW alike, not a temperature; not the rating nor the casing, meaning unknown ([details](register-scan.md#input-30018-12000-on-every-unit-so-far)) | raw |
 | 30019 / 30020 | `suction_temperature` / `hot_gas_temperature` | 0.1 °C |
 | 30021 / 30022 | `temperature_before_evaporator` / `temperature_after_evaporator` — on the R290 the same coil sensor in both; the second is disabled by default ([why](register-scan.md#evaporator-and-suction-sensors)) | 0.1 °C |
 | 30023 / 30024 | `high_pressure_condenser` / `low_pressure_evaporator` — gauge pressure | 0.01 bar |

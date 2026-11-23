@@ -37,7 +37,7 @@ Read on 2026-10-03 with the compressor stopped (outdoor 29 °C):
 | Register | Raw value | Note |
 |---|---|---|
 | Input 30015 (14) | 64887 | −649 signed; ×0.1 = −64.9 °C, the pattern of a temperature channel without sensor (a forum report shows the same on 30011) |
-| Input 30018 (17) | 12000 | not a temperature, lies between two; possibly a capacity class, see [below](#input-30018-12000-on-a-9-kw-and-a-12-kw) |
+| Input 30018 (17) | 12000 | not a temperature, lies between two; not the model's rating nor the casing (a UB40 9 kW reads it too), see [below](#input-30018-12000-on-every-unit-so-far) |
 | Input 30064 (63) | 65534 | 0xFFFE, probably an edge value |
 | Holding 40011–40023 | 0 | 13 registers, unused or reserved |
 | Holding 40063 | 65534 | 0xFFFE |
@@ -46,23 +46,22 @@ Read on 2026-10-03 with the compressor stopped (outdoor 29 °C):
 
 The optional *Experimental registers* setting of the integration records these over time so they can be compared with the compressor, temperatures and defrost cycles.
 
-## Input 30018: 12000 on a 9 kW and a 12 kW
+## Input 30018: 12000 on every unit so far
 
-Input 30018 reads a constant **12000** on both units known so far, never changing with the compressor, defrost, day or night:
+Input 30018 reads a constant **12000** on every unit known so far, never changing with the compressor, defrost, day or night:
 
 | Unit | Indoor unit | Outdoor unit | Input 30018 | Input 39999 |
 |---|---|---|---|---|
 | The scanned 9 kW (Modbus TCP, slave 33) | HN1639HC NK0 | 9 kW, model not recorded | 12000 | 8208 |
-| A 12 kW (Modbus RTU, slave 1) | — | 12 kW, three-phase (its power steps load all three phases evenly) | 12000 | 8208 |
+| A 12 kW (Modbus RTU, slave 1) | — | 12 kW, three-phase, UB60 casing | 12000 | 8208 |
+| A 9 kW reported by a user (23 November 2026) | not reported | **HM091HF UB40**, 9 kW, with PTHCS0 | 12000 | not reported |
 
-**Hypothesis: the capacity class of the outdoor unit's hardware, in W.** LG builds the R290 monobloc in two casings: UB40 (e.g. HM091HF / HM093HF, 9 kW, 1,320 mm wide, 130 kg, 900 g R290) and UB60 (e.g. HM121HF / HM123HF, 12 kW, 1,560 mm, 181 kg, 1,200 g). There is also a 9 kW in the large casing, **HM093HFX UB60**, sold with the HN1639HC NK0 indoor unit. If the scanned 9 kW is that one, both units share the UB60 hardware and the 9 kW is set lower in software; 12000 would then be the hardware's class, not the model's rating.
+**Ruled out: the model's rating and the casing.** The first idea was the capacity class of the outdoor unit's hardware, in W: LG builds the R290 monobloc in two casings, UB40 (e.g. HM091HF / HM093HF, 9 kW, 1,320 mm wide, 130 kg, 900 g R290) and UB60 (e.g. HM121HF / HM123HF, 12 kW, 1,560 mm, 181 kg, 1,200 g), and there is also a 9 kW in the large casing (HM093HFX UB60). If both units above had been UB60, 12000 could have been the class of the shared hardware. The HM091HF in the small UB40 casing reads 12000 as well, so it is neither the rating (that would be 9000) nor the casing.
 
-What would decide it:
+What is left:
 
-- a **UB40 9 kW** reading 12000 would rule out the casing idea (9000 would support it as the rating);
-- a **UB60 16 kW** (e.g. HM163HF) reading 12000 would mean it is not the rating at all, 16000 that it is the model's rating after all.
-
-The Modbus interface sits in the indoor unit (HN1639HC is the hydro unit for 9 to 16 kW), so the value could also come from there; its 16 kW class does not match 12000 either.
+- **The same value on every size:** a constant of the firmware (a limit, a scaling or calibration value), or something the indoor unit or its Modbus interface supplies rather than the outdoor unit. The Modbus interface sits in the indoor unit (HN1639HC is the hydro unit for 9 to 16 kW).
+- **What would decide it:** a **16 kW** (e.g. HM163HF) reading 12000 would make a capacity meaning very unlikely; 16000 would bring it back, though without explaining the 9 kW units. Matching indoor units and input 39999 across reports would show whether the value follows the indoor unit.
 
 ## Evaporator and suction sensors
 
