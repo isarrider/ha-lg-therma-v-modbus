@@ -3,7 +3,7 @@
 How entities, unique ids and coordinator data are named, so that a new
 entity fits without a second look, and a name always says where its value
 comes from. Applies from 1.3.0; installations set up earlier are migrated
-automatically (see [Migration from 1.2.0 and earlier](#migration-from-120-and-earlier)).
+automatically (see [Migration of older installations](#migration-of-older-installations)).
 
 ## Entity names
 
