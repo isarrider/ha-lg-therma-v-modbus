@@ -323,7 +323,10 @@ actions:
               message: >-
                 back up to {{ back_up }} °C (target {{ target }} °C, coil {{ evap }} °C, {{ (outdoor - evap) | round(1) if outdoor is number and evap is number else '–' }} K below outdoor)
       # 6. Down towards the target: inlet down_gap below for 5 minutes, after
-      #    the thermo off guard raised it or the target fell (milder outside)
+      #    the thermo off guard raised it, or the target fell (milder outside;
+      #    'periodic' catches that also while the water is still heating up,
+      #    when the inlet has been below the setpoint all along and the 'down'
+      #    trigger never fires)
       - conditions:
           - condition: state
             entity_id: select.lg_therma_v_r290_control_method
@@ -332,6 +335,7 @@ actions:
             id:
               - down
               - setpoint_5min
+              - periodic
           - condition: template
             value_template: '{{ inlet <= setpoint - down_gap and setpoint > target }}'
         sequence:
