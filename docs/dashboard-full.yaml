@@ -214,7 +214,8 @@ views:
             stat_type: change
             grid_options:
               rows: auto
-          # Now and total: power, energy and the three COPs (option: Energy registers)
+          # Now, today and total: power, energy and the three COPs (option: Energy
+          # registers). Today is the counters' today_kwh attribute (2.3.1+).
           - type: markdown
             text_only: true
             grid_options:
@@ -224,11 +225,17 @@ views:
               {%- set x = states('sensor.lg_therma_v_r290_' ~ e) -%}
               {{ '%.*f' | format(digits, (x | float) / scale) if x | is_number else '–' }}
               {%- endmacro %}
+              {% macro d(e) -%}
+              {%- set x = state_attr('sensor.lg_therma_v_r290_' ~ e, 'today_kwh') -%}
+              {{ '%.1f' | format(x) if x is number else '–' }}
+              {%- endmacro %}
+              {% set et = state_attr('sensor.lg_therma_v_r290_electrical_energy_space_heating', 'today_kwh') %}
+              {% set ht = state_attr('sensor.lg_therma_v_r290_thermal_energy_space_heating', 'today_kwh') %}
               <table width="100%">
-              <tr><td></td><td align="right"><b>Now</b></td><td align="right"><b>Total</b></td></tr>
-              <tr><td>Electrical</td><td align="right"><b>{{ v('electrical_power_total_system', 2, 1000) }} kW</b></td><td align="right">{{ v('electrical_energy_space_heating', 0) }} kWh</td></tr>
-              <tr><td>Heat</td><td align="right"><b>{{ v('thermal_power_heating_circuit_calculated', 2, 1000) }} kW</b></td><td align="right">{{ v('thermal_energy_space_heating', 0) }} kWh</td></tr>
-              <tr><td>COP (flow / rep / sys)</td><td align="right"><b>{{ v('cop_calculated') }} / {{ v('cop_reported') }} / {{ v('cop_system_reported') }}</b></td><td align="right">{{ v('cop_heating_cumulative') }}</td></tr>
+              <tr><td></td><td align="right"><b>Now</b></td><td align="right"><b>Today</b></td><td align="right"><b>Total</b></td></tr>
+              <tr><td>Electrical</td><td align="right"><b>{{ v('electrical_power_total_system', 2, 1000) }} kW</b></td><td align="right">{{ d('electrical_energy_space_heating') }} kWh</td><td align="right">{{ v('electrical_energy_space_heating', 0) }} kWh</td></tr>
+              <tr><td>Heat</td><td align="right"><b>{{ v('thermal_power_heating_circuit_calculated', 2, 1000) }} kW</b></td><td align="right">{{ d('thermal_energy_space_heating') }} kWh</td><td align="right">{{ v('thermal_energy_space_heating', 0) }} kWh</td></tr>
+              <tr><td>COP (flow / rep / sys)</td><td align="right"><b>{{ v('cop_calculated') }} / {{ v('cop_reported') }} / {{ v('cop_system_reported') }}</b></td><td align="right">{{ '%.2f' | format(ht / et) if et is number and ht is number and et > 0 else '–' }}</td><td align="right">{{ v('cop_heating_cumulative') }}</td></tr>
               </table>
           - type: weather-forecast
             entity: weather.forecast_home
