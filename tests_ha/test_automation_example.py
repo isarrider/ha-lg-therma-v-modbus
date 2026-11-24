@@ -179,7 +179,9 @@ async def test_the_status_card(hass, freezer) -> None:
     }.items():
         hass.states.async_set(entity_id, state)
     # Moist air: frost point +1.9 °C at 2.5 °C and 95 %
-    hass.states.async_set("weather.forecast_home", "fog", {"temperature": 2.5, "humidity": 95})
+    hass.states.async_set(
+        "weather.forecast_home", "fog", {"temperature": 2.5, "humidity": 95}
+    )
 
     # The defrost ended just now: AutoTemp waits 5 minutes.
     assert _card(hass).endswith("AutoTemp: paused (defrost)")
@@ -209,7 +211,9 @@ async def test_the_status_card(hass, freezer) -> None:
         "coil -0.4 °C (6.4 K below outdoor, frost point 1.9 °C) · back up once the gap is below 4 K"
     )
     # Dry air: the coil is above the frost point, no ice -> back to the target
-    hass.states.async_set("weather.forecast_home", "sunny", {"temperature": 2.5, "humidity": 55})
+    hass.states.async_set(
+        "weather.forecast_home", "sunny", {"temperature": 2.5, "humidity": 55}
+    )
     assert _card(hass).endswith(
         "AutoTemp: back to the target<br>setpoint 30 °C → 35 °C within 5 min (frost clear)"
     )
@@ -258,7 +262,9 @@ async def test_the_timeline_template(hass, freezer) -> None:
         "select.lg_therma_v_r290_control_method": "Inlet Water Temp Control",
     }.items():
         hass.states.async_set(entity_id, state)
-    hass.states.async_set("weather.forecast_home", "fog", {"temperature": 2.5, "humidity": 95})
+    hass.states.async_set(
+        "weather.forecast_home", "fog", {"temperature": 2.5, "humidity": 95}
+    )
     assert _timeline(hass) == "paused (defrost)"  # the defrost ended just now
 
     freezer.tick(timedelta(minutes=6))
@@ -271,7 +277,9 @@ async def test_the_timeline_template(hass, freezer) -> None:
     assert _timeline(hass) == "watching ice"
     hass.states.async_set(SETPOINT, "30")
     assert _timeline(hass) == "frost protection"
-    hass.states.async_set("weather.forecast_home", "sunny", {"temperature": 2.5, "humidity": 55})
+    hass.states.async_set(
+        "weather.forecast_home", "sunny", {"temperature": 2.5, "humidity": 55}
+    )
     assert _timeline(hass) == "back to the target"  # dry air: no ice
     hass.states.async_set(
         "select.lg_therma_v_r290_control_method", "Outlet Water Temp Control"
