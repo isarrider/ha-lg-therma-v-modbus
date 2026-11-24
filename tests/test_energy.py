@@ -211,3 +211,72 @@ def test_a_healthy_unit_is_never_paused() -> None:
     for _ in range(100):
         assert backoff.should_try()
         assert not backoff.record(True)
+
+
+# --- DayCounter: growth of an energy counter since local midnight ----------
+
+DayCounter = energy.DayCounter
+
+
+def test_day_counter_counts_from_the_first_reading() -> None:
+    day = DayCounter()
+    assert day.today is None
+    assert day.add(None, "2026-11-24") is None  # nothing known yet
+    assert day.add(1_000_000, "2026-11-24") == 0
+    assert day.add(1_002_500, "2026-11-24") == 2_500
+
+
+def test_day_counter_new_day_starts_at_the_last_value() -> None:
+    """What came in between the last poll before midnight and the first poll
+    after it counts to the new day."""
+    day = DayCounter()
+    day.add(1_000_000, "2026-11-23")
+    day.add(1_010_000, "2026-11-23")
+    assert day.add(1_010_040, "2026-11-24") == 40
+    assert day.add(1_012_000, "2026-11-24") == 2_000
+
+
+def test_day_counter_ignores_jitter_and_does_not_count_it_twice() -> None:
+    day = DayCounter()
+    day.add(1_000_000, "2026-11-24")
+    day.add(1_001_000, "2026-11-24")
+    assert day.add(1_000_990, "2026-11-24") == 1_000  # a little below: ignored
+    assert day.add(1_001_010, "2026-11-24") == 1_010
+
+
+def test_day_counter_keeps_the_day_over_a_reset() -> None:
+    day = DayCounter()
+    day.add(1_000_000, "2026-11-24")
+    day.add(1_003_000, "2026-11-24")
+    assert day.add(500, "2026-11-24") == 3_000  # counter reset: keep the 3 kWh
+    assert day.add(1_500, "2026-11-24") == 4_000
+
+
+def test_day_counter_restores_the_same_day_only() -> None:
+    first = DayCounter()
+    first.add(1_000_000, "2026-11-24")
+    first.add(1_004_000, "2026-11-24")
+    stored = first.state()
+
+    same_day = DayCounter()
+    same_day.restore(stored, "2026-11-24")
+    # Home Assistant was down for a while: the energy used meanwhile counts.
+    assert same_day.add(1_006_000, "2026-11-24") == 6_000
+
+    next_day = DayCounter()
+    next_day.restore(stored, "2026-11-25")
+    assert next_day.today is None
+    assert next_day.add(1_007_000, "2026-11-25") == 0
+
+
+def test_day_counter_restore_after_a_reading_changes_nothing() -> None:
+    day = DayCounter()
+    day.add(2_000_000, "2026-11-24")
+    day.restore({"day": "2026-11-24", "start": 1.0, "last": 2.0}, "2026-11-24")
+    assert day.state() == {"day": "2026-11-24", "start": 2_000_000, "last": 2_000_000}
+
+
+def test_day_counter_ignores_broken_restore_data() -> None:
+    day = DayCounter()
+    day.restore({"day": "2026-11-24", "start": None, "last": "x"}, "2026-11-24")
+    assert day.state() == {"day": None, "start": None, "last": None}

@@ -141,6 +141,95 @@ def decode_block(registers: list[int]) -> dict[str, int]:
     return values
 
 
+#: A drop of a counter to below this share of its last value is a reset (a
+#: replaced board, a counter rolled over); a smaller drop is jitter. The same
+#: threshold as external_meter.RESET_RATIO and Home Assistant's statistics.
+DAY_RESET_RATIO = 0.9
+
+
+class DayCounter:
+    """How much a total energy counter has grown since local midnight.
+
+    The unit's energy registers only count up for its whole life; a dashboard
+    wants "today" next to "total" (as Starts and Defrosts already have it).
+    This keeps the counter's value at the start of the day and the last value
+    seen, so today = last - start.
+
+    - **New day:** the day starts at the last value of the day before, so
+      what came in between the last poll before midnight and the first poll
+      after it counts to the new day (at most one poll interval). With no
+      value from the day before (first poll after setup), it starts at the
+      first value seen: the first day counts from setup, not from midnight.
+    - **Jitter:** a value a little below the last one (a reading arriving out
+      of order) is ignored until the counter is past the last value again, so
+      the recovery is not counted twice.
+    - **Reset:** a drop to below DAY_RESET_RATIO of the last value keeps what
+      today had counted and continues from the new value.
+    - **Restart:** state() and restore() carry the day, the start and the last
+      value over a restart of Home Assistant; a stored day other than today
+      is dropped, and the new day starts from the first poll.
+
+    Values are in the counter's own unit (Wh for the unit's registers).
+    Deliberately free of Home Assistant imports, like the rest of this module.
+    """
+
+    def __init__(self) -> None:
+        self.day: str | None = None
+        self.start: float | None = None
+        self.last: float | None = None
+
+    def add(self, value: float | None, day: str) -> float | None:
+        """Record one reading (None: unknown) on day (local ISO date);
+        returns today's growth, or None while nothing is known yet."""
+        if value is None:
+            return self.today
+        if day != self.day:
+            # A new day (or the first reading at all): start from the last
+            # value of the day before when there is one and the counter has
+            # not been reset in between, else from this reading.
+            if self.last is not None and value >= self.last:
+                self.start = self.last
+            else:
+                self.start = value
+            self.day = day
+            self.last = value
+            return self.today
+        if self.start is None or self.last is None:
+            self.start = self.last = value
+        elif value >= self.last:
+            self.last = value
+        elif value < self.last * DAY_RESET_RATIO:
+            # Reset: keep what today had counted, continue from the new value.
+            counted = self.last - self.start
+            self.start = value - counted
+            self.last = value
+        # else: jitter just below the last value, ignored.
+        return self.today
+
+    @property
+    def today(self) -> float | None:
+        """Growth since the start of the day, or None before the first reading."""
+        if self.start is None or self.last is None:
+            return None
+        return self.last - self.start
+
+    def state(self) -> dict[str, object]:
+        """What a restart needs to continue the day (see restore())."""
+        return {"day": self.day, "start": self.start, "last": self.last}
+
+    def restore(self, data: dict[str, object], day: str) -> None:
+        """Continue from a previous run's state() if it was stored today.
+
+        Only before the first reading of this run: once a reading came in,
+        the day has started from it and the stored state is not needed.
+        """
+        if self.day is not None or data.get("day") != day:
+            return
+        start, last = data.get("start"), data.get("last")
+        if isinstance(start, (int, float)) and isinstance(last, (int, float)):
+            self.day, self.start, self.last = day, float(start), float(last)
+
+
 #: What an optional read has done since the integration started, as
 #: RetryBackoff.status() reports it.
 STATUS_NOT_READ = "not_read"  # no attempt yet

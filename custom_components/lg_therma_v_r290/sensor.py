@@ -75,6 +75,7 @@ from .energy import (
     ENERGY_REGISTERS,
     KIND_ENERGY,
     KIND_POWER,
+    DayCounter,
     EnergyRegister,
 )
 from .entity import LGEntity, english_entity_ids, remove_entities
@@ -486,7 +487,14 @@ async def async_setup_entry(
         LGOptionalRegistersSensor(coordinator, entry),
     ]
     if entry.options.get(CONF_ENERGY_REGISTERS, False):
-        entities.extend(LGEnergySensor(coordinator, entry, r) for r in ENERGY_REGISTERS)
+        entities.extend(
+            # Energy counters also count today (LGEnergyCounterSensor); power
+            # and the plain value do not.
+            LGEnergyCounterSensor(coordinator, entry, r)
+            if r.kind == KIND_ENERGY
+            else LGEnergySensor(coordinator, entry, r)
+            for r in ENERGY_REGISTERS
+        )
         entities.extend(LGCalculatedSensor(coordinator, entry, d) for d in _COP_SENSORS)
     else:
         remove_entities(hass, entry, "sensor", ENERGY_OPTION_KEYS)
@@ -646,6 +654,67 @@ class LGEnergySensor(LGEntity, SensorEntity):
     @property
     def native_value(self) -> int | None:
         return self._data(self._data_key)
+
+
+class _DayCounterData(ExtraStoredData):
+    def __init__(self, data: dict[str, Any]) -> None:
+        self._data = data
+
+    def as_dict(self) -> dict[str, Any]:
+        return self._data
+
+
+class LGEnergyCounterSensor(LGEnergySensor, RestoreEntity):
+    """An energy counter of the unit, with how much it grew today.
+
+    The state stays the unit's own counter (total increasing, for the Energy
+    dashboard and long-term statistics). The attribute ``today_kwh`` is its
+    growth since local midnight (energy.DayCounter), so a dashboard card can
+    show today next to the total without a helper, like the ``today``
+    attribute of Starts and Defrosts. It is kept over restarts as restore
+    data; on the first day after setup it counts from setup.
+    """
+
+    def __init__(
+        self,
+        coordinator: LGThermaVCoordinator,
+        entry: ConfigEntry,
+        register: EnergyRegister,
+    ) -> None:
+        super().__init__(coordinator, entry, register)
+        self._modbus_register = register.modbus_number
+        self._day = DayCounter()
+
+    async def async_added_to_hass(self) -> None:
+        await super().async_added_to_hass()
+        # Restore first, then count the reading the first refresh already
+        # brought, so a restart during the day continues the day.
+        last = await self.async_get_last_extra_data()
+        if last is not None:
+            self._day.restore(last.as_dict(), _today())
+        self._day.add(self._data(self._data_key), _today())
+
+    def _handle_coordinator_update(self) -> None:
+        self._day.add(self._data(self._data_key), _today())
+        super()._handle_coordinator_update()
+
+    @property
+    def extra_restore_state_data(self) -> ExtraStoredData:
+        return _DayCounterData(self._day.state())
+
+    @property
+    def extra_state_attributes(self) -> dict[str, Any]:
+        today = self._day.today
+        return {
+            "modbus_register": self._modbus_register,
+            # Wh -> kWh, two decimals (10 Wh steps, like the unit's counter).
+            "today_kwh": None if today is None else round(today / 1000, 2),
+        }
+
+
+def _today() -> str:
+    """Local date (Home Assistant's time zone), the day the counters reset on."""
+    return dt_util.now().date().isoformat()
 
 
 class LGExperimentalSensor(LGEntity, SensorEntity):
