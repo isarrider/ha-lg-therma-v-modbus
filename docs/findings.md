@@ -156,8 +156,8 @@ minutes**, and below 0 °C most of the time. That alone does not mean ice:
 
 **For automations:** throttling the compressor whenever the coil is below
 about 1 °C throttles it all day on every cold day, whether ice forms or not.
-On 23 November at 08:33 such a rule (the [example AutoTemp's
-frost protection](automations.md#autotemp)) lowered the setpoint from 37 to
+On 23 November at 08:33 such a rule (the [earlier example AutoTemp's
+frost protection](automations.md#the-earlier-version)) lowered the setpoint from 37 to
 21 °C at 2.5 °C outside and held the compressor at 960 rpm, with a coil at
 −0.6 °C in dry air. A rule that only reacts to ice needs three conditions:
 coil below about 0.5 °C, coil below the frost point of the air, and the coil

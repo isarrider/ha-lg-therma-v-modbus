@@ -9,8 +9,8 @@ at 1,400 rpm. The unit is the one in [findings.md](findings.md).
 > heats at the target from the start instead of holding the compressor back
 > (see [What is being tested now](#what-is-being-tested-now)). It runs on the
 > 12 kW unit from 23 November 2026; this page gets the results after a week or
-> two. Until then, the example automations in [automations.md](automations.md)
-> stay as they are.
+> two. Since 24 November it is also the example in [automations.md](automations.md),
+> marked as in testing; the earlier version is described there.
 
 ## Contents
 
@@ -353,7 +353,7 @@ From 23 November 2026, on the 12 kW unit:
 - It also warms the house earlier in the day, which is wanted, and costs some heat.
 - **The status line** (template sensor and dashboard card) tells *watching ice* from *frost protection*: with the coil below 0.5 °C and the frost point and the gap above 4 K it shows *frost protection* only once AutoTemp has actually lowered the setpoint below the target, and *watching ice* while thin ice forms but the gap has not stayed above 5 K for 2 minutes. The first version said *frost protection* for both, which on 24 November looked like throttling that never happened.
 
-After a week or two, the same exports (Home Assistant history within 10 days, the house meter from VictoriaMetrics) decide: real kWh of electricity per day, real COP per day, compressor starts and defrosts per day (2.3.0 counts them), each against days with similar outdoor temperatures from 3–22 November. If it holds up, the new AutoTemp replaces the example in [automations.md](automations.md).
+After a week or two, the same exports (Home Assistant history within 10 days, the house meter from VictoriaMetrics) decide: real kWh of electricity per day, real COP per day, compressor starts and defrosts per day (2.3.0 counts them), each against days with similar outdoor temperatures from 3–22 November. The new AutoTemp is already the example in [automations.md](automations.md) (marked as in testing); if it does not hold up, that is where it gets changed.
 
 ## How to repeat this on your own unit
 

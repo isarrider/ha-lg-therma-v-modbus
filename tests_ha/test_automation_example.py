@@ -170,33 +170,62 @@ async def test_the_status_card(hass, freezer) -> None:
         SETPOINT: "35",
         "sensor.lg_therma_v_r290_inlet_temperature": "34.1",
         "sensor.lg_therma_v_r290_outlet_temperature": "36.0",
+        # 6 °C outside: target 37 - 5 × 6/15 = 35 °C
+        "sensor.lg_therma_v_r290_outdoor_temperature": "6.0",
         "sensor.lg_therma_v_r290_temperature_before_evaporator": "4.2",
         "binary_sensor.lg_therma_v_r290_defrost": "off",
         "binary_sensor.lg_therma_v_r290_compressor": "on",
         "select.lg_therma_v_r290_control_method": "Inlet Water Temp Control",
     }.items():
         hass.states.async_set(entity_id, state)
+    # Moist air: frost point +1.9 °C at 2.5 °C and 95 %
+    hass.states.async_set(
+        "weather.forecast_home", "fog", {"temperature": 2.5, "humidity": 95}
+    )
 
     # The defrost ended just now: AutoTemp waits 5 minutes.
     assert _card(hass).endswith("AutoTemp: paused (defrost)")
 
     freezer.tick(timedelta(minutes=6))
     assert _card(hass).endswith(
-        "AutoTemp: active<br> setpoint 35 °C, inlet 34.1 °C · "
-        "raises from 37.8 °C, lowers from 34 °C"
+        "AutoTemp: holding<br>setpoint 35 °C (target 35 °C), inlet 34.1 °C · raises from 38 °C"
+    )
+    hass.states.async_set("sensor.lg_therma_v_r290_inlet_temperature", "30.2")
+    assert _card(hass).endswith(
+        "AutoTemp: heating up<br>setpoint 35 °C (target 35 °C), inlet 30.2 °C · raises from 38 °C"
     )
 
+    # Coil below 0.5 °C and the frost point, 6.4 K below the air: thin ice,
+    # nothing throttled yet (the setpoint is still at the target)
     hass.states.async_set(
-        "sensor.lg_therma_v_r290_temperature_before_evaporator", "0.6"
+        "sensor.lg_therma_v_r290_temperature_before_evaporator", "-0.4"
     )
-    assert _card(hass).endswith("frost protection (coil 0.6 °C): lowering")
+    assert _card(hass).endswith(
+        "AutoTemp: watching ice<br>coil -0.4 °C, 6.4 K below outdoor "
+        "(frost point 1.9 °C): thin ice, setpoint 35 °C kept · throttles above 5 K for 2 min"
+    )
+    # AutoTemp has lowered the setpoint: frost protection
+    hass.states.async_set(SETPOINT, "30")
+    assert _card(hass).endswith(
+        "AutoTemp: frost protection<br>setpoint 30 °C (target 35 °C), inlet 30.2 °C, "
+        "coil -0.4 °C (6.4 K below outdoor, frost point 1.9 °C) · back up once the gap is below 4 K"
+    )
+    # Dry air: the coil is above the frost point, no ice -> back to the target
+    hass.states.async_set(
+        "weather.forecast_home", "sunny", {"temperature": 2.5, "humidity": 55}
+    )
+    assert _card(hass).endswith(
+        "AutoTemp: back to the target<br>setpoint 30 °C → 35 °C within 5 min (frost clear)"
+    )
+    # Without weather data the frost point check is skipped
+    hass.states.async_remove("weather.forecast_home")
+    assert "AutoTemp: frost protection<br>" in _card(hass)
 
     hass.states.async_set(
         "select.lg_therma_v_r290_control_method", "Outlet Water Temp Control"
     )
     assert _card(hass).endswith(
-        "AutoTemp: cold start<br> setpoint 35 °C, outlet 36.0 °C, inlet 34.1 °C · "
-        "inlet control from 22 °C"
+        "AutoTemp: warm-up<br>then inlet control at the target (35 °C)"
     )
 
     hass.states.async_set("binary_sensor.lg_therma_v_r290_compressor", "off")
@@ -225,24 +254,37 @@ async def test_the_timeline_template(hass, freezer) -> None:
     for entity_id, state in {
         AUTOTEMP: "on",
         SETPOINT: "35",
+        "sensor.lg_therma_v_r290_inlet_temperature": "34.1",
+        "sensor.lg_therma_v_r290_outdoor_temperature": "6.0",  # target 35 °C
         "sensor.lg_therma_v_r290_temperature_before_evaporator": "4.2",
         "binary_sensor.lg_therma_v_r290_defrost": "off",
         "binary_sensor.lg_therma_v_r290_compressor": "on",
         "select.lg_therma_v_r290_control_method": "Inlet Water Temp Control",
     }.items():
         hass.states.async_set(entity_id, state)
+    hass.states.async_set(
+        "weather.forecast_home", "fog", {"temperature": 2.5, "humidity": 95}
+    )
     assert _timeline(hass) == "paused (defrost)"  # the defrost ended just now
 
     freezer.tick(timedelta(minutes=6))
-    assert _timeline(hass) == "active"
+    assert _timeline(hass) == "holding"
+    hass.states.async_set("sensor.lg_therma_v_r290_inlet_temperature", "30.2")
+    assert _timeline(hass) == "heating up"
     hass.states.async_set(
-        "sensor.lg_therma_v_r290_temperature_before_evaporator", "0.6"
+        "sensor.lg_therma_v_r290_temperature_before_evaporator", "-0.4"
     )
+    assert _timeline(hass) == "watching ice"
+    hass.states.async_set(SETPOINT, "30")
     assert _timeline(hass) == "frost protection"
+    hass.states.async_set(
+        "weather.forecast_home", "sunny", {"temperature": 2.5, "humidity": 55}
+    )
+    assert _timeline(hass) == "back to the target"  # dry air: no ice
     hass.states.async_set(
         "select.lg_therma_v_r290_control_method", "Outlet Water Temp Control"
     )
-    assert _timeline(hass) == "cold start"
+    assert _timeline(hass) == "warm-up"
     hass.states.async_set("binary_sensor.lg_therma_v_r290_compressor", "off")
     assert _timeline(hass) == "waiting for the compressor"
     hass.states.async_set(SETPOINT, "20")

@@ -1,16 +1,31 @@
-{#- AutoTemp status as one word or two, for a template sensor whose history
+{#- AutoTemp status as one or two words, for a template sensor whose history
     shows AutoTemp through the day (docs/automations.md, "On the dashboard").
     Checked in the order of AutoTemp's own conditions; the first match wins.
-    20 is AutoTemp's off_setpoint, 1 its frost_limit: change them here too if
-    you change them there. -#}
+    20 is AutoTemp's off_setpoint; 0.5 its frost_coil, 4 its frost_release_gap and 37 / 32 °C at 0 / 15 °C its target curve:
+    change them here too if you change them there.
+    While the coil is below 0.5 °C, below the frost point of the air
+    (weather.forecast_home) and more than 4 K colder than the outdoor air, it
+    shows "frost protection" if AutoTemp has lowered the setpoint below the
+    target (it throttles above a 5 K gap for 2 minutes), otherwise "watching
+    ice": thin ice is forming, but not enough to throttle. -#}
 {% set sp = states('number.lg_therma_v_r290_target_temperature_circuit_1_radiators') | float(0) %}
+{% set inlet = states('sensor.lg_therma_v_r290_inlet_temperature') | float(none) %}
 {% set coil = states('sensor.lg_therma_v_r290_temperature_before_evaporator') | float(none) %}
+{% set outdoor = states('sensor.lg_therma_v_r290_outdoor_temperature') | float(none) %}
+{% set wt = state_attr('weather.forecast_home', 'temperature') | float(none) %}
+{% set rh = state_attr('weather.forecast_home', 'humidity') | float(none) %}
+{% if wt is number and rh is number and rh > 0 %}{% set g = log(rh / 100) + 22.46 * wt / (272.62 + wt) %}{% set fp = 272.62 * g / (22.46 - g) %}{% else %}{% set fp = 99 %}{% endif %}
+{% set target_cold, target_warm, outdoor_cold, outdoor_warm = 37, 32, 0, 15 %}
+{% set f = [[((outdoor if outdoor is number else outdoor_cold) - outdoor_cold) / (outdoor_warm - outdoor_cold), 0] | max, 1] | min %}
+{% set target = (target_cold + f * (target_warm - target_cold)) | round(0, 'floor') | int %}
 {% set defrost = states.binary_sensor.lg_therma_v_r290_defrost %}
 {% if is_state('automation.autotemp_heat_circuit_1', 'off') %}disabled
 {% elif sp <= 20 %}off
 {% elif now().hour >= 17 %}done for today
 {% elif defrost and (defrost.state == 'on' or now() - defrost.last_changed < timedelta(minutes=5)) %}paused (defrost)
 {% elif is_state('binary_sensor.lg_therma_v_r290_compressor', 'off') %}waiting for the compressor
-{% elif is_state('select.lg_therma_v_r290_control_method', 'Outlet Water Temp Control') %}cold start
-{% elif coil is number and coil < 1 %}frost protection
-{% else %}active{% endif %}
+{% elif is_state('select.lg_therma_v_r290_control_method', 'Outlet Water Temp Control') %}warm-up
+{% elif coil is number and outdoor is number and coil < 0.5 and coil < fp and outdoor - coil > 4 %}{{ 'frost protection' if sp < target else 'watching ice' }}
+{% elif sp < target %}back to the target
+{% elif inlet is number and inlet < sp - 1 %}heating up
+{% else %}holding{% endif %}
