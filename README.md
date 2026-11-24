@@ -10,7 +10,7 @@ Replaces a hand-crafted YAML Modbus configuration with native HA entities: senso
 
 <img src="docs/images/dashboard-readme.webp" alt="Dashboard on a 12 kW unit while heating: a two-line quick view (error code, fault, water pressure, flow, Modbus errors; compressor speed, outlet → inlet, outdoor → coil), 24 h history of temperatures, compressor speed and flow rate; compressor controls with a table of starts and defrosts, today and total; 24 h graphs of electrical and thermal power (reported and calculated), refrigerant temperatures and pressures, a week of water pressure; today's energy, a table of power, energy and COP, weather with the sun line, poll statistics and energy per day">
 
-*A dashboard built from Home Assistant's own cards; ready-to-paste examples are in [docs/dashboard.md](docs/dashboard.md). Example automations for a heating day, with the setpoint following the inlet temperature so the compressor keeps running: [docs/automations.md](docs/automations.md).*
+*A dashboard built from Home Assistant's own cards; ready-to-paste examples are in [docs/dashboard.md](docs/dashboard.md). Example automations for a heating day, with the compressor heating at a speed cap to a target set by the outdoor temperature and then holding it: [docs/automations.md](docs/automations.md).*
 
 ## Contents
 
@@ -511,11 +511,11 @@ Switch on **Power limit** in the integration's options. The manual documents the
 
 ## Example automations
 
-Ready-to-paste automations for a heating day on circuit 1, so the compressor starts once in the morning and then keeps running at low speed instead of switching on and off: **[docs/automations.md](docs/automations.md)**.
+Ready-to-paste automations for a heating day on circuit 1, so the compressor starts once in the morning, heats at a chosen speed cap until the water reaches its target and then holds it, instead of switching on and off: **[docs/automations.md](docs/automations.md)**. In testing on a 12 kW unit since 23 November 2026 ([why](docs/cop-efficiency.md)).
 
-- **Start** ([docs/therma-v-start.yaml](docs/therma-v-start.yaml)) at 08:00: heating on, outlet control, 60 °C.
-- **AutoTemp** ([docs/autotemp-heat-circuit-1.yaml](docs/autotemp-heat-circuit-1.yaml)), from 1 minute after the compressor starts until 17:00: while the water is still cold it stays on outlet control with the setpoint just below the outlet temperature (cold start, the compressor throttles to minimum), then switches to inlet control and keeps the setpoint just below the inlet temperature, so the unit never reaches thermo off. A morning ramp brings it to 33–38 °C by 13:00 depending on the outdoor temperature, frost protection throttles the unit while the coil is icing, and an oil boost replaces the hourly oil-return spike to about 3600 rpm with a few minutes at moderate speed. Setting the slider to 20 °C by hand switches it off for the day.
-- **Stop** ([docs/therma-v-stop.yaml](docs/therma-v-stop.yaml)) at 18:00: setpoint 20 °C and max compressor modulation 40 %, the unit reaches thermo off.
+- **Start** ([docs/therma-v-start.yaml](docs/therma-v-start.yaml)) at 08:30: heating on, outlet control, 60 °C.
+- **AutoTemp** ([docs/autotemp-heat-circuit-1.yaml](docs/autotemp-heat-circuit-1.yaml)), from 1 minute after the compressor starts until 17:00: switches to inlet control and sets the setpoint straight to a target from the outdoor temperature (37 °C at 0 °C to 32 °C at 15 °C), so the unit heats at the max compressor modulation and then holds the water there on its own. Frost protection throttles only for real ice on the coil (coil below the frost point of the air from the weather entity and more than 5 K colder than the air), not for a cold coil; a thermo off guard raises the setpoint if the inlet gets close to thermo off; an oil boost replaces the hourly oil-return spike to about 3600 rpm with a few minutes at moderate speed. Setting the slider to 20 °C by hand switches it off for the day.
+- **Stop** ([docs/therma-v-stop.yaml](docs/therma-v-stop.yaml)) at 17:30: setpoint 20 °C and max compressor modulation 41 % (about 1,800 rpm on a 12 kW unit), the unit reaches thermo off.
 
 They are tuned for a thermo on/off hysteresis of ±4 °C (installer menu of the remote); see the document for what to change otherwise.
 

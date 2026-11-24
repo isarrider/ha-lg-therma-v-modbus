@@ -1,18 +1,25 @@
 # AutoTemp status on a dashboard: what AutoTemp is doing now and what it does
-# next. Paste it as a card: Edit dashboard → Add card → Manual. The thresholds
-# in the second line are AutoTemp's (up_gap, down_gap, frost_limit,
-# inlet_switch); change them here too if you change them there. The logbook
-# card in docs/automations.md shows what it did and why.
+# next. Paste it as a card: Edit dashboard → Add card → Manual. The values in
+# the first two lines are AutoTemp's (emergency_gap, frost_coil, frost_gap,
+# frost_release_gap, the target curve) and the weather entity it reads; change
+# them here too if you change them there. The logbook card in
+# docs/automations.md shows what it did and why.
 type: markdown
 text_only: true
 grid_options:
   rows: auto
 content: >-
-  {% set up_gap, down_gap, frost_limit, inlet_switch = 2.8, 1, 1, 22 %}
+  {% set emergency_gap, frost_coil, frost_gap, frost_release_gap = 3, 0.5, 5, 4 %}
+  {% set target_cold, target_warm, outdoor_cold, outdoor_warm = 37, 32, 0, 15 %}
+  {% set wt = state_attr('weather.forecast_home', 'temperature') | float(none) %}
+  {% set rh = state_attr('weather.forecast_home', 'humidity') | float(none) %}
+  {% if wt is number and rh is number and rh > 0 %}{% set g = log(rh / 100) + 22.46 * wt / (272.62 + wt) %}{% set fp = 272.62 * g / (22.46 - g) %}{% else %}{% set fp = 99 %}{% endif %}
   {% set sp = states('number.lg_therma_v_r290_target_temperature_circuit_1_radiators') | float(0) %}
   {% set inlet = states('sensor.lg_therma_v_r290_inlet_temperature') | float(none) %}
-  {% set outlet = states('sensor.lg_therma_v_r290_outlet_temperature') | float(none) %}
   {% set coil = states('sensor.lg_therma_v_r290_temperature_before_evaporator') | float(none) %}
+  {% set outdoor = states('sensor.lg_therma_v_r290_outdoor_temperature') | float(none) %}
+  {% set f = [[((outdoor if outdoor is number else outdoor_cold) - outdoor_cold) / (outdoor_warm - outdoor_cold), 0] | max, 1] | min %}
+  {% set target = (target_cold + f * (target_warm - target_cold)) | round(0, 'floor') | int %}
   {% set defrost = states.binary_sensor.lg_therma_v_r290_defrost %}
   <ha-icon icon="mdi:robot-outline"></ha-icon> AutoTemp:
   {% if is_state('automation.autotemp_heat_circuit_1', 'off') -%}
@@ -27,15 +34,15 @@ content: >-
   {%- elif is_state('binary_sensor.lg_therma_v_r290_compressor', 'off') -%}
   waiting for the compressor
   {%- elif is_state('select.lg_therma_v_r290_control_method', 'Outlet Water Temp Control') -%}
-  cold start<br>
-  setpoint {{ '%g' | format(sp) }} °C, outlet {{ outlet }} °C, inlet {{ inlet }} °C ·
-  inlet control from {{ inlet_switch }} °C
+  warm-up<br>then inlet control at the target ({{ target }} °C)
+  {%- elif coil is number and outdoor is number and coil < frost_coil and coil < fp
+           and outdoor - coil > frost_release_gap and sp < target -%}
+  frost protection<br>setpoint {{ '%g' | format(sp) }} °C (target {{ target }} °C), inlet {{ inlet }} °C, coil {{ coil }} °C ({{ (outdoor - coil) | round(1) }} K below outdoor, frost point {{ fp | round(1) }} °C) · back up once the gap is below {{ frost_release_gap }} K
+  {%- elif coil is number and outdoor is number and coil < frost_coil and coil < fp
+           and outdoor - coil > frost_release_gap -%}
+  watching ice<br>coil {{ coil }} °C, {{ (outdoor - coil) | round(1) }} K below outdoor (frost point {{ fp | round(1) }} °C): thin ice, setpoint {{ '%g' | format(sp) }} °C kept · throttles above {{ frost_gap }} K for 2 min
+  {%- elif sp < target -%}
+  back to the target<br>setpoint {{ '%g' | format(sp) }} °C → {{ target }} °C within 5 min (frost clear)
   {%- else -%}
-  active<br>
-  setpoint {{ '%g' | format(sp) }} °C, inlet {{ inlet }} °C ·
-  {% if coil is number and coil < frost_limit -%}
-  frost protection (coil {{ coil }} °C): lowering
-  {%- else -%}
-  raises from {{ '%g' | format(sp + up_gap) }} °C, lowers from {{ '%g' | format(sp - down_gap) }} °C
-  {%- endif %}
+  {{ 'heating up' if inlet is number and inlet < sp - 1 else 'holding' }}<br>setpoint {{ '%g' | format(sp) }} °C (target {{ target }} °C), inlet {{ inlet }} °C · raises from {{ '%g' | format(sp + emergency_gap) }} °C
   {%- endif %}
