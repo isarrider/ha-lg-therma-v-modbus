@@ -108,7 +108,7 @@ The status card shows only the moment. To see the whole day as a coloured bar ne
      name: AutoTemp
    ```
 
-It shows the same states as the first line of the status card, in the same order: *disabled*, *off*, *done for today*, *paused (defrost)*, *waiting for the compressor*, *warm-up*, *frost protection* or *watching ice*, *heating up*, *holding*. The history starts when the sensor is created. Short sections, like the minute of warm-up or a defrost, are too narrow for a label; hovering or tapping one shows its name and time span.
+It shows the same states as the first line of the status card, in the same order: *disabled*, *off*, *done for today*, *paused (defrost)*, *waiting for the compressor*, *warm-up*, *frost protection* or *watching ice*, *back to the target*, *heating up*, *holding*. The history starts when the sensor is created. Short sections, like the minute of warm-up or a defrost, are too narrow for a label; hovering or tapping one shows its name and time span.
 
 ## Stop (17:30)
 

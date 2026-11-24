@@ -26,5 +26,6 @@
 {% elif is_state('binary_sensor.lg_therma_v_r290_compressor', 'off') %}waiting for the compressor
 {% elif is_state('select.lg_therma_v_r290_control_method', 'Outlet Water Temp Control') %}warm-up
 {% elif coil is number and outdoor is number and coil < 0.5 and coil < fp and outdoor - coil > 4 %}{{ 'frost protection' if sp < target else 'watching ice' }}
+{% elif sp < target %}back to the target
 {% elif inlet is number and inlet < sp - 1 %}heating up
 {% else %}holding{% endif %}
