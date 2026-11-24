@@ -20,6 +20,7 @@ at 1,400 rpm. The unit is the one in [findings.md](findings.md).
 - [Heat: reported and calculated agree, the flow sensor sets the limit](#heat-reported-and-calculated-agree-the-flow-sensor-sets-the-limit)
 - [Lift: what the compressor has to overcome](#lift-what-the-compressor-has-to-overcome)
 - [COP over compressor speed](#cop-over-compressor-speed)
+- [COP over speed for each lift](#cop-over-speed-for-each-lift)
 - [Why faster is more efficient](#why-faster-is-more-efficient)
 - [The catch: more heat needs warmer water](#the-catch-more-heat-needs-warmer-water)
 - [Whole days](#whole-days)
@@ -201,6 +202,31 @@ To see the speed alone, each minute's real COP was moved to a common lift of 40 
 | 1,650–1,750 rpm | 210 | 🟢 +0.46 | 95 % |
 
 Sensor lag cannot explain it: during a speed-up the heat reading lags behind the electricity, which would make the faster minutes look *worse*. With the speed stable for 10 minutes the gap was, if anything, slightly larger.
+
+## COP over speed for each lift
+
+The curve above is at one lift (40 K). The same data split by lift, 3–23 November 2026, real electricity, steady running (from 10 minutes after a start, 3 minutes after a speed change):
+
+<img src="images/cop-vs-speed-by-lift.svg" alt="Line chart of real COP over compressor speed from 900 to 2,000 rpm, one line each for a lift of 25, 30, 35, 40, 45 and 50 K. All lines are flat up to 1,400 rpm, rise to about 1,700 rpm and flatten above 1,800 rpm. At 1,800 rpm: about 6.1 at 25 K, 5.2 at 30 K, 4.5 at 35 K, 4.0 at 40 K, 3.6 at 45 K, 3.3 at 50 K. Measured dots per 100 rpm and 5 K lie close to the lines.">
+
+The lines are a model built from two measured parts: the **share of Carnot** the compressor reaches at each speed (median per 100 rpm: 0.445 up to 1,400 rpm, 0.467 at 1,500, 0.485 at 1,600, 0.504 at 1,700, 0.513 at 1,800, 0.52 at 2,000) times the **ideal COP** of the lift, (condensing temperature in K) ÷ lift, with the refrigerant evaporating at 0 °C. The dots are the measured real COP per 100 rpm and 5 K of lift, where there were at least 30 minutes; in brackets in the table:
+
+| Speed | 25 K | 30 K | 35 K | 40 K | 45 K | 50 K |
+|---|---|---|---|---|---|---|
+| 1,000 rpm | 5.31 (5.21) | 4.50 (4.78) | 3.92 | 3.48 | 3.15 | 2.88 |
+| 1,200 rpm | 5.31 (5.54) | 4.50 (4.47) | 3.92 (4.11) | 3.48 (4.02) | 3.15 | 2.88 |
+| 1,400 rpm | 5.31 | 4.50 (4.81) | 3.92 (3.96) | 3.48 (3.59) | 3.15 (3.32) | 2.88 |
+| 1,500 rpm | 5.57 | 4.72 (4.64) | 4.11 (4.21) | 3.66 (3.68) | 3.30 (3.43) | 3.02 |
+| 1,600 rpm | 5.78 | 4.90 | 4.27 (4.42) | 3.80 (3.75) | 3.43 (3.50) | 3.13 |
+| 1,700 rpm | 6.01 (5.27) | 5.09 (4.77) | 4.44 (4.51) | 3.95 (3.95) | 3.56 (3.74) | 3.26 |
+| 1,800 rpm | 6.12 | 5.18 | 4.52 | 4.02 | 3.63 (3.64) | 3.32 |
+| 2,000 rpm | 6.20 | 5.25 | 4.58 | 4.07 (4.03) | 3.68 | 3.36 |
+
+How to read it:
+
+- **Lift matters more than speed.** 5 K less lift is worth about 0.4–0.9 COP at any speed; going from 1,400 to 1,800 rpm is worth about 0.5 at 40 K. Cooler water (a lower target, bigger radiators) and milder air both lower the lift.
+- **Above about 1,800 rpm every line flattens:** more speed adds heat, not efficiency ([first day at 41–45 %](#first-day-max-modulation-4045--without-the-morning-ramp)).
+- Where the model and the dots differ most: at 25–30 K and 1,700 rpm the measured COP is 0.3–0.7 lower. Those minutes are morning warm-ups with cold water, where the heat reading lags behind the rising water temperature; at 1,200 rpm and 40 K it is 0.5 higher, from mild days with a warm evaporator (7.5 °C), which the 0 °C of the model does not cover. Where most minutes are (35–45 K, 1,400–1,800 rpm) the two agree within about ±0.15.
 
 ## Why faster is more efficient
 
