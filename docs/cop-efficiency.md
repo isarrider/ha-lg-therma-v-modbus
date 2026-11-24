@@ -40,8 +40,8 @@ at 1,400 rpm. The unit is the one in [findings.md](findings.md).
 | Real COP at 40 K lift, 1,750–2,000 rpm | about **4.05–4.1**: the curve levels off | 🟡 about 280 minutes, most from 23 November |
 | Gain from 1,400 to 1,700 rpm at the same lift | about **+0.5 COP** | 🟢 210 matched minutes, 95 % of them better |
 | Cost of each kelvin of lift | about **−0.115 COP** (about 3 %) | 🟢 fitted over 5,700 minutes |
-| Net gain at the same water temperature (target AutoTemp) | about **+0.4 COP** at 1,700–1,800 rpm, slightly less at 2,000 rpm (the evaporator gets colder) | 🟡 lift fit over all steady minutes |
-| Net gain if the radiators need warmer water for the extra heat | about **+0.1** at 1,700 rpm, **negative** above about 1,800 rpm | 🟡 radiator part estimated, not measured |
+| Net gain at the same water temperature (target AutoTemp) | about **+0.4 COP** at 1,700–1,800 rpm against 1,400 rpm (+0.2 against 1,000 rpm), slightly less at 2,000 rpm (the evaporator gets colder) | 🟡 lift fit over all steady minutes |
+| Net gain if the radiators need warmer water for the extra heat | about **0** at 1,700 rpm against 1,400 rpm, **negative** above; against 1,000 rpm every step faster costs | 🟡 radiator part estimated, not measured |
 | Max modulation → speed (23 Nov, inlet below the setpoint) | 41 % → **1,800 rpm**, 42 % → 1,860 rpm, 45 % → 1,980 rpm | 🟢 read directly |
 | Real COP at 40 K lift, 41 % against 45 % | about **4.1** for both: above about 1,800 rpm the curve still rises, but only by about 1 % per 100 rpm | 🟡 one day, 44–112 minutes per setting |
 | Whole days | **no gain visible yet** | 🔴 20 days, faster days were also colder |
@@ -255,26 +255,28 @@ The share of the ideal COP rises from **0.44 at 1,400 rpm to about 0.515 at 1,70
 
 ## The catch: more heat needs warmer water
 
-Faster also means more heat: about 4.8 kW at 1,400 rpm, 5.6 kW at 1,700 rpm and 6.5 kW at 2,000 rpm (medians of the steady minutes, a straight line in between). And it pulls the evaporator colder: the lift fit above adds about 4.2 K per 1,000 rpm at the same water temperature. What that means depends on where the extra heat goes:
+Faster also means more heat: about 3.6 kW at 1,000 rpm, 4.8 kW at 1,400 rpm, 5.6 kW at 1,700 rpm and 6.5 kW at 2,000 rpm (a straight line through the medians of the steady minutes at 1,300–1,500 and 1,850–2,100 rpm; it meets the measured 3.6 kW at 1,000 rpm). And it pulls the evaporator colder: the lift fit above adds about 4.2 K per 1,000 rpm at the same water temperature. What that means depends on where the extra heat goes:
 
 - **The water temperature is held** (the target AutoTemp sets it from the outdoor temperature; the unit throttles itself once the water is there). Then only the compressor and the colder evaporator count, and the extra heat only shortens the warm-up.
-- **The radiators need warmer water** to pass the extra heat on, if the speed is held up all day: their output grows with about the 1.3rd power of their temperature above the room. With the water about 19 K above the room (about 39 °C mean against 20 °C), 18 % more heat at 1,700 rpm needs about 2.6 K warmer water, 36 % more at 2,000 rpm about 4.9 K.
+- **The radiators need warmer water** to pass the extra heat on, if the speed is held up all day: their output grows with about the 1.3rd power of their temperature above the room. With the water about 19 K above the room (about 39 °C mean against 20 °C), against the 3.6 kW at 1,000 rpm, 56 % more heat at 1,700 rpm needs about 7.7 K warmer water, 80 % more at 2,000 rpm about 10.8 K (against 1,400 rpm: 18 % and 2.6 K, 36 % and 4.9 K).
 
-<img src="images/cop-speed-tradeoff.svg" alt="Line chart of the change in real COP against 1,400 rpm at 40 K, from 1,400 to 2,000 rpm: compressor efficiency rises to +0.55 at 1,700 and +0.63 at 2,000 rpm; the colder evaporator costs up to -0.29, the warmer water for the radiators up to -0.59 (estimated, dashed). With the water temperature held the net is +0.40 at 1,700 rpm and +0.34 at 2,000 rpm; if the radiators need warmer water it is +0.10 at 1,700 rpm and -0.24 at 2,000 rpm.">
+<img src="images/cop-speed-tradeoff.svg" alt="Line chart of the change in real COP against 1,000 rpm at 40 K, from 1,000 to 2,000 rpm: compressor efficiency flat up to 1,400 rpm, then rising to +0.55 at 1,700 and +0.63 at 2,000 rpm; the colder evaporator costs up to -0.48, the warmer water for the radiators up to -1.25 (estimated, dashed). With the water temperature held the net falls to -0.19 at 1,400 rpm, rises to +0.21 at 1,700 rpm and eases to +0.15 at 2,000 rpm; if the radiators need warmer water it is -0.71 at 1,400, -0.68 at 1,700 and -1.09 at 2,000 rpm.">
 
-| Effect against 1,400 rpm, at 40 K | 1,700 rpm | 1,800 rpm | 2,000 rpm | Source |
-|---|---|---|---|---|
-| Compressor works better (same lift) | +0.55 | +0.57 | +0.63 | 🟢 measured (share of the ideal COP) |
-| Evaporator colder (lift +4.2 K per 1,000 rpm) | −0.14 | −0.19 | −0.29 | 🟢 measured (lift fit) |
-| **Net, water temperature held** | **+0.40** | **+0.38** | **+0.34** | 🟢 |
-| Water warmer for the radiators | −0.30 | −0.40 | −0.59 | 🟡 estimated (standard radiators) |
-| **Net, radiators need warmer water** | **+0.10** | **−0.02** | **−0.24** | 🟡 |
+| Effect against 1,000 rpm, at 40 K | 1,400 rpm | 1,700 rpm | 1,800 rpm | 2,000 rpm | Source |
+|---|---|---|---|---|---|
+| Compressor works better (same lift) | +0.00 | +0.55 | +0.57 | +0.63 | 🟢 measured (share of the ideal COP) |
+| Evaporator colder (lift +4.2 K per 1,000 rpm) | −0.19 | −0.34 | −0.39 | −0.48 | 🟢 measured (lift fit) |
+| **Net, water temperature held** | **−0.19** | **+0.21** | **+0.19** | **+0.15** | 🟢 |
+| Water warmer for the radiators | −0.52 | −0.89 | −1.01 | −1.25 | 🟡 estimated (standard radiators) |
+| **Net, radiators need warmer water** | **−0.71** | **−0.68** | **−0.82** | **−1.09** | 🟡 |
 
-- **With the water temperature held, 1,700–1,800 rpm is best**, and 2,000 rpm is slightly behind: above 1,700 rpm the compressor gains less than the colder evaporator costs. That is why the [first day](#first-day-max-modulation-4045--without-the-morning-ramp) showed no advantage for 45 % (1,980 rpm) over 41 % (1,800 rpm).
-- **If the speed pushes the water up instead, the gain is gone** by about 1,800 rpm. On 23 November that showed as water settling 1–1.5 K above the setpoint in the afternoon; the target was lowered by 1 K.
+- **With the water temperature held, 1,700–1,800 rpm is best**: +0.2 against 1,000 rpm and +0.4 against 1,400 rpm. 2,000 rpm is slightly behind: above 1,700 rpm the compressor gains less than the colder evaporator costs. That is why the [first day](#first-day-max-modulation-4045--without-the-morning-ramp) showed no advantage for 45 % (1,980 rpm) over 41 % (1,800 rpm).
+- **Between 1,000 and 1,400 rpm speed only costs:** the compressor does not get better yet, but the evaporator gets colder. The 1,300–1,400 rpm where the unit spent most of November, throttled by the old AutoTemp, is the worst place on the curve.
+- **If the speed pushes the water up instead, the gain is gone:** against 1,400 rpm it is about 0 at 1,700 rpm and negative above; against 1,000 rpm every step faster costs, because 1,000 rpm delivers only about 3.6 kW and the radiators could pass that on at much cooler water. On 23 November that showed as water settling 1–1.5 K above the setpoint in the afternoon; the target was lowered by 1 K.
+- The radiator part assumes standard radiators about 19 K above the room and stretches over a wide range of heat (3.6 to 6.5 kW); it is the least certain line. Whether 3.6 kW would keep the house warm in the hours the unit runs is a separate question.
 - An earlier version of this table put the compressor gain at +0.85 and the net at +0.40 even with warmer water; that came from the earlier speed chart (4.3 at 1,700 rpm), corrected above.
 
-What the house needs per day does not change: delivering, say, 40 kWh of heat at a COP of 3.43 (1,400 rpm, 40 K) takes 11.7 kWh of electricity, at 3.83 (+0.40, water held) 10.4 kWh (−11 %), at 3.53 (+0.10) 11.3 kWh (−3 %). The extra power is not the gain, the better COP is; if the faster heating also makes the house warmer than before, it loses more (about 6 % per kelvin indoors), and part of the gain goes into that.
+What the house needs per day does not change: delivering, say, 40 kWh of heat at a COP of 3.43 (1,400 rpm, 40 K) takes 11.7 kWh of electricity, at 3.83 (1,700 rpm, water held, +0.40) 10.4 kWh (−11 %). The extra power is not the gain, the better COP is; if the faster heating also makes the house warmer than before, it loses more (about 6 % per kelvin indoors), and part of the gain goes into that.
 
 ## Whole days
 
