@@ -34,7 +34,7 @@ at 1,400 rpm. The unit is the one in [findings.md](findings.md).
 
 | Finding | Result | Confidence |
 |---|---|---|
-| Electrical Power (input 34–45) against the house meter | over a day about **1.4 ×** the real energy (real ≈ **0.71** × unit); while running real ≈ 0.94 × unit − 355 W; at night, idle, about **13 W** instead of the 49 W reported | 🟢 31 starts and stops, 121 three-phase steps at 1-second resolution, October against November nights |
+| Electrical Power (input 34–45) against the house meter | over a day about **1.4 ×** the real energy (real ≈ **0.71** × unit at November's speeds, **0.74** on a day at about 1,700 rpm); while running real ≈ 0.94 × unit − 355 W; at night, idle, about **13 W** instead of the 49 W reported | 🟢 31 starts and stops, 121 three-phase steps at 1-second resolution, October against November nights |
 | Real COP at 40 K lift, 1,400 rpm | about **3.4** (the unit's own figures say 2.5) | 🟡 the flow sensor allows ±13 % |
 | Real COP at 40 K lift, 1,700 rpm | about **4.0** (unit: 3.05) | 🟡 same |
 | Real COP at 40 K lift, 1,750–2,000 rpm | about **4.05–4.1**: the curve levels off | 🟡 about 280 minutes, most from 23 November |
@@ -130,7 +130,37 @@ So the heat pump really draws **about 13 W** at night with the pump running, abo
 
 ### Energy per day
 
-Running 0.94 × unit − 355 W, idle about 13 W, preheating 0.62 × unit: over whole days the **real energy is 0.71 × the unit's** (every day between 0.68 and 0.73). The idle part is only about 5 % of the unit's energy, so the standby changes the factor by about 0.01 (0.72 before). **All real COPs on this page use this calibration**; against the house-total fit (0.93 × unit − 340 W) the running figures move by at most 0.03, the whole days by about +0.09 because of the lower standby.
+Running 0.94 × unit − 355 W, idle about 13 W, preheating 0.62 × unit: over whole days the **real energy is 0.71 × the unit's** (every day between 0.68 and 0.73, 3–22 November). The idle part is only about 5 % of the unit's energy, so the standby changes the factor by about 0.01 (0.72 before). **All real COPs on this page use this calibration**; against the house-total fit (0.93 × unit − 340 W) the running figures move by at most 0.03, the whole days by about +0.09 because of the lower standby.
+
+### Faster running: the factor rises
+
+The fixed −355 W weighs less at higher power (table [above](#three-phases-the-heat-pumps-steps-apart-from-the-house): 0.71 at 1,500 W, 0.76 at 2,000 W), so a day that runs faster has a higher factor. Checked after the switch to the target AutoTemp:
+
+**The running formula at 2.1 kW, against the house meter.** The stop on 23 November at 17:30 came an hour after sunset, so no solar was mixed in, and the evening load of the house was steady:
+
+| | Value |
+|---|---|
+| Unit's figure before the stop (17:20–17:30, 1,680 rpm) | 2,087–2,120 W, last 2,105 W |
+| Formula 0.94 × 2,105 − 355 | **1,624 W** |
+| House meter: step 1,662 → 86 W within 40 s, all three phases (502 → 10, 583 → 13, 576 → 62 W), plus ~13 W idle after | **~1,589 W** |
+| Difference | −35 W, **−2 %** 🟢 |
+
+The unit's figure dropped 31 seconds after the meter, as in November. The speed steps of the same morning (1,980 → 1,860 → 1,800 rpm, about −60 to −90 W on the unit) could not be checked: passing clouds moved the solar by several hundred watts. On a sunny day the evening stop is the clean point.
+
+**Per day**, the power formula against the unit's figure, every 10 seconds from the Home Assistant history (17–23 November):
+
+| Day | Average speed while running | Hours running | Real ÷ unit, whole day | Running only |
+|---|---|---|---|---|
+| 18 Nov | 1,231 rpm | 8.3 | 0.69 | 0.72 |
+| 19 Nov | 1,529 rpm | 5.0 | 0.70 | 0.75 |
+| 20 Nov | 1,309 rpm | 6.2 | 0.68 | 0.72 |
+| 21 Nov | 1,389 rpm | 8.0 | 0.71 | 0.73 |
+| 22 Nov | 1,571 rpm | 8.8 | 0.72 | 0.74 |
+| **23 Nov** (target AutoTemp, 41–45 %) | **1,687 rpm** | **9.0** | **0.74** | **0.76** |
+
+On 23 November the unit counted 18.9 kWh, the formula gives **14.0 kWh**. With the fixed 0.71 a day like that comes out about 4 % low in electricity, and its real COP about 4 % high. The power formula, worked out minute by minute as on this page, is not affected; only the fixed energy factor is. The factor will be set again from the fast days of the test week: if they stay at about 0.74, that becomes the factor for the target AutoTemp.
+
+**The exact way in Home Assistant** is to add up the real power instead of scaling the unit's counter: the *Heat pump power (real)* sensor below with an *Integration - Riemann sum integral* helper (*Settings → Devices & services → Helpers → Create helper → Integration*, method *Left*, metric prefix *k*, time unit *hours*). That follows the speed by itself; it starts counting when it is created.
 
 **In Home Assistant**, two template sensors (*Settings → Devices & services → Helpers → Create helper → Template → Template a sensor*) give the real figures:
 
@@ -140,6 +170,8 @@ Running 0.94 × unit − 355 W, idle about 13 W, preheating 0.62 × unit: over w
   {% set x = states('sensor.lg_therma_v_r290_electrical_energy_total') %}
   {{ (x | float * 0.71) | round(2) if is_number(x) else none }}
   ```
+
+  0.71 fits running like November's (1,100–1,600 rpm); for days at about 1,700 rpm 0.74 fits better ([above](#faster-running-the-factor-rises)).
 
 - *Heat pump power (real)*, unit W, device class *Power*, state class *Measurement*:
 
@@ -342,7 +374,7 @@ The unit changes speed in steps of 60 rpm, and the percentages do not map linear
 - **The old frost rule was the worst part of the day:** it lowered the setpoint from 37 to 21 °C right after the start and held the compressor at about 1,000 rpm for 40 minutes at a share of Carnot of 0.42, until the new AutoTemp was installed. The first version of that also stepped back up by 1 °C every 5 minutes; it now goes straight back to the target.
 - **The day so far** (08:31–13:52): 29.6 kWh heat for 7.9 kWh real electricity, a real COP of **3.76** at a mean lift of 41 K. 22 November, at a similar lift and outside temperature with the old AutoTemp, gave 3.70. One day, with the morning lost to the old frost rule and the afternoon at too warm water, does not show a gain over a whole day yet; the week at 41 % with the lower target has to.
 
-The unit's own counter said 10.4 kWh for the same time. With the energy factor 0.71 that gives about 7.4–7.8 kWh and a COP of about 3.8–3.85, slightly higher than the power formula: at about 2.1 kW (unit) the real share is about 0.77, not the 0.71 of the slower November running. The factor will be checked against the house meter after the test week.
+The unit's own counter said 10.4 kWh for the same time. With the energy factor 0.71 that gives about 7.4 kWh and a COP of about 4.0, higher than the 3.76 of the power formula: at about 2.1 kW (unit) the real share is about 0.76, not the 0.71 of the slower November running. Checked the next morning against the house meter: the formula holds at 2.1 kW within 2 %, and the whole day came to 0.74 ([Faster running](#faster-running-the-factor-rises)).
 
 ## What is being tested now
 
@@ -376,7 +408,7 @@ After a week or two, the same exports (Home Assistant history within 10 days, th
 
 - One unit, one house, radiators, 21 days in November at about 0–14 °C outside.
 - The absolute COP level rests on the flow sensor (±13 %); the comparisons between speeds do not.
-- The electricity calibration covers the running compressor at about 1,100–2,100 W of the unit's figure (99 % of the running minutes) the night pulses at about 300 W and the idle standby from the October and November nights; outside that, it is an extrapolation. The energy counter (input 38) is assumed to be off by the same factor as the power register.
+- The electricity calibration covers the running compressor at about 1,100–2,100 W of the unit's figure (99 % of the running minutes; at 2,105 W also checked at one stop on 23 November), the night pulses at about 300 W and the idle standby from the October and November nights; outside that, it is an extrapolation. The energy counter (input 38) is assumed to be off by the same factor as the power register.
 - The radiator penalty is an estimate with standard radiator physics, not a measurement in this house.
 - Above 1,750 rpm only about 280 steady minutes so far, almost all from 23 November.
 - Solar: only the surplus is seen (no production data); October's heat pump power is from hourly averages, so the absorbed export is an estimate; November and October are short windows, spring is not yet covered.
