@@ -41,7 +41,7 @@ at 1,400 rpm. The unit is the one in [findings.md](findings.md).
 | Cost of each kelvin of lift | about **−0.115 COP** (about 3 %) | 🟢 fitted over 5,700 minutes |
 | Net gain once the radiators need warmer water | about **+0.4 COP** at 1,700 rpm | 🟡 radiator part estimated, not measured |
 | Max modulation → speed (23 Nov, inlet below the setpoint) | 41 % → **1,800 rpm**, 42 % → 1,860 rpm, 45 % → 1,980 rpm | 🟢 read directly |
-| Real COP at 40 K lift, 41 % against 45 % | about **4.2** against 4.05: above about 1,750 rpm the curve flattens | 🟡 one day, 44–112 minutes per setting |
+| Real COP at 40 K lift, 41 % against 45 % | about **4.1** for both: above about 1,800 rpm the curve still rises, but only by about 1 % per 100 rpm | 🟡 one day, 44–112 minutes per setting |
 | Whole days | **no gain visible yet** | 🔴 20 days, faster days were also colder |
 | Unused solar (export) | November about **0.5 kWh/day**, late October about **2.8 kWh/day**; 93–97 % of it while the heat pump was already running | 🟢 house meter, 3–21 Nov and 24–31 Oct |
 | Export a faster heat pump could have taken (24–31 Oct) | a third at 45 % modulation, **two thirds at 55–60 %** | 🟡 minute by minute, the heat pump's power from hourly averages |
@@ -192,7 +192,7 @@ To see the speed alone, each minute's real COP was moved to a common lift of 40 
 - **Up to about 1,400 rpm the curve is flat** at about 3.4–3.5.
 - **From about 1,450 rpm it rises steadily**, by about 0.25 per 100 rpm, to about 4.3 at 1,700 rpm, with no sign of levelling off yet.
 - The unit's own COP has the same shape, about one point lower: its electricity figure is too high.
-- Above 1,750 rpm there was no steady running in these 20 days. The first day at 1,800–1,980 rpm ([below](#first-day-max-modulation-4045--without-the-morning-ramp)) shows the curve flattening there: about 4.2 at 1,800 rpm, 4.05 at 1,980 rpm. The bins below 1,100 rpm come from mild days with only about 27 K lift and need the largest correction; they are the least certain.
+- Above 1,750 rpm there was no steady running in these 20 days. The first day at 1,800–1,980 rpm ([below](#first-day-max-modulation-4045--without-the-morning-ramp)) shows the curve flattening there: about 4.0 at 1,800 rpm, 4.07 at 2,000 rpm ([by lift](#cop-over-speed-for-each-lift)). The bins below 1,100 rpm come from mild days with only about 27 K lift and need the largest correction; they are the least certain.
 
 **Without the lift correction, matched instead:** every minute at a higher speed was compared with minutes at 1,300–1,500 rpm with the same outdoor temperature (±0.5 K) and the same condensing temperature (±1 K):
 
@@ -207,7 +207,7 @@ Sensor lag cannot explain it: during a speed-up the heat reading lags behind the
 
 The curve above is at one lift (40 K). The same data split by lift, 3–23 November 2026, real electricity, steady running (from 10 minutes after a start, 3 minutes after a speed change):
 
-<img src="images/cop-vs-speed-by-lift.svg" alt="Line chart of real COP over compressor speed from 900 to 2,000 rpm, one line each for a lift of 25, 30, 35, 40, 45 and 50 K. All lines are flat up to 1,400 rpm, rise to about 1,700 rpm and flatten above 1,800 rpm. At 1,800 rpm: about 6.1 at 25 K, 5.2 at 30 K, 4.5 at 35 K, 4.0 at 40 K, 3.6 at 45 K, 3.3 at 50 K. Measured dots per 100 rpm and 5 K lie close to the lines.">
+<img src="images/cop-vs-speed-by-lift.svg" alt="Line chart of real COP over compressor speed from 1,000 to 2,000 rpm, one line each for a lift of 25, 30, 35, 40, 45 and 50 K. All lines are flat up to 1,400 rpm, rise to about 1,700 rpm and flatten above 1,800 rpm. At 1,800 rpm: about 6.1 at 25 K, 5.2 at 30 K, 4.5 at 35 K, 4.0 at 40 K, 3.6 at 45 K, 3.3 at 50 K. Measured dots per 100 rpm and 5 K lie close to the lines.">
 
 The lines are a model built from two measured parts: the **share of Carnot** the compressor reaches at each speed (median per 100 rpm: 0.445 up to 1,400 rpm, 0.467 at 1,500, 0.485 at 1,600, 0.504 at 1,700, 0.513 at 1,800, 0.52 at 2,000) times the **ideal COP** of the lift, (condensing temperature in K) ÷ lift, with the refrigerant evaporating at 0 °C. The dots are the measured real COP per 100 rpm and 5 K of lift, where there were at least 30 minutes; in brackets in the table:
 
@@ -222,10 +222,26 @@ The lines are a model built from two measured parts: the **share of Carnot** the
 | 1,800 rpm | 6.12 | 5.18 | 4.52 | 4.02 | 3.63 (3.64) | 3.32 |
 | 2,000 rpm | 6.20 | 5.25 | 4.58 | 4.07 (4.03) | 3.68 | 3.36 |
 
+**The change against 1,000 rpm**, the same model. In percent it is the same at every lift (it is the share of Carnot); in COP points it is larger at low lift, where the COP is higher to begin with:
+
+| Speed | Share of Carnot | Change | 25 K | 30 K | 35 K | 40 K | 45 K | 50 K |
+|---|---|---|---|---|---|---|---|---|
+| 1,000 rpm | 0.445 | – | – | – | – | – | – | – |
+| 1,200 rpm | 0.445 | +0 % | +0.00 | +0.00 | +0.00 | +0.00 | +0.00 | +0.00 |
+| 1,400 rpm | 0.445 | +0 % | +0.00 | +0.00 | +0.00 | +0.00 | +0.00 | +0.00 |
+| 1,500 rpm | 0.467 | +5 % | +0.26 | +0.22 | +0.19 | +0.17 | +0.16 | +0.14 |
+| 1,600 rpm | 0.485 | +9 % | +0.48 | +0.40 | +0.35 | +0.31 | +0.28 | +0.26 |
+| 1,700 rpm | 0.504 | +13 % | +0.70 | +0.60 | +0.52 | +0.46 | +0.42 | +0.38 |
+| 1,800 rpm | 0.513 | +15 % | +0.81 | +0.69 | +0.60 | +0.53 | +0.48 | +0.44 |
+| 1,900 rpm | 0.516 | +16 % | +0.85 | +0.72 | +0.63 | +0.56 | +0.51 | +0.46 |
+| 2,000 rpm | 0.520 | +17 % | +0.89 | +0.76 | +0.66 | +0.59 | +0.53 | +0.48 |
+
+Between 1,000 and 1,400 rpm the share of Carnot stays at 0.44–0.45 in every 100 rpm bin (0.450, 0.438, 0.452, 0.452, 0.445, about 1,000 to 2,400 minutes each from 1,100 rpm on): the gain only starts above 1,400 rpm. Above 1,800 rpm the medians are 0.513, 0.526 (6 minutes) and 0.521 (94 minutes) at 1,800, 1,900 and 2,000 rpm; at the same lift (41–45 K) 2,000 rpm came out 0.2 above 1,800 rpm in raw COP, about half of which is 2 K less lift. The data so far (above 1,800 rpm all of it from 23 November) show **no drop** up to 2,000 rpm, only a gain that gets small.
+
 How to read it:
 
 - **Lift matters more than speed.** 5 K less lift is worth about 0.4–0.9 COP at any speed; going from 1,400 to 1,800 rpm is worth about 0.5 at 40 K. Cooler water (a lower target, bigger radiators) and milder air both lower the lift.
-- **Above about 1,800 rpm every line flattens:** more speed adds heat, not efficiency ([first day at 41–45 %](#first-day-max-modulation-4045--without-the-morning-ramp)).
+- **Above about 1,800 rpm every line flattens:** it still rises, by about 1 % per 100 rpm, so more speed mostly adds heat ([first day at 41–45 %](#first-day-max-modulation-4045--without-the-morning-ramp)).
 - Where the model and the dots differ most: at 25–30 K and 1,700 rpm the measured COP is 0.3–0.7 lower. Those minutes are morning warm-ups with cold water, where the heat reading lags behind the rising water temperature; at 1,200 rpm and 40 K it is 0.5 higher, from mild days with a warm evaporator (7.5 °C), which the 0 °C of the model does not cover. Where most minutes are (35–45 K, 1,400–1,800 rpm) the two agree within about ±0.15.
 
 ## Why faster is more efficient
@@ -293,20 +309,20 @@ On 23 November 2026 (outside 2.5–4 °C, cloudy) the new AutoTemp ran for the f
 
 The unit changes speed in steps of 60 rpm, and the percentages do not map linearly: 42 → 45 % adds only 120 rpm. **The same percentage does not give a fixed speed:** on the colder morning with colder water, both settings ran 60–120 rpm faster. The unit evidently adjusts its speed limit to the conditions; a percentage is a cap relative to that, not a speed.
 
-**All settings compared.** Real electricity from the power formula (0.94 × unit − 355 W while running), the unit's reported heat, outside 1.5–5 °C. Today's rows leave out the first 3 minutes after each speed change; the November rows start 10 minutes after each start. *COP at 40 K* moves each row to the same lift with the 0.115 per kelvin from above, so the settings can be compared; that correction is an approximation, and it stretches furthest for the slowest row.
+**All settings compared.** Real electricity from the power formula (0.94 × unit − 355 W while running), the unit's reported heat, outside 1.5–5 °C. Today's rows leave out the first 3 minutes after each speed change; the November rows start 10 minutes after each start. *COP at 40 K* is each row's share of Carnot times the ideal COP at 40 K lift (7.83 with the refrigerant evaporating at 0 °C), so the settings can be compared at the same lift. A first version of this table moved each row with the straight 0.115 per kelvin from above; that only holds near 40 K, and over 5–6 K it overcorrected the 41 % rows (4.3 / 4.2 instead of 4.1 / 3.9) and made 45 % look worse than 41 %.
 
 | Setting | When | Minutes | Speed | Inlet → outlet | Lift | Heat | Real electricity | Real COP | COP at 40 K | Share of Carnot | Outdoor − coil (max over 10 min) | |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|
-| Old frost rule (coil < 1 °C) | 23 Nov 08:40–09:15 | 35 | ~1,030 rpm | 21 → 25 °C | 26 K | 3.0 kW | 0.61 kW | 4.83 | ~3.2 | **0.42** | 2.7 (3.4) K | 🔴 |
-| Throttled by the unit | November | 541 | ~1,390 rpm | – | 35 K | 4.5 kW | 1.17 kW | 3.84 | 3.3 | 0.44 | 3.1 K | 🔴 |
+| Old frost rule (coil < 1 °C) | 23 Nov 08:40–09:15 | 35 | ~1,030 rpm | 21 → 25 °C | 26 K | 3.0 kW | 0.61 kW | 4.83 | 3.3 | **0.42** | 2.7 (3.4) K | 🔴 |
+| Throttled by the unit | November | 541 | ~1,390 rpm | – | 35 K | 4.5 kW | 1.17 kW | 3.84 | 3.4 | 0.44 | 3.1 K | 🔴 |
 | 40 % | November | 321 | ~1,555 rpm | – | 40 K | 5.2 kW | 1.40 kW | 3.70 | 3.8 | 0.48 | 3.3 K | 🟡 |
 | (unlogged, 40–41 %) | November | 213 | ~1,725 rpm | – | 39 K | 5.9 kW | 1.44 kW | 4.07 | 4.0 | 0.51 | 3.4 K | 🟢 |
-| **41 %, heating up** | 23 Nov 11:16–12:00 | 44 | 1,800 rpm | 35 → 42 °C | 45 K | 6.0 kW | 1.64 kW | 3.67 | **4.3** | 0.52 | 4.1 (4.3) K | 🟢 |
-| **41 %, holding** | 23 Nov 12:00–13:52 | 112 | 1,680–1,800 rpm | 37 → 44 °C | 46 K | 5.7 kW | 1.65 kW | 3.43 | **4.2** | 0.50 | 3.8 (4.2) K | 🟢 |
-| 42 % | 23 Nov 11:09–11:13 | 4 | 1,860 rpm | 34 → 41 °C | 45 K | 6.2 kW | 1.64 kW | 3.76 | (4.4) | 0.54 | 4.0 K | 🟡 4 minutes only |
-| 45 %, heating up | 23 Nov 09:35–11:06 | 91 | 1,980 rpm | 30 → 37 °C | 40 K | 6.5 kW | 1.62 kW | 4.00 | **4.05** | 0.52 | 4.1 (4.4) K | 🟡 |
+| **41 %, heating up** | 23 Nov 11:16–12:00 | 44 | 1,800 rpm | 35 → 42 °C | 45 K | 6.0 kW | 1.64 kW | 3.67 | **4.1** | 0.52 | 4.1 (4.3) K | 🟢 |
+| **41 %, holding** | 23 Nov 12:00–13:52 | 112 | 1,680–1,800 rpm | 37 → 44 °C | 46 K | 5.7 kW | 1.65 kW | 3.43 | **3.9** | 0.50 | 3.8 (4.2) K | 🟢 |
+| 42 % | 23 Nov 11:09–11:13 | 4 | 1,860 rpm | 34 → 41 °C | 45 K | 6.2 kW | 1.64 kW | 3.76 | (4.2) | 0.54 | 4.0 K | 🟡 4 minutes only |
+| 45 %, heating up | 23 Nov 09:35–11:06 | 91 | 1,980 rpm | 30 → 37 °C | 40 K | 6.5 kW | 1.62 kW | 4.00 | **4.1** | 0.52 | 4.1 (4.4) K | 🟡 |
 
-- **The big step is from 40 % to 41 %:** about +0.4 COP at the same lift and about +0.8 kW heat. Above 41 % the share of Carnot stays at 0.50–0.54 and the COP at 40 K does not rise any more; 45 % comes out slightly *lower* than 41 %. The extra speed buys heat, not efficiency. 42 % looked best for 4 minutes, within the ±0.2 that the COP swings from minute to minute; only alternating whole days could separate 41 % from 42 %.
+- **The big step is from 40 % to 41 %:** about +0.3 COP at the same lift and about +0.8 kW heat. Above 41 % the share of Carnot stays at 0.50–0.54 and the COP at 40 K hardly rises any more; 45 % comes out the same as 41 % (4.1 both). The extra speed buys heat, very little efficiency. 42 % looked best for 4 minutes, within the ±0.2 that the COP swings from minute to minute; only alternating whole days could separate 41 % from 42 %.
 - **41 % is the setting kept:** the same efficiency as 42–45 %, about 0.5 kW less heat than 45 %, and the coil slightly warmer.
 - **Ice:** at 41–45 % the coil ran at −1.4 to +0.5 °C with 2.9–3.9 °C outside, the gap at about 4 K (at most 4.4 K over 10 minutes). A thin layer of frost was visible from about 09:40 and did not grow: the gap stayed flat, the evaporating pressure rose instead of falling, the heat output held. No defrost all day, and the new frost protection never had to act ([A cold coil is not yet ice](findings.md#a-cold-coil-is-not-yet-ice)).
 - **The new cost is warm water.** With Inlet Water Temp Control the unit only throttles a little while the inlet is just above the setpoint, so the water settled 1–1.5 K above it (inlet 38.3 °C at a setpoint of 37 °C, outlet 45 °C). The lift went up to about 46 K and the real COP down to about 3.4 in the afternoon, and the house got almost too warm. From 24 November the target is 1 K lower (37 °C at 0 °C outside to 32 °C at 15 °C); each kelvin is worth about 0.1 COP.
@@ -349,5 +365,5 @@ After a week or two, the same exports (Home Assistant history within 10 days, th
 - The absolute COP level rests on the flow sensor (±13 %); the comparisons between speeds do not.
 - The electricity calibration covers the running compressor at about 1,100–2,100 W of the unit's figure (99 % of the running minutes) the night pulses at about 300 W and the idle standby from the October and November nights; outside that, it is an extrapolation. The energy counter (input 38) is assumed to be off by the same factor as the power register.
 - The radiator penalty is an estimate with standard radiator physics, not a measurement in this house.
-- No steady data above 1,750 rpm yet.
+- Above 1,800 rpm only about 100 minutes so far, all from 23 November.
 - Solar: only the surplus is seen (no production data); October's heat pump power is from hourly averages, so the absorbed export is an estimate; November and October are short windows, spring is not yet covered.
