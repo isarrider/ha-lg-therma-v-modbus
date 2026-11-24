@@ -171,7 +171,7 @@ On 23 November the unit counted 18.9 kWh, the formula gives **14.0 kWh**. With t
   {{ (x | float * 0.71) | round(2) if is_number(x) else none }}
   ```
 
-  0.71 fits running like November's (1,100–1,600 rpm); for days at about 1,700 rpm 0.74 fits better ([above](#faster-running-the-factor-rises)).
+  0.71 fits running like November's (1,100–1,600 rpm); for days at about 1,700 rpm 0.74 fits better ([above](#faster-running-the-factor-rises)). For **today** alone there is no helper needed: from 2.3.1 the counter has the attribute `today_kwh`, so a dashboard card can show `state_attr('sensor.lg_therma_v_r290_electrical_energy_space_heating', 'today_kwh') * 0.74` as today's real electricity.
 
 - *Heat pump power (real)*, unit W, device class *Power*, state class *Measurement*:
 
