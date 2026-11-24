@@ -198,7 +198,7 @@ views:
             heading_style: title
           - type: statistic
             entity: sensor.lg_therma_v_r290_electrical_energy_total
-            name: Electrical today
+            name: Electrical today (unit, reads high)
             period:
               calendar:
                 period: day
@@ -207,7 +207,7 @@ views:
               rows: auto
           - type: statistic
             entity: sensor.lg_therma_v_r290_thermal_energy_space_heating
-            name: Space heating today
+            name: Heat today (unit)
             period:
               calendar:
                 period: day
@@ -226,8 +226,8 @@ views:
               {%- endmacro %}
               <table width="100%">
               <tr><td></td><td align="right"><b>Now</b></td><td align="right"><b>Total</b></td></tr>
-              <tr><td>Electrical</td><td align="right"><b>{{ v('electrical_power_total_system', 2, 1000) }} kW</b></td><td align="right">{{ v('electrical_energy_space_heating', 0) | int(0) }} kWh</td></tr>
-              <tr><td>Heat</td><td align="right"><b>{{ v('thermal_power_heating_circuit_calculated', 2, 1000) }} kW</b></td><td align="right">{{ v('thermal_energy_space_heating', 0) | int(0) }} kWh</td></tr>
+              <tr><td>Electrical</td><td align="right"><b>{{ v('electrical_power_total_system', 2, 1000) }} kW</b></td><td align="right">{{ v('electrical_energy_space_heating', 0) }} kWh</td></tr>
+              <tr><td>Heat</td><td align="right"><b>{{ v('thermal_power_heating_circuit_calculated', 2, 1000) }} kW</b></td><td align="right">{{ v('thermal_energy_space_heating', 0) }} kWh</td></tr>
               <tr><td>COP (flow / rep / sys)</td><td align="right"><b>{{ v('cop_calculated') }} / {{ v('cop_reported') }} / {{ v('cop_system_reported') }}</b></td><td align="right">{{ v('cop_heating_cumulative') }}</td></tr>
               </table>
           - type: weather-forecast

@@ -193,7 +193,7 @@ Most of it needs options switched on in *Configure → Options*; without them th
 
 | Option | Cards |
 |---|---|
-| Energy registers | the power graph (*Electrical (reads high)*, *Thermal (reported)*), *Electrical today*, *Space heating today*, the table of power, energy and COP below them, *Energy per day*, *Demand vs supply* |
+| Energy registers | the power graph (*Electrical (reads high)*, *Thermal (reported)*), *Electrical today (unit, reads high)*, *Heat today (unit)*, the table of power, energy and COP below them, *Energy per day*, *Demand vs supply* |
 | Compressor statistics | *Compressor Average Speed*, the table of starts, run time, defrosts, defrost time and defrost energy (today and total), *Starts and defrosts per day* |
 | Compressor modulation limit | *Max Compressor Modulation* |
 | Power limit | *Power Limit*, *Max Electrical Power* |
@@ -206,6 +206,6 @@ The quick view at the top shows on its first line the error code, fault, water p
 
 The power graph shows the thermal power twice: *Thermal (reported)* from the unit and *Thermal (calculated)* from flow × (outlet − inlet), which goes below 0 during a defrost.
 
-*Electrical today*, *Space heating today* and *Energy per day* read the long-term statistics, so they count from the time the integration was set up: the first day is incomplete. The table of starts and defrosts takes *today* from the sensors' `today` attribute (2.2.9+), which counts from midnight and survives restarts.
+The unit's electrical figures read high: on a 12 kW unit about 1.4 × the real energy ([cop-efficiency.md](cop-efficiency.md#electricity-the-units-figure-is-about-40--too-high)), hence the tile's name. *Electrical today (unit, reads high)*, *Heat today (unit)* and *Energy per day* read the long-term statistics, so they count from the time the integration was set up: the first day is incomplete. The table of starts and defrosts takes *today* from the sensors' `today` attribute (2.2.9+), which counts from midnight and survives restarts.
 
 The YAML is in its own file: **[dashboard-full.yaml](dashboard-full.yaml)**. Open it, use *Raw* (or the copy button) on GitHub, and paste all of it into the raw configuration editor of a new, empty dashboard.
