@@ -20,6 +20,7 @@ at 1,400 rpm. The unit is the one in [findings.md](findings.md).
 - [Heat: reported and calculated agree, the flow sensor sets the limit](#heat-reported-and-calculated-agree-the-flow-sensor-sets-the-limit)
 - [Lift: what the compressor has to overcome](#lift-what-the-compressor-has-to-overcome)
 - [COP over compressor speed](#cop-over-compressor-speed)
+- [COP over speed for each lift](#cop-over-speed-for-each-lift)
 - [Why faster is more efficient](#why-faster-is-more-efficient)
 - [The catch: more heat needs warmer water](#the-catch-more-heat-needs-warmer-water)
 - [Whole days](#whole-days)
@@ -202,6 +203,31 @@ To see the speed alone, each minute's real COP was moved to a common lift of 40 
 
 Sensor lag cannot explain it: during a speed-up the heat reading lags behind the electricity, which would make the faster minutes look *worse*. With the speed stable for 10 minutes the gap was, if anything, slightly larger.
 
+## COP over speed for each lift
+
+The curve above is at one lift (40 K). The same data split by lift, 3–23 November 2026, real electricity, steady running (from 10 minutes after a start, 3 minutes after a speed change):
+
+<img src="images/cop-vs-speed-by-lift.svg" alt="Line chart of real COP over compressor speed from 900 to 2,000 rpm, one line each for a lift of 25, 30, 35, 40, 45 and 50 K. All lines are flat up to 1,400 rpm, rise to about 1,700 rpm and flatten above 1,800 rpm. At 1,800 rpm: about 6.1 at 25 K, 5.2 at 30 K, 4.5 at 35 K, 4.0 at 40 K, 3.6 at 45 K, 3.3 at 50 K. Measured dots per 100 rpm and 5 K lie close to the lines.">
+
+The lines are a model built from two measured parts: the **share of Carnot** the compressor reaches at each speed (median per 100 rpm: 0.445 up to 1,400 rpm, 0.467 at 1,500, 0.485 at 1,600, 0.504 at 1,700, 0.513 at 1,800, 0.52 at 2,000) times the **ideal COP** of the lift, (condensing temperature in K) ÷ lift, with the refrigerant evaporating at 0 °C. The dots are the measured real COP per 100 rpm and 5 K of lift, where there were at least 30 minutes; in brackets in the table:
+
+| Speed | 25 K | 30 K | 35 K | 40 K | 45 K | 50 K |
+|---|---|---|---|---|---|---|
+| 1,000 rpm | 5.31 (5.21) | 4.50 (4.78) | 3.92 | 3.48 | 3.15 | 2.88 |
+| 1,200 rpm | 5.31 (5.54) | 4.50 (4.47) | 3.92 (4.11) | 3.48 (4.02) | 3.15 | 2.88 |
+| 1,400 rpm | 5.31 | 4.50 (4.81) | 3.92 (3.96) | 3.48 (3.59) | 3.15 (3.32) | 2.88 |
+| 1,500 rpm | 5.57 | 4.72 (4.64) | 4.11 (4.21) | 3.66 (3.68) | 3.30 (3.43) | 3.02 |
+| 1,600 rpm | 5.78 | 4.90 | 4.27 (4.42) | 3.80 (3.75) | 3.43 (3.50) | 3.13 |
+| 1,700 rpm | 6.01 (5.27) | 5.09 (4.77) | 4.44 (4.51) | 3.95 (3.95) | 3.56 (3.74) | 3.26 |
+| 1,800 rpm | 6.12 | 5.18 | 4.52 | 4.02 | 3.63 (3.64) | 3.32 |
+| 2,000 rpm | 6.20 | 5.25 | 4.58 | 4.07 (4.03) | 3.68 | 3.36 |
+
+How to read it:
+
+- **Lift matters more than speed.** 5 K less lift is worth about 0.4–0.9 COP at any speed; going from 1,400 to 1,800 rpm is worth about 0.5 at 40 K. Cooler water (a lower target, bigger radiators) and milder air both lower the lift.
+- **Above about 1,800 rpm every line flattens:** more speed adds heat, not efficiency ([first day at 41–45 %](#first-day-max-modulation-4045--without-the-morning-ramp)).
+- Where the model and the dots differ most: at 25–30 K and 1,700 rpm the measured COP is 0.3–0.7 lower. Those minutes are morning warm-ups with cold water, where the heat reading lags behind the rising water temperature; at 1,200 rpm and 40 K it is 0.5 higher, from mild days with a warm evaporator (7.5 °C), which the 0 °C of the model does not cover. Where most minutes are (35–45 K, 1,400–1,800 rpm) the two agree within about ±0.15.
+
 ## Why faster is more efficient
 
 In the lift table, the share of the ideal COP rises from **0.44 at 1,400 rpm to 0.50 at 1,700 rpm**: the compressor itself works better. 1,400 rpm is about 23 Hz, the bottom of an inverter compressor's range. At low speed, more refrigerant leaks back inside the compressor and the motor and its inverter run at poor efficiency, so the same heat costs relatively more electricity. Compressors of this kind usually work best somewhere around 50–60 Hz (3,000–3,600 rpm); on this unit the gain flattens out already above about 1,750 rpm, at least in the range the max modulation was tried in (up to 1,980 rpm).
@@ -258,14 +284,14 @@ How much a faster compressor could have taken, minute by minute, while it ran: t
 
 On 23 November 2026 (outside 2.5–4 °C, cloudy) the new AutoTemp ran for the first full day, and the max compressor modulation was changed by hand during the morning: 45 % from the start, 42 % at 11:06, 41 % at 11:13. Each change acted within seconds. The inlet was still below the 37 °C setpoint until about 12:00, so the unit ran at the cap and the speed read directly gives what each setting allows:
 
-| Max modulation | Speed at the cap |
-|---|---|
-| 40 % | not read cleanly; 1,500–1,620 rpm was the most common in November (the setting was not logged) |
-| **41 %** | **1,800 rpm** |
-| 42 % | 1,860 rpm |
-| 45 % | 1,980 rpm (not 1,650–1,750 rpm as expected before the test) |
+| Max modulation | Speed at the cap, 23 Nov (3 °C outside, inlet 30–35 °C) | 24 Nov (−1.5 °C outside, inlet 19–22 °C) |
+|---|---|---|
+| 40 % | not read cleanly; 1,500–1,620 rpm was the most common in November (the setting was not logged) | – |
+| **41 %** | **1,800 rpm** | 1,860–1,920 rpm |
+| 42 % | 1,860 rpm | 1,980 rpm (dipping to 1,740 rpm twice) |
+| 45 % | 1,980 rpm (not 1,650–1,750 rpm as expected before the test) | – |
 
-The unit changes speed in steps of 60 rpm, and the percentages do not map linearly: 42 → 45 % adds only 120 rpm.
+The unit changes speed in steps of 60 rpm, and the percentages do not map linearly: 42 → 45 % adds only 120 rpm. **The same percentage does not give a fixed speed:** on the colder morning with colder water, both settings ran 60–120 rpm faster. The unit evidently adjusts its speed limit to the conditions; a percentage is a cap relative to that, not a speed.
 
 **All settings compared.** Real electricity from the power formula (0.94 × unit − 355 W while running), the unit's reported heat, outside 1.5–5 °C. Today's rows leave out the first 3 minutes after each speed change; the November rows start 10 minutes after each start. *COP at 40 K* moves each row to the same lift with the 0.115 per kelvin from above, so the settings can be compared; that correction is an approximation, and it stretches furthest for the slowest row.
 
@@ -293,9 +319,10 @@ The unit's own counter said 10.4 kWh for the same time. With the energy factor 0
 
 From 23 November 2026, on the 12 kW unit:
 
-- **Max compressor modulation 41 %** (1,800 rpm) instead of 40 %. The test started at 45 %, which turned out to give 1,980 rpm with no better COP than 41 % ([first day](#first-day-max-modulation-4045--without-the-morning-ramp)); 41 % since 23 November 11:13. The stop automation (now at 17:30) resets it to 41 % each evening.
+- **Max compressor modulation 41 %** (1,800–1,920 rpm, depending on the conditions) instead of 40 %. The test started at 45 %, which turned out to give 1,980 rpm with no better COP than 41 % ([first day](#first-day-max-modulation-4045--without-the-morning-ramp)); 41 % since 23 November 11:13. **A/B against 42 %:** from 24 November the stop automation (now at 17:30) sets 42 % before an even day and 41 % before an odd day, so the warm-ups of both can be compared on days with similar weather; 42 % looked 0.1 better for 4 minutes on the first day, within the noise. The cap only matters while the water heats up: once it is at the setpoint, the unit throttles itself below either cap.
 - **A simpler AutoTemp:** once the compressor has run 1 minute, inlet control and the setpoint straight to the target (37 °C at 0 °C outside, 32 °C at 15 °C, linear in between; 38 / 33 °C on the first day, which made the house almost too warm), so the unit heats at the cap until the water gets there and then holds it on its own. No cold start, no following, no morning ramp. Kept, but changed: **frost protection** that only reacts to ice: the coil below 0.5 °C, below the frost point of the air (temperature and humidity from the weather entity) and more than 5 K colder than the air for 2 minutes → straight to just below the inlet so the unit throttles at once, then 1 °C every 2 minutes; straight back to the target once the gap is below 4 K or the coil is above 0.5 °C or the frost point ([why](findings.md#a-cold-coil-is-not-yet-ice)). Not step by step: the max compressor modulation caps the speed anyway, full speed only adds about 0.6 K to the gap between air and coil (2.9 K median at the lowest speeds, 3.5 K at the highest), and new ice is caught within 2 minutes. The first version stepped up 1 °C every 5 minutes; after the switch on 23 November that took 70 minutes from 22 to 36 °C in dry air, with the unit idling near its minimum because the setpoint was just at the inlet. Also kept: a **thermo off guard** (inlet 3 K above the setpoint → +1 °C up to 40 °C, back down to the target once the water has cooled), and the **oil boost**.
 - It also warms the house earlier in the day, which is wanted, and costs some heat.
+- **The status line** (template sensor and dashboard card) tells *watching ice* from *frost protection*: with the coil below 0.5 °C and the frost point and the gap above 4 K it shows *frost protection* only once AutoTemp has actually lowered the setpoint below the target, and *watching ice* while thin ice forms but the gap has not stayed above 5 K for 2 minutes. The first version said *frost protection* for both, which on 24 November looked like throttling that never happened.
 
 After a week or two, the same exports (Home Assistant history within 10 days, the house meter from VictoriaMetrics) decide: real kWh of electricity per day, real COP per day, compressor starts and defrosts per day (2.3.0 counts them), each against days with similar outdoor temperatures from 3–22 November. If it holds up, the new AutoTemp replaces the example in [automations.md](automations.md).
 

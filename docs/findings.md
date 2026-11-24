@@ -168,6 +168,21 @@ the 5 K and 4 K are first estimates from two defrosts and will be checked
 against the defrost counter (*Defrosts*, *Defrost Energy*, 2.3.0) over the
 coming cold days.
 
+**First two days with the new rule:**
+
+| Day | Outside | Coil | Gap (max) | What happened | |
+|---|---|---|---|---|---|
+| 23 Nov, 09:30–17:30 | 2.5–4 °C, cloudy | −1.4 to +0.5 °C | about 4 K (4.4 K) | thin frost visible from about 09:40 at 1,980 rpm, did not grow; the evaporating pressure rose, the heat held; never throttled, no defrost | 🟢 |
+| 24 Nov, from 08:30 | −2 to −1 °C, sunny | −6.3 to −3.8 °C | 3.4–3.8 K (4.7 K) | straight to 37 °C after the start; at 08:48 the coil dropped below the frost point and the gap rose to 4.7 K for about 2 minutes (a little ice), then fell back to 3.8 K on its own; never throttled | 🟢 |
+
+The old rule (coil below 1 °C) would have throttled all day on both. The thin
+ice on 24 November stopped growing by itself: a layer that blocks the fins
+keeps widening the gap, as before the defrost on 22 November (5.7–7.2 K
+within 25 minutes); one that the air still gets through levels off. The 4–5 K
+band is where that shows, which is why AutoTemp waits for more than 5 K for
+2 minutes. The status line calls that band *watching ice* and only says
+*frost protection* once AutoTemp has actually lowered the setpoint.
+
 ## The electrical figures run high
 
 Compared with the smart meter, the unit's *Electrical Power* (input 34–45)
