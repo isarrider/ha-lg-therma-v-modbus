@@ -10,28 +10,33 @@
 .l25{stroke:#a9cbf3;fill:#a9cbf3}.l30{stroke:#7aaeee;fill:#7aaeee}.l35{stroke:#4b91e6;fill:#4b91e6}.l40{stroke:#2a78d6;fill:#2a78d6}.l45{stroke:#1f5ea9;fill:#1f5ea9}.l50{stroke:#16437a;fill:#16437a}@media (prefers-color-scheme: dark){.l25{stroke:#1f5ea9;fill:#1f5ea9}.l30{stroke:#2a78d6;fill:#2a78d6}.l35{stroke:#4b91e6;fill:#4b91e6}.l40{stroke:#7aaeee;fill:#7aaeee}.l45{stroke:#a9cbf3;fill:#a9cbf3}.l50{stroke:#d3e4f9;fill:#d3e4f9}}</style>
 <rect class="bg" width="720" height="466" rx="8"/>
 <text class="t" x="64" y="26">Faster: worth it while the water temperature is held, not if the radiators need warmer water</text>
-<text class="s" x="64" y="44">Change in real COP against 1,400 rpm at 40 K; the radiator part assumes standard radiators, 19 K above the room</text>
-<line class="grid" x1="64" x2="696" y1="291.7" y2="291.7"/><text class="s" x="56" y="295.7" text-anchor="end">-0.5</text>
-<line class="grid" x1="64" x2="696" y1="215.1" y2="215.1"/><text class="s" x="56" y="219.1" text-anchor="end">0</text>
-<line class="grid" x1="64" x2="696" y1="138.6" y2="138.6"/><text class="s" x="56" y="142.6" text-anchor="end">0.5</text>
+<text class="s" x="64" y="44">Change in real COP against 1,000 rpm at 40 K; the radiator part assumes standard radiators, 19 K above the room</text>
+<line class="grid" x1="64" x2="696" y1="300.2" y2="300.2"/><text class="s" x="56" y="304.2" text-anchor="end">-1</text>
+<line class="grid" x1="64" x2="696" y1="240.7" y2="240.7"/><text class="s" x="56" y="244.7" text-anchor="end">-0.5</text>
+<line class="grid" x1="64" x2="696" y1="181.1" y2="181.1"/><text class="s" x="56" y="185.1" text-anchor="end">0</text>
+<line class="grid" x1="64" x2="696" y1="121.6" y2="121.6"/><text class="s" x="56" y="125.6" text-anchor="end">0.5</text>
 <line class="grid" x1="64" x2="696" y1="62.0" y2="62.0"/><text class="s" x="56" y="66.0" text-anchor="end">1</text>
-<text class="s" x="64.0" y="348" text-anchor="middle">1400</text>
-<text class="s" x="169.3" y="348" text-anchor="middle">1500</text>
-<text class="s" x="274.7" y="348" text-anchor="middle">1600</text>
-<text class="s" x="380.0" y="348" text-anchor="middle">1700</text>
-<text class="s" x="485.3" y="348" text-anchor="middle">1800</text>
-<text class="s" x="590.7" y="348" text-anchor="middle">1900</text>
+<text class="s" x="64.0" y="348" text-anchor="middle">1000</text>
+<text class="s" x="127.2" y="348" text-anchor="middle">1100</text>
+<text class="s" x="190.4" y="348" text-anchor="middle">1200</text>
+<text class="s" x="253.6" y="348" text-anchor="middle">1300</text>
+<text class="s" x="316.8" y="348" text-anchor="middle">1400</text>
+<text class="s" x="380.0" y="348" text-anchor="middle">1500</text>
+<text class="s" x="443.2" y="348" text-anchor="middle">1600</text>
+<text class="s" x="506.4" y="348" text-anchor="middle">1700</text>
+<text class="s" x="569.6" y="348" text-anchor="middle">1800</text>
+<text class="s" x="632.8" y="348" text-anchor="middle">1900</text>
 <text class="s" x="696.0" y="348" text-anchor="middle">2000</text>
 <line class="axis" x1="64" x2="696" y1="330" y2="330"/>
 <text class="s" x="380.0" y="368" text-anchor="middle">compressor speed (rpm)</text>
 <text class="s" x="14" y="196.0" transform="rotate(-90 14 196.0)" text-anchor="middle">change in real COP</text>
 <clipPath id="plot"><rect x="64" y="56" width="632" height="274"/></clipPath><g clip-path="url(#plot)">
-<line class="axis" x1="64.0" x2="696.0" y1="215.1" y2="215.1"/>
-<polyline class="c1 ln " points="64.0,215.1 169.3,196.0 274.7,168.4 380.0,131.2 485.3,127.6 590.7,122.8 696.0,118.0"/>
-<polyline class="c3 ln " points="64.0,215.1 169.3,222.5 274.7,229.9 380.0,237.3 485.3,244.7 590.7,252.1 696.0,259.5"/>
-<polyline class="c2 ln dash" points="64.0,215.1 169.3,230.6 274.7,245.8 380.0,260.9 485.3,275.8 590.7,290.5 696.0,305.1"/>
-<polyline class="c0 ln " points="64.0,215.1 169.3,203.4 274.7,183.2 380.0,153.4 485.3,157.2 590.7,159.8 696.0,162.4"/>
-<polyline class="c4 ln " points="64.0,215.1 169.3,218.8 274.7,213.9 380.0,199.2 485.3,217.9 590.7,235.2 696.0,252.3"/>
+<line class="axis" x1="64.0" x2="696.0" y1="181.1" y2="181.1"/>
+<polyline class="c1 ln " points="64.0,181.1 127.2,181.1 190.4,181.1 253.6,181.1 316.8,181.1 380.0,166.2 443.2,144.7 506.4,115.8 569.6,113.0 632.8,109.3 696.0,105.6"/>
+<polyline class="c3 ln " points="64.0,181.1 127.2,186.9 190.4,192.6 253.6,198.4 316.8,204.1 380.0,209.9 443.2,215.6 506.4,221.4 569.6,227.1 632.8,232.9 696.0,238.6"/>
+<polyline class="c2 ln dash" points="64.0,181.1 127.2,196.9 190.4,212.5 253.6,227.8 316.8,242.9 380.0,257.7 443.2,272.4 506.4,286.9 569.6,301.2 632.8,315.4 696.0,329.4"/>
+<polyline class="c0 ln " points="64.0,181.1 127.2,186.9 190.4,192.6 253.6,198.4 316.8,204.1 380.0,195.0 443.2,179.3 506.4,156.1 569.6,159.1 632.8,161.1 696.0,163.1"/>
+<polyline class="c4 ln " points="64.0,181.1 127.2,202.7 190.4,224.0 253.6,245.0 316.8,265.9 380.0,271.6 443.2,270.6 506.4,261.9 569.6,279.2 632.8,295.4 696.0,311.4"/>
 </g>
 <line class="c1 ln" x1="64" x2="82" y1="386" y2="386"/><text class="lab" x="88" y="390">compressor efficiency (measured)</text>
 <line class="c3 ln" x1="340.4" x2="358.4" y1="386" y2="386"/><text class="lab" x="364.4" y="390">colder evaporator (measured)</text>
