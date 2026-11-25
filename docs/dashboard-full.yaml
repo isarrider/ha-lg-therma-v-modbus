@@ -120,7 +120,17 @@ views:
               <tr><td>Defrost energy</td><td align="right"><b>{{ state_attr(e, 'today') | float(0) | round(2) }} kWh</b></td><td align="right">{{ states(e) | float(0) | round(1) }} kWh</td></tr>
               </table>
 
-              Last run {{ state_attr(s, 'last_run_minutes') | float(0) | round(0) | int }} min · last defrost {{ state_attr(d, 'last_defrost_minutes') | float(0) | round(0) | int }} min
+              {%- macro dur(m) -%}{%- if m is number -%}{{ (m | round(0) | int) ~ ' min' if m < 120 else '%.1f h' | format(m / 60) }}{%- else -%}–{%- endif -%}{%- endmacro -%}
+              {%- macro since(t) -%}{%- set lt = as_local(t) -%}{{ dur((now() - t).total_seconds() / 60) }} ago ({{ lt.strftime('%H:%M') if lt.date() == now().date() else lt.strftime('%d.%m. %H:%M') }}){%- endmacro -%}
+              {%- set cs = states.binary_sensor.lg_therma_v_r290_compressor -%}
+              {%- set ds = states.binary_sensor.lg_therma_v_r290_defrost -%}
+              {%- set run_m = state_attr('sensor.lg_therma_v_r290_compressor_starts', 'last_run_minutes') -%}
+              {%- set def_m = state_attr('sensor.lg_therma_v_r290_defrosts', 'last_defrost_minutes') -%}
+              <table width="100%">
+              <tr><td></td><td align="right"><b>When</b></td><td align="right"><b>Lasted</b></td></tr>
+              <tr><td>Last run</td><td align="right">{% if cs and cs.state == 'on' %}running since {{ as_local(cs.last_changed).strftime('%H:%M') }}{% elif cs %}stopped {{ since(cs.last_changed) }}{% else %}–{% endif %}</td><td align="right">{{ dur(run_m) }}</td></tr>
+              <tr><td>Last defrost</td><td align="right">{% if ds and ds.state == 'on' %}now{% elif def_m is not number %}none yet{% elif ds %}ended {{ since(ds.last_changed) }}{% else %}–{% endif %}</td><td align="right">{{ dur(def_m) }}</td></tr>
+              </table>
           - type: statistics-graph
             title: Starts and defrosts per day
             entities:
