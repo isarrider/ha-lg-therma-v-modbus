@@ -127,5 +127,9 @@ async def test_the_starts_and_defrosts_table(hass, unit) -> None:
         ["Defrosts", "2", "7"],
         ["Defrost time", "14 min", "42 min"],
         ["Defrost energy", "0.42 kWh", "1.8 kWh"],
+        # below: when the last run and defrost were, and how long they lasted
+        ["", "When", "Lasted"],
+        rows[7][:2] + ["23 min"],
+        rows[8][:2] + ["6 min"],
     ]
-    assert text.splitlines()[-1].strip() == "Last run 23 min · last defrost 6 min"
+    assert rows[7][0] == "Last run" and rows[8][0] == "Last defrost"

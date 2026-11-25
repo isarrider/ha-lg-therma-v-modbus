@@ -63,7 +63,9 @@ async def test_every_automation_entity_exists(hass, unit) -> None:
     entry = MockConfigEntry(
         domain=DOMAIN,
         data={"connection_type": "rtu", **RTU},
-        options={"compressor_modulation_limit": True},
+        # the status card's table of the last run and defrost needs the
+        # Compressor statistics option
+        options={"compressor_modulation_limit": True, "compressor_statistics": True},
         version=1,
         minor_version=4,
     )
@@ -157,9 +159,14 @@ async def test_the_automations_explain_each_change_in_the_logbook(hass, unit) ->
     assert logbook[-1].data["entity_id"] == SETPOINT
 
 
-def _card(hass) -> str:
+def _rendered(hass) -> str:
     content = yaml.safe_load(STATUS_CARD.read_text())["content"]
     return " ".join(Template(content, hass).async_render().split())
+
+
+def _card(hass) -> str:
+    """The status line (what AutoTemp does), without the table below it."""
+    return _rendered(hass).split("<table")[0].strip()
 
 
 async def test_the_status_card(hass, freezer) -> None:
@@ -295,3 +302,51 @@ async def test_the_timeline_template(hass, freezer) -> None:
     hass.states.async_set(SETPOINT, "35")
     freezer.move_to("2026-11-16 16:30:00+00:00")  # 17:30 in Berlin
     assert _timeline(hass) == "done for today"
+
+
+async def test_the_status_card_last_run_and_ice(hass, freezer) -> None:
+    await hass.config.async_set_time_zone("Europe/Berlin")
+    freezer.move_to("2026-11-24 08:07:00+00:00")  # defrost 09:07-09:10 in Berlin
+    hass.states.async_set("binary_sensor.lg_therma_v_r290_defrost", "on")
+    freezer.move_to("2026-11-24 08:10:00+00:00")
+    hass.states.async_set("binary_sensor.lg_therma_v_r290_defrost", "off")
+    freezer.move_to("2026-11-24 07:30:30+00:00")  # compressor on at 08:30
+    hass.states.async_set("binary_sensor.lg_therma_v_r290_compressor", "on")
+    freezer.move_to("2026-11-24 14:30:00+00:00")  # 15:30 in Berlin
+    for entity_id, state, attributes in (
+        (AUTOTEMP, "on", {}),
+        (SETPOINT, "37", {}),
+        (
+            "sensor.lg_therma_v_r290_compressor_starts",
+            "33",
+            {"last_run_minutes": 420.0},
+        ),
+        ("sensor.lg_therma_v_r290_defrosts", "1", {"last_defrost_minutes": 3.0}),
+        ("sensor.lg_therma_v_r290_outdoor_temperature", "1.1", {}),
+        ("sensor.lg_therma_v_r290_temperature_before_evaporator", "-2.6", {}),
+        ("sensor.lg_therma_v_r290_inlet_temperature", "34.0", {}),
+        ("select.lg_therma_v_r290_control_method", "Inlet Water Temp Control", {}),
+        # Dry air: frost point -3.3 °C at 1 °C and 70 %
+        ("weather.forecast_home", "sunny", {"temperature": 1.0, "humidity": 70}),
+    ):
+        hass.states.async_set(entity_id, state, attributes)
+    html = _rendered(hass)
+    text = " ".join(re.sub(r"<(?!/?b>)[^>]+>", " ", html).split())
+    assert "Last run running since 08:30 7.0 h" in text
+    assert "Last defrost ended 6.3 h ago (09:10) 3 min" in text
+    # Ice below min(0, frost point) + the gap: -3.3 + 3.7 = 0.4 °C
+    assert "Ice possible below <b>0.4 °C</b> outside (now 1.1 °C: no)" in text
+    assert "frost point -3.3 °C, coil 3.7 K below the air" in text
+
+    # Stopped, the next morning, in fog: frost point above 0 °C,
+    # the gap the typical 3.5 K
+    hass.states.async_set("binary_sensor.lg_therma_v_r290_compressor", "off")
+    freezer.move_to("2026-11-25 07:26:00+00:00")
+    hass.states.async_set(
+        "weather.forecast_home", "fog", {"temperature": 1.0, "humidity": 95}
+    )
+    html = _rendered(hass)
+    text = " ".join(re.sub(r"<(?!/?b>)[^>]+>", " ", html).split())
+    assert "Last run stopped 16.9 h ago (24.11. 15:30)" in text
+    assert "Ice possible below <b>3.5 °C</b> outside (now 1.1 °C: yes)" in text
+    assert "coil 3.5 K below the air (typical)" in text

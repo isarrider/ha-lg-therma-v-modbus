@@ -1,5 +1,6 @@
 # AutoTemp status on a dashboard: what AutoTemp is doing now and what it does
-# next. Paste it as a card: Edit dashboard → Add card → Manual. The values in
+# next; below it when the compressor and the last defrost ran and for how
+# long, and the outdoor temperature below which ice can form on the coil. Paste it as a card: Edit dashboard → Add card → Manual. The values in
 # the first two lines are AutoTemp's (emergency_gap, frost_coil, frost_gap,
 # frost_release_gap, the target curve) and the weather entity it reads; change
 # them here too if you change them there. The logbook card in
@@ -46,3 +47,18 @@ content: >-
   {%- else -%}
   {{ 'heating up' if inlet is number and inlet < sp - 1 else 'holding' }}<br>setpoint {{ '%g' | format(sp) }} °C (target {{ target }} °C), inlet {{ inlet }} °C · raises from {{ '%g' | format(sp + emergency_gap) }} °C
   {%- endif %}
+
+  {%- macro dur(m) -%}{%- if m is number -%}{{ (m | round(0) | int) ~ ' min' if m < 120 else '%.1f h' | format(m / 60) }}{%- else -%}–{%- endif -%}{%- endmacro -%}
+  {%- macro since(t) -%}{%- set lt = as_local(t) -%}{{ dur((now() - t).total_seconds() / 60) }} ago ({{ lt.strftime('%H:%M') if lt.date() == now().date() else lt.strftime('%d.%m. %H:%M') }}){%- endmacro -%}
+  {%- set cs = states.binary_sensor.lg_therma_v_r290_compressor -%}
+  {%- set ds = states.binary_sensor.lg_therma_v_r290_defrost -%}
+  {%- set run_m = state_attr('sensor.lg_therma_v_r290_compressor_starts', 'last_run_minutes') -%}
+  {%- set def_m = state_attr('sensor.lg_therma_v_r290_defrosts', 'last_defrost_minutes') -%}
+  <table width="100%">
+  <tr><td></td><td align="right"><b>When</b></td><td align="right"><b>Lasted</b></td></tr>
+  <tr><td>Last run</td><td align="right">{% if cs and cs.state == 'on' %}running since {{ as_local(cs.last_changed).strftime('%H:%M') }}{% elif cs %}stopped {{ since(cs.last_changed) }}{% else %}–{% endif %}</td><td align="right">{{ dur(run_m) }}</td></tr>
+  <tr><td>Last defrost</td><td align="right">{% if ds and ds.state == 'on' %}now{% elif def_m is not number %}none yet{% elif ds %}ended {{ since(ds.last_changed) }}{% else %}–{% endif %}</td><td align="right">{{ dur(def_m) }}</td></tr>
+  {%- set gap_now = (outdoor - coil) if is_state('binary_sensor.lg_therma_v_r290_compressor', 'on') and coil is number and outdoor is number and outdoor - coil > 0 else 3.5 -%}
+  {%- set ice_below = ([0, fp] | min) + gap_now -%}
+  </table>
+  Ice possible below <b>{{ '%.1f' | format(ice_below) }} °C</b> outside{% if outdoor is number %} (now {{ outdoor }} °C: {{ 'yes' if outdoor < ice_below else 'no' }}){% endif %} · {{ 'frost point %.1f °C' | format(fp) if fp < 99 else 'no humidity data' }}, coil {{ '%.1f' | format(gap_now) }} K below the air{{ '' if is_state('binary_sensor.lg_therma_v_r290_compressor', 'on') else ' (typical)' }}
