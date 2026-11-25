@@ -43,8 +43,8 @@ description: >
   outside it is always below 0 °C while heating. Thermo off
   guard: when the inlet is emergency_gap above the setpoint (the house takes
   less than the compressor's minimum), raise it by step up to ceiling; lower it
-  again, never below the target, once the inlet is down_gap below it for 5
-  minutes. Oil boost: after 55 minutes below low_rpm, set the setpoint to the
+  again step by step, never below the target, once the inlet keeps 1 K to the
+  next raise; the same follows a falling target. Oil boost: after 55 minutes below low_rpm, set the setpoint to the
   inlet temperature + boost_step (up to boost_ceiling) until the compressor has
   been at or above low_rpm for boost_hold_sec (at most boost_wait_min), then
   back to the setpoint from before the boost. Re-checks every 5 minutes. The
@@ -61,7 +61,7 @@ trigger_variables:
   # Thresholds (used by the triggers and the conditions)
   emergency_gap: 3   # raise when inlet >= setpoint + emergency_gap: close to
                      # thermo off (setpoint + 4 with a ±4 °C hysteresis)
-  down_gap: 1        # lower towards the target when inlet <= setpoint - down_gap for 5 minutes
+  down_gap: 1        # check the way down at once when inlet <= setpoint - down_gap for 5 minutes (else every 5 minutes)
   frost_coil: 0.5        # ice can only form while the coil is below this (°C)
   frost_gap: 5           # icing: outdoor - coil above this (K); normal 3-4 K
   frost_release_gap: 4   # back up once outdoor - coil is below this (K)
@@ -322,11 +322,14 @@ actions:
               entity_id: '{{ setpoint_entity }}'
               message: >-
                 back up to {{ back_up }} °C (target {{ target }} °C, coil {{ evap }} °C, {{ (outdoor - evap) | round(1) if outdoor is number and evap is number else '–' }} K below outdoor)
-      # 6. Down towards the target: inlet down_gap below for 5 minutes, after
-      #    the thermo off guard raised it, or the target fell (milder outside;
-      #    'periodic' catches that also while the water is still heating up,
-      #    when the inlet has been below the setpoint all along and the 'down'
-      #    trigger never fires)
+      # 6. Down towards the target, one step at a time, whenever the setpoint
+      #    is above it: after the thermo off guard raised it, or because the
+      #    target fell (milder outside), also while heating up or holding with
+      #    the inlet at the setpoint. Only when the lower setpoint keeps at
+      #    least 1 K to where the thermo off guard raises again (inlet below
+      #    lowered + emergency_gap - 1), so the two do not take turns: after a
+      #    raise the inlet is about 2 K above the setpoint, and it comes down
+      #    only once the inlet has followed.
       - conditions:
           - condition: state
             entity_id: select.lg_therma_v_r290_control_method
@@ -337,7 +340,9 @@ actions:
               - setpoint_5min
               - periodic
           - condition: template
-            value_template: '{{ inlet <= setpoint - down_gap and setpoint > target }}'
+            value_template: >-
+              {% set lowered = [ setpoint - step, target ] | max %}
+              {{ setpoint > target and inlet < lowered + emergency_gap - 1 }}
         sequence:
           - variables:
               lowered: '{{ [ setpoint - step, target ] | max | int }}'
@@ -351,7 +356,7 @@ actions:
               name: AutoTemp
               entity_id: '{{ setpoint_entity }}'
               message: >-
-                lowered to {{ lowered }} °C: inlet {{ inlet }} °C, {{ (setpoint - inlet) | round(1) }} K below for 5 min (target {{ target }} °C)
+                lowered to {{ lowered }} °C (target {{ target }} °C, inlet {{ inlet }} °C)
 mode: single
 max_exceeded: silent
 variables:
